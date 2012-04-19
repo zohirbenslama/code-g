@@ -1,0 +1,12 @@
+package %s;
+
+%s
+
+/**
+ * %s
+ */
+public %sclass %s%s%s{
+
+%s
+
+}
