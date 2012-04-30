@@ -1,6 +1,6 @@
 package org.abstractmeta.toolbox.codegen.plugin.util;
 
-import org.abstractmeta.code.g.common.util.LoaderUtil;
+import org.abstractmeta.code.g.core.util.LoaderUtil;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -23,8 +23,10 @@ public class PluginUtil {
         if (simpleClassName != null) {
             return loadJavaSingleSource(packageDirectory, packageName, simpleClassName);
         }
-        return loadJavaSources(packageName, packageDirectory, scanSubDirectories);
-
+        if (packageDirectory.exists() && packageDirectory.isDirectory()) {
+            return loadJavaSources(packageName, packageDirectory, scanSubDirectories);
+        }
+        throw new IllegalStateException("Unable read directory: " + packageDirectory + " [baseDir: "+ baseDir + ", source: " + source + "]");
     }
 
     protected static Map<String, String> loadJavaSingleSource(File packageDirectory, String packageName, String simpleClassName) {

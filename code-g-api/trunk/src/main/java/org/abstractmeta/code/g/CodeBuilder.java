@@ -2,9 +2,9 @@ package org.abstractmeta.code.g;
 
 
 import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.plugin.CodeGeneratorPluginLoader;
 
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -27,12 +27,6 @@ import java.util.Collection;
  */
 public interface CodeBuilder {
 
-    /**
-     * Returns plugin loader
-     *
-     * @return plugin loader
-     */
-    CodeGeneratorPluginLoader getPluginLoader();
 
     /**
      * Returns configuration descriptors
@@ -60,19 +54,20 @@ public interface CodeBuilder {
     /**
      * Builds code for the specified descriptors.
      *
-     * @param codeHandler code handler
-     * @return list of the source code files
-     */
-    void build(CodeStorageHandler codeHandler);
-
-    /**
-     * Builds code for the specified descriptors.
-     *
      * @param handler     code persistent handler
      * @param classLoader class loader
      * @return list of the source code files
      */
     void build(CodeStorageHandler handler, ClassLoader classLoader);
+
+
+    /**
+     * Builds code for the specified descriptors.
+     *
+     * @param handler     code persistent handler
+     * @return list of the source code files
+     */
+    void build(CodeStorageHandler handler);
 
 
 }

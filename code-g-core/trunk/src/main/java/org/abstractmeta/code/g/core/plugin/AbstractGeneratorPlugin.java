@@ -8,6 +8,7 @@ import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
 import com.google.common.base.Preconditions;
+import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 
 /**
  * Abstract generator plugin.
- * <p>Convenience class that provides default implementation for most common cases.</p>
+ * <p>Convenience class that provides default implementation for most core cases.</p>
  * <h3>Plugin configuration</h3>
  * The following naming convention is used to configure a plugin: <b>
  * PLUGIN_NAME.CONFIGURATION_OPTION_NAME</b>
@@ -40,13 +41,6 @@ import java.util.List;
  */
 public abstract class AbstractGeneratorPlugin {
 
-    public static final String TARGET_PACKAGE_KEY = "targetPackage";
-    public static final String SOURCE_KEY = "source";
-    public static final String TARGET_POSTFIX_KEY = "targetPostfix";
-    public static final String SUPPER_TYPE_KEY = "superType";
-    public static final String INTERFACES_KEY = "interfaces";
-
-
     private final List<FieldExtractor> fieldExtractors;
     private final List<MethodExtractor> methodExtractors;
 
@@ -59,48 +53,18 @@ public abstract class AbstractGeneratorPlugin {
         this.methodExtractors = methodExtractors;
     }
 
-    public String getRequiredOption(Descriptor descriptor, String name) {
-        return getOption(descriptor, name, true);
-    }
-
-    public String getOption(Descriptor descriptor, String name) {
-        return getOption(descriptor, name, false);
-    }
-
-    public String getOption(Descriptor descriptor, String name, boolean required) {
-        String actualOption = this.getClass().getSimpleName() + "." + name;
-        String result = descriptor.getOptions().get(actualOption);
-        if (result == null) {
-            if (TARGET_PACKAGE_KEY.equals(name)) {
-                result = descriptor.getTargetPackage();
-            } else if (TARGET_POSTFIX_KEY.equals(name)) {
-                result = descriptor.getTargetPostfix();
-            } else if (SOURCE_KEY.equals(name)) {
-                result = descriptor.getSource();
-            } else if (SUPPER_TYPE_KEY.equals(name)) {
-                result = descriptor.getSuperType();
-            } else if (INTERFACES_KEY.equals(name)) {
-                result = descriptor.getInterfaces();
-            }
-        }
-        if (!required && result == null) {
-            return null;
-        }
-        Preconditions.checkNotNull(result, actualOption + " configuration option was null");
-        result = result.replace("\n", "").trim();
-        return result;
-    }
 
     public List<String> generate(List<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
         List<String> generatedTypeNames = new ArrayList<String>();
-        String targetPackage = getRequiredOption(descriptor, TARGET_PACKAGE_KEY);
-        String targetPostfix = getRequiredOption(descriptor, TARGET_POSTFIX_KEY);
         for (String sourceTypeName : sourceTypeNames) {
             JavaType sourceType = registry.get(sourceTypeName);
-            if (!isApplicable(sourceType)) {
+            if (! isApplicable(sourceType)) {
                 continue;
             }
-            String targetTypeName = getTargetTypeName(sourceType, targetPackage, targetPostfix);
+            String targetTypeName = getTargetTypeName(sourceType, descriptor);
+            if(registry.isRegistered(targetTypeName)) {
+                continue;
+            }
             JavaTypeBuilder typeBuilder = generateType(sourceType, targetTypeName, descriptor);
             if (typeBuilder == null) {
                 continue;
@@ -116,7 +80,7 @@ public abstract class AbstractGeneratorPlugin {
 
 
     protected void buildSuperType(Descriptor descriptor, JavaTypeBuilder typeBuilder) {
-        String superTypeName = getOption(descriptor, SUPPER_TYPE_KEY);
+        String superTypeName = descriptor.getSuperType();
         if (superTypeName == null) return;
         Type superType = new TypeNameWrapper(superTypeName);
         typeBuilder.addImportType(superType);
@@ -124,7 +88,7 @@ public abstract class AbstractGeneratorPlugin {
     }
 
     protected void buildInterfaces(Descriptor descriptor, JavaTypeBuilder typeBuilder) {
-        String interfaces = getOption(descriptor, INTERFACES_KEY);
+        String interfaces = descriptor.getInterfaces();
         if (interfaces == null || interfaces.isEmpty()) return;
         String[] interfaceArray = interfaces.split(",");
         for (String interfaceType : interfaceArray) {
@@ -134,13 +98,17 @@ public abstract class AbstractGeneratorPlugin {
         }
     }
 
-    protected String getTargetTypeName(JavaType sourceType, String targetPackage, String targetPostfix) {
-        return getTargetTypeName(sourceType.getSimpleName(), targetPackage, targetPostfix);
+    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor) {
+        return getTargetTypeName(sourceType.getSimpleName(), descriptor);
     }
 
-    protected String getTargetTypeName(String name, String targetPackage, String targetPostfix) {
-        targetPackage = targetPackage.replace(".*", "");
-        return targetPackage + "." + name + targetPostfix;
+    protected String getTargetTypeName(String name, Descriptor descriptor) {
+        String targetPackage = descriptor.getTargetPackage().replace(".*", "");
+        String targetPrefix = descriptor.getTargetPrefix();
+        if (targetPrefix == null) targetPrefix = "";
+        String targetPostfix = descriptor.getTargetPostfix();
+        if (targetPostfix == null) targetPostfix = "";
+        return targetPackage + "." + targetPrefix + name + targetPostfix;
     }
 
 

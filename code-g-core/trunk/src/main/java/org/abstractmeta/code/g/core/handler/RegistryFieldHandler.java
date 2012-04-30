@@ -86,7 +86,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
                 buildRegisterMethod(methodBuilder, groupMatch, javaMethod, javaField);
 
             } else if (methodName.startsWith("unregister")) {
-                buildUnregisteredMethod(methodBuilder, javaMethod, javaField);
+                buildUnregisteredMethod(methodBuilder, groupMatch, javaMethod, javaField);
 
             } else if (methodName.startsWith("get")) {
                 buildGetMethod(methodBuilder, javaMethod, javaField);
@@ -135,9 +135,13 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("return %s.containsKey(%s);", javaField.getName(), parameterName));
     }
 
-    protected void buildUnregisteredMethod(JavaMethodBuilder methodBuilder, JavaMethod unregisteredMethod, JavaField javaField) {
+    protected void buildUnregisteredMethod(JavaMethodBuilder methodBuilder, MethodGroupMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField) {
         String parameterName = unregisteredMethod.getParameterNames().get(0);
-        methodBuilder.addBody(String.format("%s.remove(%s);", javaField.getName(), parameterName));
+        MethodMatch getMethodMatch = groupMatch.getMatch("get", Object.class);
+        Type registryIndexType = getMethodMatch.getMethod().getParameterTypes().get(0);
+        Type registryValueType = unregisteredMethod.getParameterTypes().get(0);
+        JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryIndexType);
+        methodBuilder.addBody(String.format("%s.remove(%s.%s());", javaField.getName(), parameterName, accessor.getName()));
     }
 
 }

@@ -7,6 +7,7 @@ import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.pattern.MethodGroupPatterns;
 import org.abstractmeta.code.g.core.pattern.MethodMatcherImpl;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.pattern.MethodGroupMatch;
 import org.abstractmeta.code.g.pattern.MethodMatch;
@@ -67,7 +68,9 @@ public class RegistryFieldExtractor implements FieldExtractor {
             String name = match.getName();
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.addModifier("private").setImmutable(true);
-            fieldBuilder.setType(new ParameterizedTypeImpl(null, Map.class, keyType, valueType));
+
+
+            fieldBuilder.setType(new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType)));
             if (name.isEmpty()) {
                 fieldBuilder.setName("registry");
             } else {

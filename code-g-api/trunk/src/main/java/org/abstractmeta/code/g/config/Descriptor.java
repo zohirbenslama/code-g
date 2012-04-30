@@ -12,22 +12,38 @@ import java.util.Set;
 */
 public interface Descriptor {
 
+
     /**
-     * Generation source. It could be one of the followings:
+     * A source package used to generate a code.
      * <ul>
      *     <li>Package name - in this case only classes matched to this package are used as source.t</li>
      *     <li>Package name with wildcard '*', all classes matched this or sub packages are used as source </li>
-     *     <li>Class name</li>
      * </ul>
-     * @return source
+     * @return source package
      */
-    String getSource();
+    String getSourcePackage();
+
+
+    /**
+     * A source class used to generate a code.
+     *
+     * @return source class
+     */
+    String getSourceClass();
+
 
     /**
      * Named of target package used to generated code.
      * @return target package
      */
     String getTargetPackage();
+
+
+    /**
+     * Target class prefix.
+     * @return generated class prefix
+     */
+    String getTargetPrefix();
 
     /**
      * Target class postfix.
@@ -67,13 +83,14 @@ public interface Descriptor {
     /**
      * Plugins class names.
      * <p> Both full and simple class names are supported.
-     * For the latter CodeGeneratorPluginLoader#addPluginPackageName should be used
+     * For the latter PluginLoader#addPluginPackageName should be used
      * to specify all package to be used to resolve simple class name.
      * </p>
      *
-     * @return pluging class names.
+     * @return plugin class name.
      */
-    List<String> getPlugins();
+    String getPlugin();
+
 
     /**
      * Current project packages used to compile auto generator sources.
@@ -97,7 +114,7 @@ public interface Descriptor {
      * For instance if you want use immutable List.class, this
      * mappings should have the following entry:
      * <br />
-     * java.util.List => com.google.common.collect.ImmutableList.copyOf
+     * java.util.List => com.google.core.collect.ImmutableList.copyOf
      *
      * @return
      */

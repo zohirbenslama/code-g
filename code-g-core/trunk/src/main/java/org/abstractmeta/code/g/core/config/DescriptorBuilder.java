@@ -1,6 +1,11 @@
 package org.abstractmeta.code.g.core.config;
 
+import com.google.common.collect.ImmutableMap;
+import com.sun.org.apache.bcel.internal.generic.ClassGen;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.core.plugin.BuilderGenerator;
+import org.abstractmeta.code.g.core.plugin.ClassGenerator;
+import org.abstractmeta.code.g.core.util.LoaderUtil;
 
 import java.util.*;
 
@@ -11,26 +16,51 @@ import java.util.*;
  */
 public class DescriptorBuilder {
 
-    private String source;
+    public static final String TARGET_PACKAGE = "targetPackage";
+    public static final String TARGET_POSTFIX = "targetPostfix";
+
+
+    public final static Map<String, Map<String, String>> PLUGIN_DEFAULTS = ImmutableMap.<String, Map<String, String>>of(
+            ClassGenerator.class.getName(), ImmutableMap.of(
+            TARGET_PACKAGE, "impl",
+            TARGET_POSTFIX, "Impl"),
+            BuilderGenerator.class.getName(), ImmutableMap.of(
+            TARGET_PACKAGE, "builder",
+            TARGET_POSTFIX, "Builder")
+    );
+
+    private String sourcePackage;
+    private String sourceClass;
     private String targetPackage;
+    private String targetPrefix;
     private String targetPostfix;
     private String superType;
     private String interfaces;
     private Set<String> exclusions = new HashSet<String>();
     private Set<String> inclusion = new HashSet<String>();
 
-    private List<String> plugins = new ArrayList<String>();
+    private String plugin;
+
     private List<String> compilationSources = new ArrayList<String>();
     private Map<String, String> options = new HashMap<String, String>();
     private Map<String, String> immutableImplementation = new HashMap<String, String>();
 
 
-    public String getSource() {
-        return source;
+    public String getSourcePackage() {
+        return sourcePackage;
     }
 
-    public DescriptorBuilder setSource(String source) {
-        this.source = source;
+    public DescriptorBuilder setSourcePackage(String sourcePackage) {
+        this.sourcePackage = sourcePackage;
+        return this;
+    }
+
+    public String getSourceClass() {
+        return sourceClass;
+    }
+
+    public DescriptorBuilder setSourceClass(String sourceClass) {
+        this.sourceClass = sourceClass;
         return this;
     }
 
@@ -63,7 +93,6 @@ public class DescriptorBuilder {
         return this;
     }
 
-    
 
     public String getSuperType() {
         return superType;
@@ -83,24 +112,18 @@ public class DescriptorBuilder {
         this.interfaces = interfaces;
         return this;
     }
-    
+
     public DescriptorBuilder addImmutableImplementation(String source, String target) {
         immutableImplementation.put(source, target);
         return this;
     }
 
-    public List<String> getPlugins() {
-        return plugins;
+    public String getPlugin() {
+        return plugin;
     }
 
-    public DescriptorBuilder setPlugins(List<String> plugins) {
-        this.plugins = plugins;
-        return this;
-    }
-
-
-    public DescriptorBuilder addPlugins(String... plugins) {
-        Collections.addAll(this.plugins, plugins);
+    public DescriptorBuilder setPlugin(String plugin) {
+        this.plugin = plugin;
         return this;
     }
 
@@ -141,6 +164,15 @@ public class DescriptorBuilder {
         return this;
     }
 
+    public String getTargetPrefix() {
+        return targetPrefix;
+    }
+
+    public DescriptorBuilder setTargetPrefix(String targetPrefix) {
+        this.targetPrefix = targetPrefix;
+        return this;
+    }
+
     public String getTargetPostfix() {
         return targetPostfix;
     }
@@ -151,11 +183,18 @@ public class DescriptorBuilder {
     }
 
     public DescriptorBuilder merge(Descriptor descriptor) {
-        if (descriptor.getSource() != null) {
-            this.source = descriptor.getSource();
+        if (descriptor.getSourcePackage() != null) {
+            this.sourcePackage = descriptor.getSourcePackage();
         }
+        if (descriptor.getSourceClass() != null) {
+            this.sourceClass = descriptor.getSourceClass();
+        }
+
         if (descriptor.getTargetPackage() != null) {
             this.targetPackage = descriptor.getTargetPackage();
+        }
+        if (descriptor.getTargetPrefix() != null) {
+            this.targetPrefix = descriptor.getTargetPrefix();
         }
         if (descriptor.getTargetPostfix() != null) {
             this.targetPostfix = descriptor.getTargetPostfix();
@@ -172,8 +211,8 @@ public class DescriptorBuilder {
         if (descriptor.getInclusions() != null) {
             this.inclusion.addAll(descriptor.getInclusions());
         }
-        if (descriptor.getPlugins() != null) {
-            this.plugins.addAll(descriptor.getPlugins());
+        if (descriptor.getPlugin() != null) {
+            this.plugin = descriptor.getPlugin();
         }
         if (descriptor.getCompilationSources() != null) {
             this.compilationSources.addAll(descriptor.getCompilationSources());
@@ -188,8 +227,31 @@ public class DescriptorBuilder {
     }
 
 
+    public Map<String, String> getPluginDefault(String pluginName) {
+        Map<String, String> result = PLUGIN_DEFAULTS.get(pluginName);
+        if (result == null) return Collections.emptyMap();
+        return result;
+    }
+
     public Descriptor build() {
-        return new DescriptorImpl(source, targetPackage, targetPostfix, superType, interfaces, exclusions, inclusion, plugins, compilationSources, options, immutableImplementation);
+        if(plugin == null) {
+            throw new IllegalStateException("plugin was null");
+        }
+        Map<String, String> defaults = getPluginDefault(plugin);
+        if (sourceClass != null) {
+            sourcePackage = LoaderUtil.extractPackageName(sourceClass);
+        }
+        if (targetPackage == null) {
+            if (defaults.containsKey(TARGET_PACKAGE)) {
+                targetPackage = sourcePackage + "." + defaults.get(TARGET_PACKAGE);
+            } else {
+                targetPackage = sourcePackage;
+            }
+        }
+        if (targetPostfix == null && defaults.containsKey(TARGET_POSTFIX)) {
+            targetPostfix = defaults.get(TARGET_POSTFIX);
+        }
+        return new DescriptorImpl(sourcePackage, sourceClass, targetPackage, targetPrefix, targetPostfix, superType, interfaces, exclusions, inclusion, plugin, compilationSources, options, immutableImplementation);
     }
 
 }

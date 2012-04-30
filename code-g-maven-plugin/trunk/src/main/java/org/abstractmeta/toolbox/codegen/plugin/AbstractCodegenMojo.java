@@ -79,6 +79,7 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
             getLog().debug("generation class path " + classPathEntries);
             CodeGenerator codeGenerator = new CodeGenerator();
             Collection<File> generatedSources = codeGenerator.generate(descriptors, classPathEntries, targetSourceDirectory, basedir, pluginPackages);
+            getLog().debug("generated " + generatedSources.size() + " files ");
             for (File sourceFile : generatedSources) {
                 getLog().debug("generated " + sourceFile.getAbsolutePath());
             }

@@ -3,6 +3,7 @@ package org.abstractmeta.code.g.code;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,6 +16,8 @@ public interface JavaType  {
     String getName();
     
     String getSimpleName();
+
+    Map<String, Type> getGenericTypeVariables();
     
     List<Type> getGenericTypeArguments();
 

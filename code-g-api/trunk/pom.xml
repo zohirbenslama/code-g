@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-api</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>code-g-api</name>
     <url>http://maven.apache.org</url>

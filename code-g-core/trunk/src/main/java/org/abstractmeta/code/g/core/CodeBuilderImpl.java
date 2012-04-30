@@ -8,15 +8,11 @@ import org.abstractmeta.code.g.code.JavaTypeImporter;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
-import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
-import org.abstractmeta.code.g.core.plugin.AbstractGeneratorPlugin;
-import org.abstractmeta.code.g.core.plugin.CodeGeneratorPluginLoaderImpl;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.core.renderer.TypeRenderer;
 import org.abstractmeta.code.g.core.util.LoaderUtil;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
-import org.abstractmeta.code.g.plugin.CodeGeneratorPluginLoader;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
 import java.util.*;
@@ -25,78 +21,97 @@ import java.util.*;
 public class CodeBuilderImpl implements CodeBuilder {
 
     private final Collection<Descriptor> descriptors;
-    private final CodeGeneratorPluginLoader pluginLoader;
-
 
     public CodeBuilderImpl() {
-        this(new ArrayList<Descriptor>(), new CodeGeneratorPluginLoaderImpl());
+        this(new ArrayList<Descriptor>());
     }
 
-    protected CodeBuilderImpl(Collection<Descriptor> descriptors, CodeGeneratorPluginLoader pluginLoader) {
+    protected CodeBuilderImpl(Collection<Descriptor> descriptors) {
         this.descriptors = descriptors;
-        this.pluginLoader = pluginLoader;
-        this.pluginLoader.addPluginPackageName(ClassGeneratorPlugin.class.getPackage().getName());
     }
 
-    @Override
-    public CodeGeneratorPluginLoader getPluginLoader() {
-        return pluginLoader;
-    }
 
-    @Override
     public Collection<Descriptor> getDescriptors() {
         return descriptors;
     }
 
-    @Override
+
     public CodeBuilder addDescriptors(Collection<Descriptor> descriptors) {
         this.descriptors.addAll(descriptors);
         return this;
     }
 
-    @Override
+
     public CodeBuilder addDescriptor(Descriptor implementationDescriptor) {
         descriptors.add(implementationDescriptor);
         return this;
     }
 
-    @Override
+
     public void build(CodeStorageHandler codeHandler) {
-        build(codeHandler, null);
+        build(codeHandler, getClass().getClassLoader());
     }
 
-    @Override
     public void build(CodeStorageHandler codeHandler, ClassLoader classLoader) {
+        if (descriptors.size() == 0) {
+            throw new IllegalStateException("No descriptor found");
+        }
         JavaTypeRegistry javaTypeRegistry = new JavaTypeRegistryImpl();
-        Map<String, CodeGeneratorPlugin> plugins = pluginLoader.loadPlugins(descriptors, classLoader);
         loadClasses(javaTypeRegistry, classLoader);
+        List<String> generatedTypes = new ArrayList<String>();
         for (Descriptor descriptor : descriptors) {
-            build(codeHandler, descriptor, javaTypeRegistry, plugins);
+            build(generatedTypes, codeHandler, descriptor, javaTypeRegistry);
         }
     }
 
+
     protected void loadClasses(JavaTypeRegistry registry, ClassLoader classLoader) {
         for (Descriptor descriptor : descriptors) {
-            List<Class> classes = LoaderUtil.getClasses(descriptor.getSource(), classLoader);
+            List<Class> classes = LoaderUtil.getClasses(descriptor.getSourcePackage(), classLoader);
+            if (classes == null || classes.size() == 0) {
+                throw new IllegalStateException("Failed to load classes for " + descriptor.getSourcePackage());
+            }
             for (Class clazz : classes) {
                 registry.register(new ClassTypeProvider(clazz).get());
             }
         }
     }
 
-    protected void build(CodeStorageHandler codeHandler, Descriptor descriptor, JavaTypeRegistry registry, Map<String, CodeGeneratorPlugin> plugins) {
-        List<String> generatedTypes = new ArrayList<String>();
-        for (String pluginName : descriptor.getPlugins()) {
-            CodeGeneratorPlugin plugin = plugins.get(pluginName);
-            String source = plugin.getRequiredOption(descriptor, AbstractGeneratorPlugin.SOURCE_KEY);
-            List<String> matchedSourceTypes = matchTypeNames(registry, source, descriptor.getExclusions(), descriptor.getInclusions());
-            List<String> pluginResult = plugin.generate(matchedSourceTypes, registry, descriptor);
-            if (pluginResult != null && pluginResult.size() > 0) {
-                generatedTypes.addAll(pluginResult);
-            }
+    public void build(List<String> generatedTypes, CodeStorageHandler codeHandler, Descriptor descriptor, JavaTypeRegistry registry) {
+        CodeGeneratorPlugin plugin = loadPlugin(descriptor.getPlugin());
+        Set<String> inclusions = getInclusions(descriptor, generatedTypes);
+        List<String> matchedSourceTypes = matchTypeNames(registry, descriptor.getSourcePackage(), descriptor.getExclusions(), inclusions);
+        List<String> pluginResult = plugin.generate(matchedSourceTypes, registry, descriptor);
+        if (pluginResult != null && pluginResult.size() > 0) {
+            generatedTypes.addAll(pluginResult);
         }
         renderCode(codeHandler, generatedTypes, registry);
     }
+
+    protected Set<String> getInclusions(Descriptor descriptor, List<String> generatedTypes) {
+        Set<String> result = new HashSet<String>();
+        if (descriptor.getInclusions() != null) {
+            result.addAll(descriptor.getInclusions());
+        }
+        String sourceClass = descriptor.getSourceClass();
+        if (sourceClass != null && !sourceClass.isEmpty()) {
+            String simpleClassName = LoaderUtil.extractSimpleClassName(sourceClass);
+            result.add(simpleClassName);
+        }
+        if (result.size() > 0) {
+            result.addAll(generatedTypes);
+        }
+        return result;
+    }
+
+    protected CodeGeneratorPlugin loadPlugin(String pluginName) {
+        try {
+            return CodeGeneratorPlugin.class.cast(Class.forName(pluginName).newInstance());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load plugin " + pluginName, e);
+        }
+    }
+
 
     protected void renderCode(CodeStorageHandler codeHandler, List<String> generatedTypes, JavaTypeRegistry registry) {
         for (String generatedType : generatedTypes) {

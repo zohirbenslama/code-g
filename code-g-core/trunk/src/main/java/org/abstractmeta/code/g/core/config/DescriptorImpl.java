@@ -3,7 +3,6 @@ package org.abstractmeta.code.g.core.config;
 
 import org.abstractmeta.code.g.config.Descriptor;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +15,10 @@ import java.util.Set;
 
 public class DescriptorImpl implements Descriptor {
 
-    private String source;
+    private String sourcePackage;
+    private String sourceClass;
     private String targetPackage;
+    private String targetPrefix;
     private String targetPostfix;
     private String superType;
     private String interfaces;
@@ -25,29 +26,31 @@ public class DescriptorImpl implements Descriptor {
     private Set<String> inclusions;
     private Map<String, String> immutableImplementation;
 
-    private  List<String> plugins;
-    private  List<String> compilationSources;
+    private String plugin;
+    private List<String> compilationSources;
     private Map<String, String> options;
 
     public DescriptorImpl() {
     }
 
-    public DescriptorImpl(String source, String targetPackage, String targetPostfix, String superType, String interfaces, Set<String> exclusions, Set<String> inclusions, List<String> plugins, List<String> compilationSources, Map<String, String> options, Map<String, String> immutableImplementation) {
-        this.source = source;
+    public DescriptorImpl(String sourcePackage, String sourceClass, String targetPackage, String targetPrefix, String targetPostfix, String superType, String interfaces, Set<String> exclusions, Set<String> inclusions, String plugin, List<String> compilationSources, Map<String, String> options, Map<String, String> immutableImplementation) {
+        this.sourcePackage = sourcePackage;
+        this.sourceClass = sourceClass;
         this.targetPackage = targetPackage;
+        this.targetPrefix = targetPrefix;
         this.targetPostfix = targetPostfix;
         this.superType = superType;
         this.interfaces = interfaces;
         this.exclusions = exclusions;
         this.inclusions = inclusions;
-        this.plugins = plugins;
+        this.plugin = plugin;
         this.compilationSources = compilationSources;
         this.options = options;
         this.immutableImplementation = immutableImplementation;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setSourceClass(String sourceClass) {
+        this.sourceClass = sourceClass;
     }
 
     public void setTargetPackage(String targetPackage) {
@@ -62,8 +65,8 @@ public class DescriptorImpl implements Descriptor {
         this.exclusions = exclusions;
     }
 
-    public void setPlugins(List<String> plugins) {
-        this.plugins = plugins;
+    public void setPlugin(String plugin) {
+        this.plugin = plugin;
     }
 
     public void setCompilationSources(List<String> compilationSources) {
@@ -94,12 +97,20 @@ public class DescriptorImpl implements Descriptor {
         this.immutableImplementation = immutableImplementation;
     }
 
-    public String getSource() {
-        return source;
+    public String getSourcePackage() {
+        return sourcePackage;
+    }
+
+    public String getSourceClass() {
+        return sourceClass;
     }
 
     public String getTargetPackage() {
         return targetPackage;
+    }
+
+    public String getTargetPrefix() {
+        return targetPrefix;
     }
 
     public String getTargetPostfix() {
@@ -107,7 +118,7 @@ public class DescriptorImpl implements Descriptor {
     }
 
 
-    @Override
+    
     public String getSuperType() {
         return superType;
     }
@@ -116,13 +127,12 @@ public class DescriptorImpl implements Descriptor {
         return exclusions;
     }
 
-    @Override
     public Set<String> getInclusions() {
         return inclusions;
     }
 
-    public List<String> getPlugins() {
-        return plugins;
+    public String getPlugin() {
+        return plugin;
     }
 
     public List<String> getCompilationSources() {
@@ -133,25 +143,26 @@ public class DescriptorImpl implements Descriptor {
         return options;
     }
 
-    @Override
     public Map<String, String> getImmutableImplementation() {
         return immutableImplementation;
     }
 
     @Override
     public String toString() {
-        return "DescriptorImpl{" +
-                "source='" + source + '\'' +
-                ", targetPackage='" + targetPackage + '\'' +
-                ", targetPostfix='" + targetPostfix + '\'' +
-                ", superType='" + superType + '\'' +
-                ", interfaces='" + interfaces + '\'' +
-                ", exclusions=" + exclusions +
-                ", inclusions=" + inclusions +
-                ", immutableImplementation=" + immutableImplementation +
-                ", plugins=" + plugins +
-                ", compilationSources=" + compilationSources +
-                ", options=" + options +
-                '}';
+        return
+                "DescriptorImpl{" +
+                        "sourcePackage='" + sourcePackage + '\'' +
+                        ", sourceClass='" + sourceClass + '\'' +
+                        ", targetPackage='" + targetPackage + '\'' +
+                        ", targetPostfix='" + targetPostfix + '\'' +
+                        ", superType='" + superType + '\'' +
+                        ", interfaces='" + interfaces + '\'' +
+                        ", exclusions=" + exclusions +
+                        ", inclusions=" + inclusions +
+                        ", immutableImplementation=" + immutableImplementation +
+                        ", plugin=" + plugin +
+                        ", compilationSources=" + compilationSources +
+                        ", options=" + options +
+                        '}';
     }
 }

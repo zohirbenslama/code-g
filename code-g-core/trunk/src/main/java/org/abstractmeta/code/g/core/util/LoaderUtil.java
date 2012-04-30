@@ -89,7 +89,11 @@ public class LoaderUtil {
                             classes.addAll(findClasses(resourceFile, resources, classLoader, scanSubPackage));
                         } else if (resourceFile.getName().endsWith(".class")) {
                             String packageName = extractPackageName(resources);
-                            classes.add(loadClass(packageName, resourceFile, classLoader));
+                            Class clazz = loadClass(packageName, resourceFile, classLoader);
+                            if(clazz ==  null) {
+                                throw new IllegalStateException("Class eas null for " + packageName + "  " + resourceFile);
+                            }
+                            classes.add(clazz);
                         }
                     }
                 } else if ("jar".equals(resource.getProtocol())) {
@@ -142,8 +146,10 @@ public class LoaderUtil {
                 if (file.isDirectory() && scanSubPackage) {
                     String subPackageName = String.format("%s.%s", packageName, file.getName());
                     classes.addAll(findClasses(file, subPackageName, classLoader, scanSubPackage));
-                } else {
-                    classes.add(loadClass(packageName, file, classLoader));
+                } else if(! file.isDirectory()) {
+                    Class clazz = loadClass(packageName, file, classLoader);
+                    classes.add(clazz);
+
                 }
             }
         } catch (Exception e) {

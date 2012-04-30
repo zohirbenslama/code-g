@@ -30,7 +30,6 @@ public class PersistenceStorageHandler implements CodeStorageHandler {
         this.generatedFiles = generatedFiles;
     }
 
-    @Override
     public void handle(JavaType javaType, CharSequence sourceCode) {
         String classFileName = javaType.getPackageName().replace('.', '/') + "/" + javaType.getSimpleName() + ".java";
         File classFile = new File(sourceRoot, classFileName);

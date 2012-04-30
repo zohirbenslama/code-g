@@ -1,10 +1,10 @@
 package org.abstractmeta.toolbox.codegen.plugin;
 
 
-import org.abstractmeta.code.g.common.config.DescriptorImpl;
-import org.abstractmeta.code.g.common.plugin.BuilderGeneratorPlugin;
-import org.abstractmeta.code.g.common.plugin.ClassGeneratorPlugin;
-import org.abstractmeta.code.g.common.util.LoaderUtil;
+import org.abstractmeta.code.g.core.config.DescriptorImpl;
+import org.abstractmeta.code.g.core.plugin.BuilderGenerator;
+import org.abstractmeta.code.g.core.plugin.ClassGenerator;
+import org.abstractmeta.code.g.core.util.LoaderUtil;
 
 import java.util.*;
 
@@ -16,11 +16,14 @@ import java.util.*;
 
 public class Descriptor extends DescriptorImpl {
 
+
     public static final String DEFAULT_TARGET_PACKAGE = "impl";
+    public static final String DEFAULT_BUILDER_TARGET_PACKAGE = "builder";
 
     public static final String DEFAULT_TARGET_POSTFIX = "Impl";
+    public static final String DEFAULT_BUILDER_TARGET_POSTFIX = "Builder";
 
-    public static final  List<String> DEFAULT_PLUGINS =  Arrays.asList(ClassGeneratorPlugin.class.getName(), BuilderGeneratorPlugin.class.getName());
+    public static final  List<String> DEFAULT_PLUGINS =  Arrays.asList(ClassGenerator.class.getSimpleName(), BuilderGenerator.class.getSimpleName());
 
 
 
@@ -36,16 +39,20 @@ public class Descriptor extends DescriptorImpl {
     }
 
     public Map<String, String> getDefaultOptions() {
-        if(! (getPlugins().contains(ClassGeneratorPlugin.class.getSimpleName())
-                && getPlugins().contains(BuilderGeneratorPlugin.class.getSimpleName()))) {
+        if(! (getPlugins().contains(ClassGenerator.class.getSimpleName())
+                && getPlugins().contains(BuilderGenerator.class.getSimpleName()))) {
             return Collections.emptyMap();
         }
         Map<String, String> defaultOptions = new HashMap<String, String>();
-        String sourcePackageName = LoaderUtil.extractPackageName(getSource());
-        defaultOptions.put(BuilderGeneratorPlugin.class.getSimpleName() + ".source", getTargetPackage());
-        defaultOptions.put(BuilderGeneratorPlugin.class.getSimpleName() + ".targetPackage", sourcePackageName + ".builder");
-        defaultOptions.put(BuilderGeneratorPlugin.class.getSimpleName() + ".targetPostfix", "Builder");
+        String sourcePackageName = LoaderUtil.extractPackageName(getSourceClass());
+        defaultOptions.put(BuilderGenerator.class.getSimpleName() + ".source", getTargetPackage());
+        defaultOptions.put(BuilderGenerator.class.getSimpleName() + ".targetPackage", sourcePackageName + "." + DEFAULT_BUILDER_TARGET_PACKAGE);
+        defaultOptions.put(BuilderGenerator.class.getSimpleName() + ".targetPostfix", DEFAULT_BUILDER_TARGET_POSTFIX);
         return defaultOptions;
+    }
+
+    protected String getOptionName(Class clazz, String optionName) {
+       return clazz.getSimpleName() + "." + optionName;
     }
 
         @Override
@@ -68,21 +75,28 @@ public class Descriptor extends DescriptorImpl {
         return getDefaultPlugins();
     }
 
-    
+
     protected List<String> getDefaultPlugins() {
         return DEFAULT_PLUGINS;
     }
-    
+
     @Override
     public String getTargetPackage() {
         String result = super.getTargetPackage();
         if (result != null) {
             return result;
         }
-        String sourcePackage = LoaderUtil.extractPackageName(getSource());
+        String sourcePackage = LoaderUtil.extractPackageName(getSourceClass());
+        if(isBuilderPlugin()) {
+            return String.format("%s.%s", sourcePackage, "builder");
+        }
         return String.format("%s.%s", sourcePackage, DEFAULT_TARGET_PACKAGE);
     }
 
+
+    protected boolean isBuilderPlugin() {
+          return getPlugins().size() == 1 && BuilderGenerator.class.getSimpleName().contains(getPlugins().get(0));
+    }
 
 
 }

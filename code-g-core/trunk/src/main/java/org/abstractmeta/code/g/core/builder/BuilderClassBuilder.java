@@ -23,15 +23,15 @@ public class BuilderClassBuilder extends JavaTypeBuilder {
         super();
         this.buildType = builtType;
         this.immutableImplementation = new HashMap<String, String>();
-        addFieldListener(new BuilderSetterFieldHandler(this));
-        addFieldListener(new BuilderCollectionFieldHandler(this));
-        addFieldListener(new BuilderMapFieldHandler(this));
-        addFieldListener(new BuilderArrayFieldHandler(this));
-        addFieldListener(new GetterFieldHandler(this));
-        addFieldListener(new HasFieldHandler(this));
+        addFieldHandler(new BuilderSetterFieldHandler(this));
+        addFieldHandler(new BuilderCollectionFieldHandler(this));
+        addFieldHandler(new BuilderMapFieldHandler(this));
+        addFieldHandler(new BuilderArrayFieldHandler(this));
+        addFieldHandler(new GetterFieldHandler(this));
+        addFieldHandler(new HasFieldHandler(this));
 
-        addTypeListener(new BuilderTypeHandler(this, immutableImplementation));
-        addTypeListener(new BuilderMergeHandler(this));
+        addTypeHandler(new BuilderTypeHandler(this, immutableImplementation));
+        addTypeHandler(new BuilderMergeHandler(this));
     }
 
     public JavaType getBuildType() {

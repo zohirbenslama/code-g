@@ -139,7 +139,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
 
     protected void addTypeName(String name) {
-        if (name.equals("org.abstractmeta.code.g.common.generator.BuilderClassGeneratorTest.Foo")) {
+        if (name.equals("org.abstractmeta.code.g.core.generator.BuilderClassGeneratorTest.Foo")) {
             throw new IllegalStateException("!!!");
         }
         typeNames.add(name);

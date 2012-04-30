@@ -52,7 +52,10 @@ public class JavaTypeImpl implements JavaType {
     
     private final List<Type> genericTypeArguments;
 
-    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull String kind, List<String> body, Type superType, List<JavaType> classTypes, List<String> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments) {
+    private final Map<String, Type> genericTypeVariables;
+
+    
+    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull String kind, List<String> body, Type superType, List<JavaType> classTypes, List<String> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments, Map<String, Type> genericTypeVariables) {
         this.fields = fields;
         this.methods = methods;
         this.constructors = constructors;
@@ -65,6 +68,7 @@ public class JavaTypeImpl implements JavaType {
         this.classTypes = classTypes;
         this.modifiers = modifiers;
         this.genericTypeArguments = genericTypeArguments;
+        this.genericTypeVariables = genericTypeVariables;
         this.name = Preconditions.checkNotNull(name, "name was null");;
         this.annotations = annotations;
         this.documentation = documentation;
@@ -127,6 +131,11 @@ public class JavaTypeImpl implements JavaType {
     @Override
     public String getSimpleName() {
         return simpleName;
+    }
+
+    @Override
+    public Map<String, Type> getGenericTypeVariables() {
+        return genericTypeVariables;
     }
 
     @Override

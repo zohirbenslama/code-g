@@ -25,11 +25,11 @@ public class JavaTypeBuilder {
 
     private JavaType sourceType;
 
-    private List<JavaFieldHandler> fieldListeners = new ArrayList<JavaFieldHandler>();
+    private List<JavaFieldHandler> fieldHandlers = new ArrayList<JavaFieldHandler>();
 
-    private List<JavaTypeHandler> typeListeners = new ArrayList<JavaTypeHandler>();
+    private List<JavaTypeHandler> typeHandlers = new ArrayList<JavaTypeHandler>();
 
-    private final List<JavaMethodHandler> methodListeners = new ArrayList<JavaMethodHandler>();
+    private final List<JavaMethodHandler> methodHandlers = new ArrayList<JavaMethodHandler>();
 
     private List<JavaField> fields = new ArrayList<JavaField>();
 
@@ -38,6 +38,8 @@ public class JavaTypeBuilder {
     private List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 
     private List<Type> genericTypeArguments = new ArrayList<Type>();
+    
+    private Map<String, Type> genericTypeVariables = new HashMap<String, Type>();
 
     private Set<Type> importTypes = new HashSet<Type>();
 
@@ -93,18 +95,18 @@ public class JavaTypeBuilder {
         }
     }
 
-    public JavaTypeBuilder addFieldListener(JavaFieldHandler fieldListener) {
-        this.fieldListeners.add(fieldListener);
+    public JavaTypeBuilder addFieldHandler(JavaFieldHandler fieldHandler) {
+        this.fieldHandlers.add(fieldHandler);
         return this;
     }
 
-    public JavaTypeBuilder addTypeListener(JavaTypeHandler typeListener) {
-        this.typeListeners.add(typeListener);
+    public JavaTypeBuilder addTypeHandler(JavaTypeHandler typeHandler) {
+        this.typeHandlers.add(typeHandler);
         return this;
     }
 
-    public JavaTypeBuilder addMethodListener(JavaMethodHandler methodListener) {
-        this.methodListeners.add(methodListener);
+    public JavaTypeBuilder addMethodHandler(JavaMethodHandler methodHandler) {
+        this.methodHandlers.add(methodHandler);
         return this;
     }
 
@@ -378,37 +380,59 @@ public class JavaTypeBuilder {
         return nested;
     }
 
-    public void setGenericTypeArguments(List<Type> genericTypeArguments) {
+    public JavaTypeBuilder setGenericTypeArguments(List<Type> genericTypeArguments) {
         this.genericTypeArguments = genericTypeArguments;
+        return this;
     }
 
-    public void addGenericTypeArguments(Type... genericTypeArguments) {
+    public JavaTypeBuilder addGenericTypeArguments(Type... genericTypeArguments) {
         Collections.addAll(this.genericTypeArguments, genericTypeArguments);
+        return this;
     }
 
-    public void addGenericTypeArguments(Collection<Type> genericTypeArguments) {
+    public JavaTypeBuilder addGenericTypeArguments(Collection<Type> genericTypeArguments) {
         this.genericTypeArguments.addAll(genericTypeArguments);
+        return this;
+    }
+
+    public Map<String, Type> getGenericTypeVariables() {
+        return genericTypeVariables;
+    }
+
+    public JavaTypeBuilder setGenericTypeVariables(Map<String, Type> genericTypeVariables) {
+        this.genericTypeVariables = genericTypeVariables;
+        return this;
+    }
+
+    public JavaTypeBuilder addGenericTypeVariables(Map<String, Type> genericTypeVariables) {
+        this.genericTypeVariables.putAll(genericTypeVariables);
+        return this;
+    }
+
+    public JavaTypeBuilder addGenericTypeVariable(String key, Type value) {
+        this.genericTypeVariables.put(key, value);
+        return this;
     }
 
     public JavaType build() {
 
         for (JavaMethod method : getMethods()) {
-            for (JavaMethodHandler methodListener : methodListeners) {
-                methodListener.handle(sourceType, method);
+            for (JavaMethodHandler methodHandler : methodHandlers) {
+                methodHandler.handle(sourceType, method);
             }
         }
 
         for (JavaField field : new ArrayList<JavaField>(getFields())) {
-            for (JavaFieldHandler fieldListener : fieldListeners) {
-                fieldListener.handle(sourceType, field);
+            for (JavaFieldHandler fieldHandler : fieldHandlers) {
+                fieldHandler.handle(sourceType, field);
             }
         }
 
-        for (JavaTypeHandler typeListener : typeListeners) {
-            typeListener.handle(sourceType);
+        for (JavaTypeHandler typeHandler : typeHandlers) {
+            typeHandler.handle(sourceType);
         }
         addDocumentation(CODE_G_GENERATOR_SIGNATURE);
-        return new JavaTypeImpl(getFields(), getMethods(), getConstructors(), importTypes, superInterfaces, packageName, kind, body, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, getSimpleName(), genericTypeArguments);
+        return new JavaTypeImpl(getFields(), getMethods(), getConstructors(), importTypes, superInterfaces, packageName, kind, body, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, getSimpleName(), genericTypeArguments, genericTypeVariables);
     }
 
 

@@ -4,6 +4,7 @@ import org.abstractmeta.code.g.code.JavaTypeRegistry;
 import org.abstractmeta.code.g.config.Descriptor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Code Generator Plugin.
@@ -23,22 +24,6 @@ public interface CodeGeneratorPlugin {
      */
     List<String> generate(List<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor);
 
-    /**
-     * Returns configuration option for a given name
-     * @param descriptor descriptor
-     * @param name option name
-     * @return option
-     * @throws NullPointerException
-     */
-    String getRequiredOption(Descriptor descriptor, String name);
 
-
-    /**
-     * Returns configuration option for a given name
-     * @param descriptor descriptor
-     * @param name option name
-     * @return option
-     */
-    String getOption(Descriptor descriptor, String name);
 
 }

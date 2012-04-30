@@ -16,11 +16,11 @@ public class SimpleClassBuilder extends JavaTypeBuilder {
     public SimpleClassBuilder(JavaType sourceType) {
         super();
         setSourceType(sourceType);
-        addFieldListener(new RegistryFieldHandler(this));
-        addFieldListener(new CollectionFieldHandler(this));
-        addFieldListener(new SetterFieldHandler(this));
-        addFieldListener(new GetterFieldHandler(this));
-        addTypeListener(new SimpleTypeHandler(this));
+        addFieldHandler(new RegistryFieldHandler(this));
+        addFieldHandler(new CollectionFieldHandler(this));
+        addFieldHandler(new SetterFieldHandler(this));
+        addFieldHandler(new GetterFieldHandler(this));
+        addTypeHandler(new SimpleTypeHandler(this));
     }
 
 }

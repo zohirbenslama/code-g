@@ -29,12 +29,16 @@ public class ClassTypeProvider implements Provider<JavaType> {
     private final Class sourceType;
 
     public ClassTypeProvider(Class sourceType) {
+        if(sourceType == null) {
+            throw new IllegalArgumentException("sourceType was null");
+        }
         this.sourceType = sourceType;
     }
 
     @Override
     public JavaType get() {
         JavaTypeBuilder resultBuilder = new JavaTypeBuilder();
+        
         resultBuilder.setTypeName(sourceType.getName());
         if (sourceType.isInterface()) {
             resultBuilder.setKind("interface");
