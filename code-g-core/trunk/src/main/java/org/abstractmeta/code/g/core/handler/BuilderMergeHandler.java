@@ -27,7 +27,7 @@ import java.util.Map;
  * </p>
  * <p>For instance for the given source type
  * <code><pre>
- * public interface Foo {
+ * public interface Bar {
  *     int getId();
  *     Bar getBar();
  *     String getDummy();
@@ -39,7 +39,7 @@ import java.util.Map;
  *  </code></pre>
  * The following code is generated
  * <code><pre>
- * public FooBuilder merge(Foo instance) {
+ * public FooBuilder merge(Bar instance) {
  *     this.setId(instance.getId());
  *     if(instance.getBar() != null) {
  *         this.setBar(getBar());

@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
  * to be eligible.
  * Object.class is used to match ayn type including primitives.
  *
- * <p>See more at {@link org.abstractmeta.code.g.pattern.MethodPattern}.
+ * <p>See more at {@link org.abstractmeta.code.g.expression.MethodPattern}.
  * </p>
  */
 public class TypeMatchPredicate implements Predicate<Type> {

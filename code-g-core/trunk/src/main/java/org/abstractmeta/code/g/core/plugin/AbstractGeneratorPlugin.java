@@ -12,6 +12,7 @@ import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public abstract class AbstractGeneratorPlugin {
     }
 
 
-    public List<String> generate(List<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
+    public List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
         List<String> generatedTypeNames = new ArrayList<String>();
         for (String sourceTypeName : sourceTypeNames) {
             JavaType sourceType = registry.get(sourceTypeName);
@@ -65,7 +66,7 @@ public abstract class AbstractGeneratorPlugin {
             if(registry.isRegistered(targetTypeName)) {
                 continue;
             }
-            JavaTypeBuilder typeBuilder = generateType(sourceType, targetTypeName, descriptor);
+            JavaTypeBuilder typeBuilder = generateType(sourceType, targetTypeName, descriptor, registry);
             if (typeBuilder == null) {
                 continue;
             }
@@ -158,7 +159,7 @@ public abstract class AbstractGeneratorPlugin {
      * @param descriptor
      * @return
      */
-    protected abstract JavaTypeBuilder generateType(JavaType sourceType, String targetTypeName, Descriptor descriptor);
+    protected abstract JavaTypeBuilder generateType(JavaType sourceType, String targetTypeName, Descriptor descriptor, JavaTypeRegistry registry);
 
 
 }

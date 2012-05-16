@@ -1,7 +1,7 @@
-package org.abstractmeta.code.g.common.util;
+package org.abstractmeta.code.g.core.handler;
 
 
-import org.abstractmeta.code.g.CodeStorageHandler;
+import org.abstractmeta.code.g.handler.CodeHandler;
 import org.abstractmeta.code.g.code.JavaType;
 
 import java.util.ArrayList;
@@ -9,7 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestCodeStorageHandler implements CodeStorageHandler {
+/**
+ * Testing convenience implementation
+ *
+ * @author Adrian Witas
+ */
+public class MemCodeHandler implements CodeHandler {
 
     private final Map<String, String> sourceCodes = new HashMap<String, String>();
     private final List<String> typeNames = new ArrayList<String>();

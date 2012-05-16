@@ -1,7 +1,7 @@
 package org.abstractmeta.code.g.core.collection.function;
 
 
-import org.abstractmeta.code.g.pattern.MethodGroupMatch;
+import org.abstractmeta.code.g.expression.AbstractionMatch;
 import com.google.common.base.Function;
 
 import javax.annotation.Nullable;
@@ -17,10 +17,10 @@ public class OperationNameMatchFunction implements Function<String, String> {
 
     @Override
     public String apply(@Nullable String operationCandidate) {
-        if (operationCandidate.contains(MethodGroupMatch.GROUP_NAME_PLACEHOLDER)) {
-            int groupNameIndexOf = operationCandidate.indexOf(MethodGroupMatch.GROUP_NAME_PLACEHOLDER);
+        if (operationCandidate.contains(AbstractionMatch.GROUP_NAME_PLACEHOLDER)) {
+            int groupNameIndexOf = operationCandidate.indexOf(AbstractionMatch.GROUP_NAME_PLACEHOLDER);
             String prefix = operationCandidate.substring(0, groupNameIndexOf);
-            String postfix = operationCandidate.substring(groupNameIndexOf + MethodGroupMatch.GROUP_NAME_PLACEHOLDER.length());
+            String postfix = operationCandidate.substring(groupNameIndexOf + AbstractionMatch.GROUP_NAME_PLACEHOLDER.length());
             if (methodName.startsWith(prefix) && methodName.endsWith(postfix)) {
                 return methodName.substring(groupNameIndexOf, methodName.length() - postfix.length());
             }
@@ -30,6 +30,6 @@ public class OperationNameMatchFunction implements Function<String, String> {
                 return methodName.substring(operationCandidate.length());
             }
         }
-        return MethodGroupMatch.DEFAULT_GROUP_NAME;
+        return AbstractionMatch.DEFAULT_GROUP_NAME;
     }
 }

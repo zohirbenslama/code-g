@@ -18,7 +18,7 @@ import java.util.Collection;
  * This handler creates 'add', 'clear' methods for any arrays type field.
  * <p>For instance for the given source type
  * <code><pre>
- * class Foo {
+ * class Bar {
  *      ...
  *      private int [] bars;
  *      ...

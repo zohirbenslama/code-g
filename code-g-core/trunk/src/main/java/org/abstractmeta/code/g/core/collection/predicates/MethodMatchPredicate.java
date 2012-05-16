@@ -2,7 +2,7 @@ package org.abstractmeta.code.g.core.collection.predicates;
 
 
 import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.pattern.MethodPattern;
+import org.abstractmeta.code.g.expression.MethodPattern;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 

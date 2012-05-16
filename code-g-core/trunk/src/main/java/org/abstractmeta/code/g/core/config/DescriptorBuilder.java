@@ -5,7 +5,7 @@ import com.sun.org.apache.bcel.internal.generic.ClassGen;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.plugin.BuilderGenerator;
 import org.abstractmeta.code.g.core.plugin.ClassGenerator;
-import org.abstractmeta.code.g.core.util.LoaderUtil;
+import org.abstractmeta.code.g.core.util.StringUtil;
 
 import java.util.*;
 
@@ -234,12 +234,9 @@ public class DescriptorBuilder {
     }
 
     public Descriptor build() {
-        if(plugin == null) {
-            throw new IllegalStateException("plugin was null");
-        }
         Map<String, String> defaults = getPluginDefault(plugin);
-        if (sourceClass != null) {
-            sourcePackage = LoaderUtil.extractPackageName(sourceClass);
+        if (sourceClass != null && sourcePackage == null) {
+            sourcePackage = StringUtil.substringBeforeLastIndexOf(sourceClass, ".");
         }
         if (targetPackage == null) {
             if (defaults.containsKey(TARGET_PACKAGE)) {

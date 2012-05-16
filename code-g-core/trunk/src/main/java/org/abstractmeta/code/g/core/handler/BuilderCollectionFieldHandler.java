@@ -18,7 +18,7 @@ import java.util.Collections;
  * This handler creates 'add', 'clear' methods for any collection type field.
  * <p>For instance for the given source type
  * <code><pre>
- * class Foo {
+ * class Bar {
  *      ...
  *      private Collection&lt;Integer> bars;
  *      ...

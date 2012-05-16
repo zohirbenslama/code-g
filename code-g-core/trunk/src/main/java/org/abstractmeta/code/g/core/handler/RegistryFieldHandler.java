@@ -5,14 +5,14 @@ import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.pattern.MethodGroupPatterns;
-import org.abstractmeta.code.g.core.pattern.MethodMatcherImpl;
+import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
+import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
+import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
-import org.abstractmeta.code.g.pattern.MethodGroupMatch;
-import org.abstractmeta.code.g.pattern.MethodMatch;
-import org.abstractmeta.code.g.pattern.MethodMatcher;
+import org.abstractmeta.code.g.expression.MethodMatch;
+import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
@@ -41,21 +41,21 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         if (!Map.class.isAssignableFrom(rawFieldType)) {
             return;
         }
-        Map<String, MethodGroupMatch> matches = methodMatcher.indexByName(methodMatcher.match(sourceType.getMethods(), MethodGroupPatterns.REGISTRY_PATTERN));
+        Map<String, AbstractionMatch> matches = methodMatcher.indexByName(methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.REGISTRY_PATTERN));
         String fieldName = javaField.getName();
         if(! fieldName.toLowerCase().endsWith("registry")) {
             return;
         }
         String groupName;
         if(fieldName.equals("registry")) {
-            groupName = MethodGroupMatch.DEFAULT_GROUP_NAME;
+            groupName = AbstractionMatch.DEFAULT_GROUP_NAME;
         }  else {
             //a registry filed name is build from group name as follow xxxRegistry, where xxxx is group name
             String registryFiledName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, fieldName);
             groupName = registryFiledName.substring(0, registryFiledName.length() - 8);
         }
      
-        MethodGroupMatch groupMatch = matches.get(groupName);
+        AbstractionMatch groupMatch = matches.get(groupName);
         if (groupMatch == null) {
             return;
         }
@@ -92,7 +92,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
                 buildGetMethod(methodBuilder, javaMethod, javaField);
 
             } else if (methodName.startsWith("is") && methodName.endsWith("Registered")) {
-                if(MethodGroupMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
+                if(AbstractionMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
                     buildIsRegisteredMethod(methodBuilder, javaMethod, javaField);
                 }
             }
@@ -105,7 +105,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("%s.clear();", javaField.getName()));
     }
 
-    private void buildRegisterAllMethod(JavaMethodBuilder methodBuilder, MethodGroupMatch groupMatch, JavaMethod javaMethod, JavaField javaField) {
+    private void buildRegisterAllMethod(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod javaMethod, JavaField javaField) {
         MethodMatch registerMatch = groupMatch.getMatch("register", Object.class);
         String parameterName = javaMethod.getParameterNames().get(0);
         Class collectionType = ReflectUtil.getGenericArgument(javaField.getType(), 1, Object.class);
@@ -114,7 +114,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody("}");
     }
 
-    protected void buildRegisterMethod(JavaMethodBuilder methodBuilder, MethodGroupMatch groupMatch, JavaMethod registerMethod, JavaField javaField) {
+    protected void buildRegisterMethod(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod registerMethod, JavaField javaField) {
         MethodMatch getMethodMatch = groupMatch.getMatch("get", Object.class);
         String registerArgumentName = registerMethod.getParameterNames().get(0);
         Type registryIndexType = getMethodMatch.getMethod().getParameterTypes().get(0);
@@ -135,7 +135,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("return %s.containsKey(%s);", javaField.getName(), parameterName));
     }
 
-    protected void buildUnregisteredMethod(JavaMethodBuilder methodBuilder, MethodGroupMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField) {
+    protected void buildUnregisteredMethod(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField) {
         String parameterName = unregisteredMethod.getParameterNames().get(0);
         MethodMatch getMethodMatch = groupMatch.getMatch("get", Object.class);
         Type registryIndexType = getMethodMatch.getMethod().getParameterTypes().get(0);

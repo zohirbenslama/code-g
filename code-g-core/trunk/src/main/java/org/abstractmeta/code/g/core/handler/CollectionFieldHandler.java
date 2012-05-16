@@ -22,7 +22,7 @@ import java.util.Collection;
  * <p/>
  * <p>For instance for the given source type
  * <code><pre>
- * public interface Foo {
+ * public interface Bar {
  *    ....
  *    List<Bar> getBars();
  *    void addBar(Bar bar);

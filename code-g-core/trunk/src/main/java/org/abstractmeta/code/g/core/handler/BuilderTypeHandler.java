@@ -21,7 +21,7 @@ import java.util.*;
  * In case where all fields are mutable the empty constructor is added.
  * <p>For instance for the given source type
  * <code><pre>
- * public interface Foo {
+ * public interface Bar {
  *     int getId();
  *     Bar getBar();
  *     String getDummy();
@@ -33,8 +33,8 @@ import java.util.*;
  *  </code></pre>
  * The following code is generated
  * <code><pre>
- * public Foo build() {
- *     Foo result = new FooImpl(id, bar, barMap, barList, bars);
+ * public Bar build() {
+ *     Bar result = new FooImpl(id, bar, barMap, barList, bars);
  *     result.setDummy(dummy);
  *     return result;
  * }

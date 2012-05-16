@@ -17,7 +17,7 @@ import java.util.Map;
  * This handler creates 'add', 'clear' methods for any Map type field.
  * For instance for the given source type
  * <code><pre>
- * class Foo {
+ * class Bar {
  *      ...
  *      private Map<&lt;String, String> bars;
  *      ...

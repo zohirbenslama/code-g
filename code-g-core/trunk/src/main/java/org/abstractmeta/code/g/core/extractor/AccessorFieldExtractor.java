@@ -4,11 +4,11 @@ package org.abstractmeta.code.g.core.extractor;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
-import org.abstractmeta.code.g.core.pattern.MethodGroupPatterns;
-import org.abstractmeta.code.g.core.pattern.MethodMatcherImpl;
+import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
+import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
+import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
-import org.abstractmeta.code.g.pattern.MethodGroupMatch;
-import org.abstractmeta.code.g.pattern.MethodMatcher;
+import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
@@ -33,8 +33,8 @@ public class AccessorFieldExtractor implements FieldExtractor {
     /**
      * <p>Matches getter setter method to extract related field.</p>
      * For instance for given methods: <ul>
-     * <li>public Foo getFoo()</li>
-     * <li>public void setFoo(Foo foo)</li>
+     * <li>public Bar getFoo()</li>
+     * <li>public void setFoo(Bar foo)</li>
      * <li>public boolean isBar()</li>
      * <li>public Dummy getDummy()</li>
      * <li>public Buzz getBuzz(String name)</li>
@@ -42,7 +42,7 @@ public class AccessorFieldExtractor implements FieldExtractor {
      * </ul>
      * The following fields are created:
      * <ul>
-     * <li>private Foo foo;</li>
+     * <li>private Bar foo;</li>
      * <li>private final boolean bar;</li>
      * <li>private final Dummy dummy;</li>
      * </ul>
@@ -53,8 +53,8 @@ public class AccessorFieldExtractor implements FieldExtractor {
     @Override
     public List<JavaField> extract(JavaType sourceType) {
         List<JavaField> result = new ArrayList<JavaField>();
-        List<MethodGroupMatch> matchedGroups = methodMatcher.match(sourceType.getMethods(), MethodGroupPatterns.ACCESSOR_MUTATOR_PATTERN);
-        for (MethodGroupMatch match : matchedGroups) {
+        List<AbstractionMatch> matchedGroups = methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.ACCESSOR_MUTATOR_PATTERN);
+        for (AbstractionMatch match : matchedGroups) {
             Type fieldType;
             if (match.containsMatch("get")) {
                 fieldType = match.getMatch("get").getMethod().getResultType();
