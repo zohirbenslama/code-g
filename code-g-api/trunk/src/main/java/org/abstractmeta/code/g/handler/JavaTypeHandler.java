@@ -9,7 +9,6 @@ import org.abstractmeta.code.g.code.JavaType;
  */
 public interface JavaTypeHandler {
 
-
     /**
      * Handles a new type to be built.
      *

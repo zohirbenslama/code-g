@@ -24,6 +24,4 @@ public interface CodeGeneratorPlugin {
      */
     List<String> generate(List<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor);
 
-
-
 }
