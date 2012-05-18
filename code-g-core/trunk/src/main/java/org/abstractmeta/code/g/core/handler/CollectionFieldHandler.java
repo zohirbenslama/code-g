@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
- * This handler is experimental, it checks for a collection type, and methods like add, get to
+ * This handler is experimental, it checks for a collection type, and matches methods like add, get to
  * generate implementation code. Please see also {@link RegistryFieldHandler}
  * <p/>
  * <p>For instance for the given source type

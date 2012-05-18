@@ -28,7 +28,7 @@ public class ConstructorRenderer extends AbstractRenderer<JavaConstructor> imple
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(NAME_PARAMETER, instance.getName());
-        template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameterTypes(), instance.getParameterNames()));
+        template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameterModifiers(), instance.getParameterTypes(), instance.getParameterNames()));
         template.set(BODY_PARAMETER, StringUtil.indent(Joiner.on("\n").join(instance.getBody()), indentSize + 4));
     }
 

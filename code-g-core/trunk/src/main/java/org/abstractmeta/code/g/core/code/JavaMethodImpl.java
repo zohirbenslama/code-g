@@ -16,7 +16,9 @@ import java.util.List;
  */
 public class JavaMethodImpl implements JavaMethod {
 
-    private final List<Type> parametrTypes;
+    private final List<String> parameterModifiers;
+
+    private final List<Type> parameterTypes;
 
     private final List<String> parameterNames;
 
@@ -34,8 +36,9 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<String> documentation;
 
-    public JavaMethodImpl(List<Type> parameterTypes, List<String> parameterNames, List<String> body, Type resultType, List<JavaType> javaTypes, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
-        this.parametrTypes = parameterTypes;
+    public JavaMethodImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<String> body, Type resultType, List<JavaType> javaTypes, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+        this.parameterModifiers = parameterModifiers;
+        this.parameterTypes = parameterTypes;
         this.parameterNames = parameterNames;
         this.body = body;
         this.resultType = resultType;
@@ -47,12 +50,17 @@ public class JavaMethodImpl implements JavaMethod {
     }
 
     public List<Type> getParameterTypes() {
-        return this.parametrTypes;
+        return this.parameterTypes;
     }
 
     @Override
     public List<String> getParameterNames() {
         return parameterNames;
+    }
+
+    @Override
+    public List<String> getParameterModifiers() {
+        return parameterModifiers;
     }
 
     public List<String> getBody() {

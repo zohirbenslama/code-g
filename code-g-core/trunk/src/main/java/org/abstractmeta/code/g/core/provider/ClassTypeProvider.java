@@ -121,12 +121,12 @@ public class ClassTypeProvider implements Provider<JavaType> {
         Class[] parameterTypes = constructor.getParameterTypes();
         if (isConstructorParametersMatchFieldTypes(parameterTypes, resultBuilder.getFields())) {
             for (JavaField field : resultBuilder.getFields()) {
-                constructorBuilder.addArgument(field.getName(), field.getType());
+                constructorBuilder.addParameter(field.getName(), field.getType());
             }
 
         } else {
             for (Type parameterType : constructor.getParameterTypes()) {
-                constructorBuilder.addArgument("argument " + i++, parameterType);
+                constructorBuilder.addParameter("argument " + i++, parameterType);
             }
 
         }

@@ -15,6 +15,8 @@ import java.util.List;
 public class JavaConstructorImpl implements JavaConstructor {
 
 
+    private final List<String> parameterModifiers;
+
     private final List<Type> parameterTypes;
 
     private final List<String> parameterNames;
@@ -29,7 +31,8 @@ public class JavaConstructorImpl implements JavaConstructor {
 
     private final List<String> documentation;
 
-    public JavaConstructorImpl(List<Type> parameterTypes, List<String> parameterNames, List<String> body, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+    public JavaConstructorImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<String> body, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+        this.parameterModifiers = parameterModifiers;
         this.parameterTypes = parameterTypes;
         this.parameterNames = parameterNames;
         this.body = body;
@@ -54,6 +57,11 @@ public class JavaConstructorImpl implements JavaConstructor {
 
     public List<String> getModifiers() {
         return this.modifiers;
+    }
+
+    @Override
+    public List<String> getParameterModifiers() {
+        return parameterModifiers;
     }
 
     public String getName() {

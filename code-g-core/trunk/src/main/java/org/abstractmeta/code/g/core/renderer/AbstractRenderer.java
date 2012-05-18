@@ -81,16 +81,16 @@ public abstract class AbstractRenderer<T> {
     }
 
 
-    protected String getMethodArguments(JavaTypeImporter importer, List<Type> argumentTypes, List<String> argumentNames) {
+    protected String getMethodArguments(JavaTypeImporter importer, List<String> argumentModifiers, List<Type> argumentTypes, List<String> argumentNames) {
         StringBuilder result = new StringBuilder();
         if (argumentNames.size() == 0) {
             for (int i = 0; i < argumentTypes.size(); i++) {
-                addMethodArgument(result, importer, argumentTypes.get(i), String.format("argument%s",i));
+                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), String.format("argument%s",i));
             }
 
         } else {
             for (int i = 0; i < argumentTypes.size(); i++) {
-                addMethodArgument(result, importer, argumentTypes.get(i), argumentNames.get(i));
+                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), argumentNames.get(i));
             }
         }
         return result.toString();
@@ -109,11 +109,14 @@ public abstract class AbstractRenderer<T> {
     }
 
 
-    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, Type type, String name) {
+    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, String modifier, Type type, String name) {
         if (result.length() > 0) {
             result.append(", ");
         }
-        result.append(String.format("%s %s", importer.getSimpleTypeName(type), name));
+        if(! modifier.isEmpty()) {
+            modifier = modifier + " ";
+        }
+        result.append(String.format("%s%s %s", modifier,  importer.getSimpleTypeName(type), name));
     }
 
     protected String getDocumentation(List<String> documentation) {

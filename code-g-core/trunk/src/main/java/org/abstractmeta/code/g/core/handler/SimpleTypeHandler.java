@@ -49,8 +49,7 @@ public class SimpleTypeHandler implements JavaTypeHandler {
             Iterable<JavaField> constructorArguments = Iterables.filter(ownerTypeBuilder.getFields(),new ConstructorArgumentPredicate(sourceType));
         for(JavaField field: constructorArguments) {
                  String fieldName = field.getName();
-            constructorBuilder.addArgumentName(field.getName());
-            constructorBuilder.addArgumentType(field.getType());
+            constructorBuilder.addParameter(field.getName(), field.getType());
             constructorBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
         }
     }

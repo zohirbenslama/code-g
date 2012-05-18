@@ -18,6 +18,8 @@ import java.util.List;
 public class JavaMethodBuilder {
 
 
+    private List<String> parameterModifiers = new ArrayList<String>();
+
     private List<Type> parameterTypes = new ArrayList<Type>();
 
     private List<String> parameterNames = new ArrayList<String>();
@@ -38,6 +40,10 @@ public class JavaMethodBuilder {
 
     private List<String> documentation = new ArrayList<String>();
 
+    public List<String> getParameterModifiers() {
+        return parameterModifiers;
+    }
+
     public List<Type> getParameterTypes() {
         return this.parameterTypes;
     }
@@ -47,19 +53,34 @@ public class JavaMethodBuilder {
         return this;
     }
 
+    public JavaMethodBuilder addParameterModifiers(Collection<String> parameterModifiers) {
+        this.parameterModifiers.addAll(parameterModifiers);
+        return this;
+    }
+    
 
-    public JavaMethodBuilder addArgumentTypes(Collection<Type> argumentTypes) {
+    public JavaMethodBuilder addParameterTypes(Collection<Type> argumentTypes) {
         this.parameterTypes.addAll(argumentTypes);
         return this;
     }
 
 
+    public JavaMethodBuilder addParameter(boolean finalModifier, String name, Type type) {
+        return addParameter(finalModifier ? "final" : "", name, type);
+    }
+
      public JavaMethodBuilder addParameter(String name, Type type) {
-         this.parameterNames.add(name);
-         this.parameterTypes.add(type);
-         return this;
+           return addParameter("", name, type);
      }
 
+    public JavaMethodBuilder addParameter(String modifier, String name, Type type) {
+        this.parameterModifiers.add(modifier);
+        this.parameterNames.add(name);
+        this.parameterTypes.add(type);
+        return this;
+    }
+
+    
     public JavaMethodBuilder setParameterNames(List<String> parameterNames) {
         this.parameterNames = parameterNames;
         return this;
@@ -195,13 +216,16 @@ public class JavaMethodBuilder {
             javaTypes.add(builder.build());
         }
         nestedTypeBuilders.clear();
-        JavaMethod result = new JavaMethodImpl(parameterTypes, parameterNames, body, resultType, javaTypes, modifiers, name, annotations, documentation);
+        JavaMethod result = new JavaMethodImpl(parameterModifiers, parameterTypes, parameterNames, body, resultType, javaTypes, modifiers, name, annotations, documentation);
         return result;
     }
 
     public void merge(JavaMethod instance) {
+        if (instance.getParameterModifiers() != null) {
+            addParameterModifiers(instance.getParameterModifiers());
+        }
         if (instance.getParameterTypes() != null) {
-            addArgumentTypes(instance.getParameterTypes());
+            addParameterTypes(instance.getParameterTypes());
         }
         if(instance.getParameterNames() != null){
             addArgumentNames(instance.getParameterNames());
@@ -230,4 +254,5 @@ public class JavaMethodBuilder {
 
     }
 
+  
 }

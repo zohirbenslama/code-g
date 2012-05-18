@@ -18,9 +18,12 @@ import java.util.List;
 public class JavaConstructorBuilder {
 
 
-    private List<Type> argumentTypes = new ArrayList<Type>();
 
-    private List<String> argumentNames = new ArrayList<String>();
+    private List<String> parameterModifiers = new ArrayList<String>();
+
+    private List<Type> parameterTypes = new ArrayList<Type>();
+
+    private List<String> parameterNames = new ArrayList<String>();
 
     private List<String> body = new ArrayList<String>();
 
@@ -32,44 +35,42 @@ public class JavaConstructorBuilder {
 
     private List<String> documentation = new ArrayList<String>();
 
-    public List<Type> getArgumentTypes() {
-        return this.argumentTypes;
+    public List<Type> getParameterTypes() {
+        return this.parameterTypes;
     }
 
-    public JavaConstructorBuilder setArgumentTypes(List<Type> argumentTypes) {
-        this.argumentTypes = argumentTypes;
-        return this;
-    }
-
-    public JavaConstructorBuilder addArgumentType(Type argumentType) {
-        this.argumentTypes.add(argumentType);
+    public JavaConstructorBuilder setParameterTypes(List<Type> parameterTypes) {
+        this.parameterTypes = parameterTypes;
         return this;
     }
 
     public JavaConstructorBuilder addArgumentTypes(Collection<Type> argumentTypes) {
-        this.argumentTypes.addAll(argumentTypes);
-        return this;
-    }
-
-    public JavaConstructorBuilder setArgumentNames(List<String> argumentNames) {
-        this.argumentNames = argumentNames;
+        this.parameterTypes.addAll(argumentTypes);
         return this;
     }
 
 
-    public JavaConstructorBuilder addArgument(String argumentName, Type type) {
-        this.argumentNames.add(argumentName);
-        this.argumentTypes.add(type);
+
+    public JavaConstructorBuilder addParameter(boolean finalModifier, String name, Type type) {
+        return addParameter(finalModifier ? "final" : "", name, type);
+    }
+
+    public JavaConstructorBuilder addParameter(String name, Type type) {
+        return addParameter("", name, type);
+    }
+
+    public JavaConstructorBuilder addParameter(String modifier, String name, Type type) {
+        this.parameterModifiers.add(modifier);
+        this.parameterNames.add(name);
+        this.parameterTypes.add(type);
         return this;
     }
+
     
-    public JavaConstructorBuilder addArgumentName(String argumentName) {
-        this.argumentNames.add(argumentName);
-        return this;
-    }
+
 
     public JavaConstructorBuilder addArgumentNames(Collection<String> argumentNames) {
-        this.argumentNames.addAll(argumentNames);
+        this.parameterNames.addAll(argumentNames);
         return this;
     }
 
@@ -103,6 +104,12 @@ public class JavaConstructorBuilder {
 
     public JavaConstructorBuilder addModifier(String modifier) {
         this.modifiers.add(modifier);
+        return this;
+    }
+
+
+    public JavaConstructorBuilder addParameterModifiers(Collection<String> parameterModifiers) {
+        this.parameterModifiers.addAll(parameterModifiers);
         return this;
     }
 
@@ -159,11 +166,14 @@ public class JavaConstructorBuilder {
     }
 
     public JavaConstructor build() {
-        JavaConstructor result = new JavaConstructorImpl(argumentTypes, argumentNames, body, modifiers, name, annotations, documentation);
+        JavaConstructor result = new JavaConstructorImpl(parameterModifiers, parameterTypes, parameterNames, body, modifiers, name, annotations, documentation);
         return result;
     }
 
     public void merge(JavaConstructor instance) {
+        if (instance.getParameterModifiers() != null) {
+            addParameterModifiers(instance.getParameterModifiers());
+        }
         if (instance.getParameterTypes() != null) {
             addArgumentTypes(instance.getParameterTypes());
         }

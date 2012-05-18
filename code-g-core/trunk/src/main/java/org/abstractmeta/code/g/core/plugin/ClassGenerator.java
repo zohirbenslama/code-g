@@ -12,9 +12,7 @@ import org.abstractmeta.code.g.extractor.MethodExtractor;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -56,7 +54,7 @@ public class ClassGenerator extends AbstractGeneratorPlugin implements CodeGener
     }
 
     @Override
-    protected JavaTypeBuilder generateType(JavaType sourceType, String targetTypeName, Descriptor descriptor, JavaTypeRegistry registry) {
+    protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
         SimpleClassBuilder classBuilder = new SimpleClassBuilder(sourceType);
         classBuilder.setSourceType(sourceType);
         classBuilder.addModifier("public").setTypeName(targetTypeName);

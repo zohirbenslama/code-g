@@ -20,10 +20,11 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
     private final String packageName;
     private final Set<String> typeNames;
-
+    private final Map<String, Type> genericTypeVariables;
     public JavaTypeImporterImpl(String packageName) {
         this.packageName = packageName;
         this.typeNames = new TreeSet<String>();
+        this.genericTypeVariables = new HashMap<String, Type>();
     }
 
     @Override
@@ -97,7 +98,12 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
         } else if (type instanceof TypeVariable) {
-            return TypeVariable.class.cast(type).getName();
+            String typeVariableName =  TypeVariable.class.cast(type).getName();
+            if(genericTypeVariables.containsKey(typeVariableName)) {
+                Type result =  genericTypeVariables.get(typeVariableName);
+                return getSimpleTypeName(result);
+            }
+            return typeVariableName;
         } else {
             throw new IllegalStateException(String.format("Unsupported type: %s", type));
         }
@@ -107,6 +113,11 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
     public String getTypeName(Type type, Collection<Type> genericArgumentTypes) {
         String simpleTypeName = getSimpleTypeName(type);
         return getSimpleTypeNameWithGenericArgumentTypes(simpleTypeName, genericArgumentTypes);
+    }
+
+    @Override
+    public Map<String, Type> getGenericTypeVariables() {
+        return genericTypeVariables;
     }
 
     protected String getSimpleTypeNameWithGenericArgumentTypes(String simpleTypeName, Collection<Type> genericArgumentTypes) {
