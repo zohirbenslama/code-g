@@ -25,6 +25,8 @@ public interface JavaMethod  {
 
     List<String> getParameterNames();
 
+    List<String> getParameterModifiers();
+
     List<String> getBody();
     
     List<JavaType> getNestedJavaTypes();

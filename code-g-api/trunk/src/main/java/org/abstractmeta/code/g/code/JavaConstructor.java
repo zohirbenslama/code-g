@@ -19,6 +19,8 @@ public interface JavaConstructor  {
 
     List<String> getModifiers();
 
+    List<String> getParameterModifiers();
+
     List<Type> getParameterTypes();
 
     List<String> getParameterNames();

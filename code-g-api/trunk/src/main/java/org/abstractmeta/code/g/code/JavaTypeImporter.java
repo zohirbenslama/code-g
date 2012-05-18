@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents java type importer.
@@ -27,6 +28,8 @@ public interface JavaTypeImporter {
     String getSimpleTypeName(Type type);
 
     String getTypeName(Type type, Collection<Type> genericArgumentTypes);
+
+    Map<String, Type> getGenericTypeVariables();
 
     String getGenericArgumentTypeName(Type type);
     
