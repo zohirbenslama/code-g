@@ -331,7 +331,7 @@ public class ViewBuilder {
 
 == More use cases ==
 
-For more examples please check out [http://code-g.googlecode.com/svn/code-g-examples/trunk/ code-g examples]
+For more examples please check out [http://code-g.googlecode.com/svn/code-g-example/trunk/ code-g example]
 
 
 == Maven integration ==
