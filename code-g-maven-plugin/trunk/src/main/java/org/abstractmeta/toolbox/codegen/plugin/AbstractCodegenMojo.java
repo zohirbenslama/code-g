@@ -1,6 +1,10 @@
 package org.abstractmeta.toolbox.codegen.plugin;
 
 
+import org.abstractmeta.code.g.UnitGenerator;
+import org.abstractmeta.code.g.config.UnitDescriptor;
+import org.abstractmeta.code.g.core.UnitGeneratorImpl;
+import org.abstractmeta.code.g.core.config.builder.UnitDescriptorBuilder;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,19 +44,11 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
 
 
     /**
-     * List of package to build descriptors
+     * List of package to generate descriptors
      *
      * @parameter
      */
-    private ArrayList<Descriptor> descriptors;
-
-
-    /**
-     * List of plugin search package names
-     *
-     * @parameter
-     */
-    private ArrayList<String> pluginPackages;
+    private ArrayList<Unit> units;
 
 
     /**
@@ -61,27 +57,25 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
     private String targetSourceDirectory;
 
 
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
 
-
-            if (descriptors == null || descriptors.isEmpty()) {
-                throw new MojoFailureException("<descriptor> is not configured " + descriptors + "  " + targetSourceDirectory);
+            List<String> classPathEntries = getClassPathEntries();
+            getLog().debug("unit generator class path " + classPathEntries);
+            UnitGenerator unitGenerator = new UnitGeneratorImpl();
+            if(units == null) {
+                throw new IllegalStateException("units was null");
             }
-
-
-
-            List<String> classPathEntries = new ArrayList<String>();
-            for (File artifact : getDependencyArtifactFiles()) {
-                classPathEntries.add(artifact.getAbsolutePath());
-            }
-            getLog().debug("generation class path " + classPathEntries);
-            CodeGenerator codeGenerator = new CodeGenerator();
-            Collection<File> generatedSources = codeGenerator.generate(descriptors, classPathEntries, targetSourceDirectory, basedir, pluginPackages);
-            getLog().debug("generated " + generatedSources.size() + " files ");
-            for (File sourceFile : generatedSources) {
-                getLog().debug("generated " + sourceFile.getAbsolutePath());
+            for (Unit unit : units) {
+                UnitDescriptor unitDescriptor = buildUnitDescriptor(unit, classPathEntries);
+                getLog().debug("build unit descriptor: " + unitDescriptor);
+                Collection<File> generatedSources = unitGenerator.generate(unitDescriptor);
+                for (File sourceFile : generatedSources) {
+                    getLog().debug("generated " + sourceFile.getAbsolutePath());
+                }
+                if (! targetSourceDirectory.equals(unit.getTargetDirectory())) {
+                    project.addCompileSourceRoot(unit.getTargetDirectory());
+                }
             }
             project.addCompileSourceRoot(targetSourceDirectory);
 
@@ -89,6 +83,50 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
         } catch (RuntimeException e) {
             throw new MojoExecutionException("Failed to generate code", e);
         }
+    }
+
+    protected UnitDescriptor buildUnitDescriptor(Unit unit, List<String> classPathEntries) {
+        UnitDescriptorBuilder unitBuilder = new UnitDescriptorBuilder();
+        unitBuilder.merge(unit);
+        unitBuilder.addClassPathEntries(classPathEntries);
+        setUnitTargetDirectory(unitBuilder);
+        setUnitSourceDirectory(unitBuilder);
+        return unitBuilder.build();
+    }
+
+    protected  void setUnitSourceDirectory(UnitDescriptorBuilder unitBuilder) {
+        File source = new File(basedir, "src/main/java");
+        String sourceDirectory = unitBuilder.getSourceDirectory();
+        if(sourceDirectory == null) sourceDirectory = "";
+        if(sourceDirectory.isEmpty()) {
+            unitBuilder.setSourceDirectory(source.getAbsolutePath());
+        } else {
+            sourceDirectory = sourceDirectory.replace("$basedir", basedir);
+            sourceDirectory = sourceDirectory.replace("$source", source.getAbsolutePath());
+            unitBuilder.setSourceDirectory(sourceDirectory);
+        }
+    }
+
+
+    protected void setUnitTargetDirectory(UnitDescriptorBuilder unitBuilder) {
+        String targetDirectory = unitBuilder.getTargetDirectory();
+        if(targetDirectory == null) targetDirectory = "";
+        if(targetDirectory.isEmpty()) {
+            unitBuilder.setTargetDirectory(targetSourceDirectory);
+        } else {
+           unitBuilder.setTargetDirectory(targetDirectory.replace("$basedir", basedir));
+        }
+    }
+    
+    
+    
+    
+    protected List<String> getClassPathEntries() {
+        List<String> result = new ArrayList<String>();
+        for (File artifact : getDependencyArtifactFiles()) {
+            result.add(artifact.getAbsolutePath());
+        }
+        return result;
     }
 
 
@@ -113,8 +151,7 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
 
     @SuppressWarnings("unchecked")
     protected List<Artifact> getPluginArtifacts() {
-        List<Artifact> result = pluginArtifacts;
-        return result;
+        return pluginArtifacts;
     }
 
 
