@@ -17,8 +17,5 @@
         <module>../../code-g-core/trunk</module>
         <module>../../code-g-maven-plugin/trunk</module>
         <module>../../code-g-examples/trunk</module>
-
-        <module>../../code-g/trunk</module>
-
     </modules>
 </project>
