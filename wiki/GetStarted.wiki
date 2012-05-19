@@ -116,7 +116,7 @@ public class ViewRegistryImpl implements ViewRegistry {
 }
 }}}
 
-=== Maven plugin integration ===
+=== Maven plugin configuration ===
 {{{
 
    <plugin>
@@ -315,7 +315,7 @@ public class ViewBuilder {
 }
 }}}
 
-==== Maven integration ===
+==== Maven plugin configuration ===
 
 {{{
 
@@ -331,4 +331,35 @@ public class ViewBuilder {
 
 == More use cases ==
 
-For more example please check out [http://code-g.googlecode.com/svn/code-g-examples/trunk/ code-g examples]
+For more examples please check out [http://code-g.googlecode.com/svn/code-g-examples/trunk/ code-g examples]
+
+
+== Maven integration ==
+
+*Code-g* is scheduled to be deployed in maven central repository.
+
+{{{
+ <plugin>
+                <groupId>org.abstractmeta</groupId>
+                <artifactId>code-g-maven-plugin</artifactId>
+                <version>0.3.0</version>
+                <configuration>
+                    <units>
+                            ...
+                    </units>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+ </plugin>
+}}}
+
+
+*Unit derives from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor]
+
+
+Specialised plugin descriptors like *CodeGenerator*, *BuilderGenerator* derive from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
