@@ -5,7 +5,35 @@
     <packaging>maven-plugin</packaging>
     <version>0.3.0-SNAPSHOT</version>
     <name>code-g-maven-plugin</name>
-    <description>Code generator Maven Plugin</description>
+    <url>http://code.google.com/p/code-g</url>
+    <description>Java code generation maven plugin</description>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>http://code-g.googlecode.com/svn/code-g-maven-plugin/trunk/</url>
+        <connection>scm:svn:http://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</connection>
+        <developerConnection>scm:svn:http://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>abstractmeta</id>
+            <name>Adrian Witas</name>
+            <email>abstractmeta@gmail.com</email>
+            <url>http://www.abstractmeta.org</url>
+            <roles>
+                <role>owner</role>
+            </roles>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
