@@ -359,7 +359,7 @@ For more examples please check out [http://code-g.googlecode.com/svn/code-g-exam
 }}}
 
 
-*Unit derives from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor]
+  * _Unit_ derives from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor]
 
 
-Specialised plugin descriptors like *CodeGenerator*, *BuilderGenerator* derive from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
+  * Specialised plugin descriptors like _CodeGenerator_, _BuilderGenerator_ derive from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
