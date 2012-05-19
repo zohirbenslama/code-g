@@ -39,7 +39,7 @@ public class JavaSourceLoaderImpl implements JavaSourceLoader {
             List<String> compilationSources = descriptor.getCompilationSources();
             if (compilationSources != null) {
                 for (String compilationSource : compilationSources) {
-                    loadJavaSource(sourceDirectory, compilationSource, result);
+                    loadJavaPackageSource(sourceDirectory, compilationSource.replace(".*", ""), false, result);
                 }
             }
         }
@@ -54,7 +54,7 @@ public class JavaSourceLoaderImpl implements JavaSourceLoader {
         for (File candidate : packageDirectory.listFiles()) {
             if (candidate.isDirectory()) {
                 if (scanSubDirectories) {
-                    loadJavaPackageSource(sourceDirectory, packageName + "." + candidate.getName(), scanSubDirectories, result);
+                    loadJavaPackageSource(candidate, packageName + "." + candidate.getName(), scanSubDirectories, result);
                 }
             } else if (candidate.getName().endsWith(".java")) {
                 String simpleName = candidate.getName().replace(".java", "");

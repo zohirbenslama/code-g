@@ -62,7 +62,7 @@ public abstract class AbstractGeneratorPlugin {
             if (! isApplicable(sourceType)) {
                 continue;
             }
-            String targetTypeName = getTargetTypeName(sourceType, descriptor);
+            String targetTypeName = getTargetTypeName(sourceType, descriptor, registry);
             if(registry.isRegistered(targetTypeName)) {
                 continue;
             }
@@ -99,11 +99,11 @@ public abstract class AbstractGeneratorPlugin {
         }
     }
 
-    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor) {
-        return getTargetTypeName(sourceType.getSimpleName(), descriptor);
+    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
+        return getTargetTypeName(sourceType.getSimpleName(), descriptor, registry);
     }
 
-    protected String getTargetTypeName(String name, Descriptor descriptor) {
+    protected String getTargetTypeName(String name, Descriptor descriptor, JavaTypeRegistry registry) {
         String targetPackage = descriptor.getTargetPackage().replace(".*", "");
         String targetPrefix = descriptor.getTargetPrefix();
         if (targetPrefix == null) targetPrefix = "";

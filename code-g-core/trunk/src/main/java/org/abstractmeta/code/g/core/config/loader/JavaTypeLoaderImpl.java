@@ -38,10 +38,9 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
                 }
                 return Arrays.asList(loadedClass);
             } else if (descriptor.getSourcePackage() != null) {
-                Collection<String> result = loadPackageClasses(registry, descriptor, classLoader);
-                if (result.isEmpty()) {
-                    result = loadFromRegistry(registry, descriptor);
-                }
+                Collection<String> result = new ArrayList<String>();
+                result.addAll(loadFromRegistry(registry, descriptor));
+                result.addAll(loadPackageClasses(registry, descriptor, classLoader));
                 if (!result.isEmpty()) {
                     return result;
                 }
@@ -59,8 +58,14 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
     private Collection<String> loadFromRegistry(JavaTypeRegistry registry, Descriptor descriptor) {
         String sourcePackage = descriptor.getSourcePackage();
         Collection<String> result = new ArrayList<String>();
+        boolean wildcard = sourcePackage.endsWith(".*");
+        if(wildcard) sourcePackage = sourcePackage.replace(".*", "");
         for (JavaType type : registry.get()) {
-            if (type.getPackageName().equals(sourcePackage)) {
+            if(wildcard) {
+                if (type.getPackageName().startsWith(sourcePackage)) {
+                    result.add(type.getName());
+                }
+            } else if (type.getPackageName().equals(sourcePackage)) {
                 result.add(type.getName());
             }
         }
@@ -183,7 +188,7 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
             registry.register(javaType);
             return result.getName();
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Failed to load class " + sourceClass);
+            throw new IllegalStateException("Failed to load class " + sourceClass, e);
         }
     }
 }

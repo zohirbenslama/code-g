@@ -7,8 +7,11 @@ import org.abstractmeta.code.g.core.builder.BuilderClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -80,4 +83,11 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
 
 
 
+    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
+        String buildResultTypeName = JavaTypeUtil.getSuperTypeName(sourceType);
+        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+        return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
+    }
+    
+   
 }
