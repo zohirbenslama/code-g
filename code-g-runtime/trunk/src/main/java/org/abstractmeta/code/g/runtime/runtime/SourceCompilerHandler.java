@@ -1,6 +1,6 @@
-package org.abstractmeta.code.g.common.runtime;
+package org.abstractmeta.code.g.runtime.runtime;
 
-import org.abstractmeta.code.g.CodeStorageHandler;
+import org.abstractmeta.code.g.handler.CodeHandler;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -13,13 +13,13 @@ import java.util.List;
  *
  * @author Adrian Witas
  */
-public class SourceCompilerStorageHandler implements CodeStorageHandler {
+public class SourceCompilerHandler implements CodeHandler {
 
     private final  JavaSourceCompiler javaSourceCompiler;
     private final JavaSourceCompiler.CompilationUnit compilationUnit;
     private final List<String> generatedTypes = new ArrayList<String>();
 
-    public SourceCompilerStorageHandler() {
+    public SourceCompilerHandler() {
         this.javaSourceCompiler = new JavaSourceCompilerImpl();
         this.compilationUnit = javaSourceCompiler.createCompilationUnit();
     }
