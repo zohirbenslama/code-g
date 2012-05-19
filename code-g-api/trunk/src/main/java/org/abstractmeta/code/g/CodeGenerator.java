@@ -18,7 +18,7 @@ import org.abstractmeta.code.g.handler.CodeHandler;
  *         ...
  *     );
  *     PersistenceHandler persistenceHandler = new PersistenceHandler(new File("target/generated/code-r/"));
- *     codeGenerator.build(descriptors, persistenceHandler);
+ *     codeGenerator.generate(descriptors, persistenceHandler);
  *     List<File> generated = persistenceHandler.getGeneratedFiles();
  *
  * </pre></code>
@@ -28,15 +28,15 @@ import org.abstractmeta.code.g.handler.CodeHandler;
 public interface CodeGenerator {
 
 
+    
     /**
      * Builds code for the specified descriptors.
      *
      * @param descriptors descriptors
      * @param handler     code handler
      * @param classLoader class loader
-     * @return list of the source code files
      */
-    void build(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
+    void generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
 
 
     /**
@@ -44,9 +44,8 @@ public interface CodeGenerator {
      *
      * @param descriptors descriptors
      * @param handler     code handler
-     * @return list of the source code files
      */
-    void build(Iterable<Descriptor> descriptors, CodeHandler handler);
+    void generate(Iterable<Descriptor> descriptors, CodeHandler handler);
 
 
 }

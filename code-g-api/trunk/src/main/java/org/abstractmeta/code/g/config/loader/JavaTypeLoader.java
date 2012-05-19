@@ -1,6 +1,7 @@
-package org.abstractmeta.code.g.config;
+package org.abstractmeta.code.g.config.loader;
 
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
+import org.abstractmeta.code.g.config.Descriptor;
 
 import java.util.Collection;
 
