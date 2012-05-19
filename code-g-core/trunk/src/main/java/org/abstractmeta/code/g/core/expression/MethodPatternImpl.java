@@ -14,11 +14,11 @@ import java.util.Map;
  * AbstractionPattern expression  = new AbstractionPatternBuilder()
  * .add(new MethodPatternBuilder()
  * .addOperationNames("get", "is")
- * .setBaseResultType(Object.class).build())
+ * .setBaseResultType(Object.class).generate())
  * .add(new MethodPatternBuilder()
  * .addOperationNames("set")
  * .setBaseResultType(void.class)
- * .addBaseParameterTypes(Object.class).build()).build();
+ * .addBaseParameterTypes(Object.class).generate()).generate();
  * <p/>
  * </pre></code></p>
  *

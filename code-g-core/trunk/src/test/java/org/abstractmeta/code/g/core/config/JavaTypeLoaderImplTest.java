@@ -2,8 +2,10 @@ package org.abstractmeta.code.g.core.config;
 
 
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.config.JavaTypeLoader;
+import org.abstractmeta.code.g.config.loader.JavaTypeLoader;
 import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
+import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
+import org.abstractmeta.code.g.core.config.loader.JavaTypeLoaderImpl;
 import org.abstractmeta.code.g.core.config.test.Bar;
 import org.testng.Assert;
 import org.testng.annotations.Test;

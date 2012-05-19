@@ -26,8 +26,8 @@ import java.util.Collections;
  * <li>It extracts registry fields for registry like methods (register, isRegister, get, etc ...)</li>
  * </ul>
  * </li>
- * <li>Method generation - once all fields are defined and type is being build the following
- * field handlers are fired with ability to build relevant method
+ * <li>Method generation - once all fields are defined and type is being generate the following
+ * field handlers are fired with ability to generate relevant method
  * <ul>
  * <li>{@link org.abstractmeta.code.g.core.handler.RegistryFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.CollectionFieldHandler}</li>
@@ -40,10 +40,10 @@ import java.util.Collections;
  *
  * @author Adrian Witas
  */
-public class ClassGenerator extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
+public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
 
 
-    public ClassGenerator() {
+    public ClassGeneratorPlugin() {
         super(Arrays.asList(new AccessorFieldExtractor(),
                 new RegistryFieldExtractor()), Collections.<MethodExtractor>emptyList());
     }

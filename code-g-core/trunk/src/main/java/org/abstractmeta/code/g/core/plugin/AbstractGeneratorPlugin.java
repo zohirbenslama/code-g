@@ -57,18 +57,13 @@ public abstract class AbstractGeneratorPlugin {
 
     public List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
         List<String> generatedTypeNames = new ArrayList<String>();
-        System.out.println("gemerating  for " + sourceTypeNames);
-
         for (String sourceTypeName : sourceTypeNames) {
             JavaType sourceType = registry.get(sourceTypeName);
-            System.out.println("generating  for " + sourceTypeName);
             if (! isApplicable(sourceType)) {
-                System.out.println("not applicable");
                 continue;
             }
             String targetTypeName = getTargetTypeName(sourceType, descriptor);
             if(registry.isRegistered(targetTypeName)) {
-                System.out.println("is registered " + targetTypeName);
                 continue;
             }
             JavaTypeBuilder typeBuilder = generateType(sourceType, registry, targetTypeName, descriptor);

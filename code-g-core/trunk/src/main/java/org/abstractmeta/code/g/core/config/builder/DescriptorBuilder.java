@@ -1,10 +1,10 @@
-package org.abstractmeta.code.g.core.config;
+package org.abstractmeta.code.g.core.config.builder;
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.org.apache.bcel.internal.generic.ClassGen;
 import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.plugin.BuilderGenerator;
-import org.abstractmeta.code.g.core.plugin.ClassGenerator;
+import org.abstractmeta.code.g.core.config.DescriptorImpl;
+import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
 import org.abstractmeta.code.g.core.util.StringUtil;
 
 import java.util.*;
@@ -21,10 +21,10 @@ public class DescriptorBuilder {
 
 
     public final static Map<String, Map<String, String>> PLUGIN_DEFAULTS = ImmutableMap.<String, Map<String, String>>of(
-            ClassGenerator.class.getName(), ImmutableMap.of(
+            ClassGeneratorPlugin.class.getName(), ImmutableMap.of(
             TARGET_PACKAGE, "impl",
             TARGET_POSTFIX, "Impl"),
-            BuilderGenerator.class.getName(), ImmutableMap.of(
+            BuilderGeneratorPlugin.class.getName(), ImmutableMap.of(
             TARGET_PACKAGE, "builder",
             TARGET_POSTFIX, "Builder")
     );

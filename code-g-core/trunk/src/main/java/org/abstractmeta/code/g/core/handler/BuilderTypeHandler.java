@@ -33,7 +33,7 @@ import java.util.*;
  *  </code></pre>
  * The following code is generated
  * <code><pre>
- * public Bar build() {
+ * public Bar generate() {
  *     Bar result = new FooImpl(id, bar, barMap, barList, bars);
  *     result.setDummy(dummy);
  *     return result;

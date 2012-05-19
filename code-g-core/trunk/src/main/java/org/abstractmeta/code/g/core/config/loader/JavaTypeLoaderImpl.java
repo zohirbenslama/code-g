@@ -1,10 +1,10 @@
-package org.abstractmeta.code.g.core.config;
+package org.abstractmeta.code.g.core.config.loader;
 
 import com.google.common.io.Closeables;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
 import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.config.JavaTypeLoader;
+import org.abstractmeta.code.g.config.loader.JavaTypeLoader;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.core.util.StringUtil;
 

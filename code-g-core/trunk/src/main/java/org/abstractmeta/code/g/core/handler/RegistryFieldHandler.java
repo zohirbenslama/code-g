@@ -50,7 +50,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         if(fieldName.equals("registry")) {
             groupName = AbstractionMatch.DEFAULT_GROUP_NAME;
         }  else {
-            //a registry filed name is build from group name as follow xxxRegistry, where xxxx is group name
+            //a registry filed name is generate from group name as follow xxxRegistry, where xxxx is group name
             String registryFiledName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, fieldName);
             groupName = registryFiledName.substring(0, registryFiledName.length() - 8);
         }

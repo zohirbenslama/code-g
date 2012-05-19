@@ -23,8 +23,8 @@ import java.util.Map;
  * <li>for each field additional starting with '_' is added to track whether original field was mutated</li>
  * </ul>
  * </li>
- * <li>Method generation - once all fields are defined and type is being build the following
- * field handlers are fired with ability to build relevant method
+ * <li>Method generation - once all fields are defined and type is being generate the following
+ * field handlers are fired with ability to generate relevant method
  * <ul>
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderSetterFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderCollectionFieldHandler}</li>
@@ -41,7 +41,7 @@ import java.util.Map;
  *
  * @author Adrian Witas
  */
-public class BuilderGenerator extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
+public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
 
     @Override
     protected boolean isApplicable(JavaType sourceType) {

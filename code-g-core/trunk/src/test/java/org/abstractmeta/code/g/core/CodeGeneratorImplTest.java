@@ -4,16 +4,15 @@ package org.abstractmeta.code.g.core;
 import com.google.common.collect.ImmutableList;
 import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.config.DescriptorBuilder;
-import org.abstractmeta.code.g.core.plugin.BuilderGenerator;
-import org.abstractmeta.code.g.core.plugin.ClassGenerator;
-import org.abstractmeta.code.g.core.runtime.SourceCompilerHandler;
+import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
+import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
+import org.abstractmeta.code.g.runtime.runtime.SourceCompilerHandler;
 import org.abstractmeta.code.g.core.test.Bar;
 import org.abstractmeta.code.g.core.test.User;
 import org.abstractmeta.code.g.core.util.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import sun.tools.jstat.Literal;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,10 +26,10 @@ public class CodeGeneratorImplTest {
     public void testCodeClassGenerator() throws IOException, ClassNotFoundException {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
         List<Descriptor> descriptors = Arrays.asList(
-                new DescriptorBuilder().setSourceClass(Bar.class.getName()).setPlugin(ClassGenerator.class.getName()).build()
+                new DescriptorBuilder().setSourceClass(Bar.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
         );
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
-        codeBuilder.build(descriptors, compilerHandler);
+        codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
         Assert.assertEquals(generated.size(), 1);
         Assert.assertTrue(generated.get(0).endsWith("BarImpl"));
@@ -42,12 +41,12 @@ public class CodeGeneratorImplTest {
     public void testCodeBuilderWithSimpleClassGenerator() throws Exception {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
         List<Descriptor> descriptors = Arrays.asList(
-            new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGenerator.class.getName()).build(),
-            new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGenerator.class.getName()).build()
+            new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
+            new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName()).build()
         );
 
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
-        codeBuilder.build(descriptors, compilerHandler);
+        codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
 
         Assert.assertEquals(generated.size(), 2);
@@ -71,14 +70,14 @@ public class CodeGeneratorImplTest {
     public void testCodeBuilderWithSimpleClassGeneratorWithCustomCollection() throws Exception {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
         List<Descriptor> descriptors = Arrays.asList(
-                new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGenerator.class.getName()).build(),
-                new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGenerator.class.getName())
+                new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
+                new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName())
                         .addImmutableImplementation(List.class.getName(), ImmutableList.class.getName() + ".copyOf")
                         .build()
         );
 
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
-        codeBuilder.build(descriptors, compilerHandler);
+        codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
 
         ClassLoader classLoader = compilerHandler.compile();

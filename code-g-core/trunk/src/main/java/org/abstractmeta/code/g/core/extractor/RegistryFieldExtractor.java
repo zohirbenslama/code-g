@@ -36,7 +36,7 @@ public class RegistryFieldExtractor implements FieldExtractor {
     /**
      **
      * <p>Matches registry expression usage to extract registry field.</p>
-     * <p>Matches getter setter method to build related field.</p>
+     * <p>Matches getter setter method to generate related field.</p>
      * For instance for given methods: <ul>
      * <li>public Bar get(String id)</li>
      * <li>public void register(Bar foo)</li>
