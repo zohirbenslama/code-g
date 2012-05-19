@@ -4,7 +4,7 @@
 
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-parent</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>code-g-parent</name>
     <url>http://maven.apache.org</url>
@@ -14,7 +14,6 @@
     </properties>
     <modules>
         <module>../../code-g-api/trunk</module>
-        <module>../../code-g-runtime/trunk</module>
         <module>../../code-g-core/trunk</module>
         <module>../../code-g-maven-plugin/trunk</module>
         <module>../../code-g-examples/trunk</module>
