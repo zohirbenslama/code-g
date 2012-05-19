@@ -1,0 +1,331 @@
+= Introduction =
+
+A code generator generates code implementation for a given abstraction.
+It could be either interface or abstract class or even regular class.
+Abstraction matching and generation rules are defined in specialised plugin. 
+
+
+== Class generator plugin ==
+
+This plugin provides implementation 
+
+=== Accessor/mutator template design pattern ===
+
+==== Use case ====
+{{{
+public interface View {
+    
+    int getId();
+    Properties getVisualProperties();
+    Properties getAttributes();
+    void setAttributes(Properties properties);
+    Map<Integer, View> getViews();
+    List<String> getSuperViews();
+
+}
+
+}}}
+
+*Code-g generator* provides the following implementation
+
+{{{
+
+
+public class ViewImpl implements View {
+    private final List<String> superViews;
+    private Properties attributes;
+    private final Map<Integer, View> views;
+    private final int id;
+    private final Properties visualProperties;
+
+    public ViewImpl(List<String> superViews, Map<Integer, View> views, int id, Properties visualProperties) {
+        this.superViews = superViews;
+        this.views = views;
+        this.id = id;
+        this.visualProperties = visualProperties;
+    }
+
+    public List<String> getSuperViews() {
+        return this.superViews;
+    }
+
+    public void setAttributes(Properties attributes) {
+        this.attributes = attributes;
+    }
+
+    public Properties getAttributes() {
+        return this.attributes;
+    }
+
+    public Map<Integer, View> getViews() {
+        return this.views;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public Properties getVisualProperties() {
+        return this.visualProperties;
+    }
+
+}
+}}}
+
+=== Registry design patterns ===
+
+==== Use cases ====
+
+== 
+{{{
+
+public interface ViewRegistry {
+    void register(View view);
+    void unregister(View view);
+    View get(int id);
+}
+
+}}}
+
+*Code-g generator* provides the following implementation
+
+{{{
+public class ViewRegistryImpl implements ViewRegistry {
+    private final Map<Integer, View> registry;
+
+    public ViewRegistryImpl(Map<Integer, View> registry) {
+        this.registry = registry;
+    }
+
+    public void register(View argument0) {
+        registry.put(argument0.getId(), argument0);
+    }
+
+    public void unregister(View argument0) {
+        registry.remove(argument0.getId());
+    }
+
+    public View get(int argument0) {
+        return registry.get(argument0);
+    }
+
+    public Map<Integer, View> getRegistry() {
+        return this.registry;
+    }
+
+}
+}}}
+
+=== Maven plugin integration ===
+{{{
+
+   <plugin>
+                <groupId>org.abstractmeta</groupId>
+                <artifactId>code-g-maven-plugin</artifactId>
+                <version>0.3.0</version>
+                <configuration>
+                    <units>
+                        <unit>
+                             <sourcePackage>org.abstractmeta.code.g.examples.model1.*</sourcePackage>
+                            <descriptors>
+                                <classGenerator/>
+                            </descriptors>
+                        </unit>
+                    </units>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+}}}
+
+== Builder generator plugin ==
+
+=== Builder design pattern ===
+
+==== Use case ===
+
+
+*Code-g generator* provides the following implementation of a View interface.
+
+{{{
+public class ViewBuilder {
+    private List<String> superViews = new ArrayList<String>();
+    private boolean _superViews;
+    private Properties attributes = new Properties();
+    private boolean _attributes;
+    private Map<Integer, View> views = new HashMap<Integer, View>();
+    private boolean _views;
+    private int id;
+    private boolean _id;
+    private Properties visualProperties = new Properties();
+    private boolean _visualProperties;
+
+
+    public ViewBuilder setSuperViews(List<String> superViews) {
+        this.superViews = superViews;
+        this._superViews = true;
+        return this;
+    }
+
+    public ViewBuilder addSuperViews(String ...superViews) {
+        Collections.addAll(this.superViews, superViews);
+        this._superViews = true;
+        return this;
+    }
+
+    public ViewBuilder addSuperViews(List<String> superViews) {
+        this.superViews.addAll(superViews);
+        this._superViews = true;
+        return this;
+    }
+
+    public ViewBuilder clearSuperViews() {
+        this.superViews.clear();
+        return this;
+    }
+
+    public List<String> getSuperViews() {
+        return this.superViews;
+    }
+
+    public boolean hasSuperViews() {
+        return this._superViews;
+    }
+
+    public ViewBuilder setAttributes(Properties attributes) {
+        this.attributes = attributes;
+        this._attributes = true;
+        return this;
+    }
+
+    public ViewBuilder addAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
+        this._attributes = true;
+        return this;
+    }
+
+    public ViewBuilder addAttributes(Properties attributes) {
+        this.attributes.putAll(attributes);
+        this._attributes = true;
+        return this;
+    }
+
+    public ViewBuilder clearAttributes() {
+        this.attributes.clear();
+        return this;
+    }
+
+    public Properties getAttributes() {
+        return this.attributes;
+    }
+
+    public boolean hasAttributes() {
+        return this._attributes;
+    }
+
+    public ViewBuilder setViews(Map<Integer, View> views) {
+        this.views = views;
+        this._views = true;
+        return this;
+    }
+
+    public ViewBuilder addView(Integer key, View value) {
+        this.views.put(key, value);
+        this._views = true;
+        return this;
+    }
+
+    public ViewBuilder addViews(Map<Integer, View> views) {
+        this.views.putAll(views);
+        this._views = true;
+        return this;
+    }
+
+    public ViewBuilder clearViews() {
+        this.views.clear();
+        return this;
+    }
+
+    public Map<Integer, View> getViews() {
+        return this.views;
+    }
+
+    public boolean hasViews() {
+        return this._views;
+    }
+
+    public ViewBuilder setId(int id) {
+        this.id = id;
+        this._id = true;
+        return this;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public boolean hasId() {
+        return this._id;
+    }
+
+    public ViewBuilder setVisualProperties(Properties visualProperties) {
+        this.visualProperties = visualProperties;
+        this._visualProperties = true;
+        return this;
+    }
+
+    public ViewBuilder addVisualProperty(Object key, Object value) {
+        this.visualProperties.put(key, value);
+        this._visualProperties = true;
+        return this;
+    }
+
+    public ViewBuilder addVisualProperties(Properties visualProperties) {
+        this.visualProperties.putAll(visualProperties);
+        this._visualProperties = true;
+        return this;
+    }
+
+    public ViewBuilder clearVisualProperties() {
+        this.visualProperties.clear();
+        return this;
+    }
+
+    public Properties getVisualProperties() {
+        return this.visualProperties;
+    }
+
+    public boolean hasVisualProperties() {
+        return this._visualProperties;
+    }
+
+    public View build() {
+        View result = new ViewImpl(superViews, views, id, visualProperties);
+        result.setAttributes(attributes);
+        return result;
+    }
+
+}
+}}}
+
+==== Maven integration ===
+
+{{{
+
+  <unit>
+                            <sourcePackage>org.abstractmeta.code.g.examples.model1.*</sourcePackage>
+   <descriptors>
+          <classGenerator/>
+          <builderGenerator/>
+  </descriptors>
+ </unit>
+
+}}}
+
