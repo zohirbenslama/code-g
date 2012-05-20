@@ -9,6 +9,11 @@
     <name>code-g-core</name>
     <url>http://code.google.com/p/code-g</url>
     <description>Java code generation api</description>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -20,9 +25,9 @@
         </license>
     </licenses>
     <scm>
-        <url>http://code-g.googlecode.com/svn/code-g-core/trunk/</url>
-        <connection>scm:svn:http://code-g.googlecode.com/svn/code-g-core/trunk</connection>
-        <developerConnection>scm:svn:http://code-g.googlecode.com/svn/code-g-core/trunk</developerConnection>
+        <url>https://code-g.googlecode.com/svn/code-g-core/trunk/</url>
+        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/trunk</connection>
+        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -46,25 +51,65 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- Deploy a "-sources.jar" along with build -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>code-g-api</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>compilation-toolbox</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
