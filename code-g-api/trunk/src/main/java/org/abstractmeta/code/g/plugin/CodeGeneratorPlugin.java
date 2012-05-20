@@ -25,4 +25,10 @@ public interface CodeGeneratorPlugin {
      */
     List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor);
 
+    /**
+     * Configuration options
+     * @return configuration options
+     */
+    Map<String, String> getOptions();
+    
 }

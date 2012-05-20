@@ -5,7 +5,9 @@ import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
 import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
 import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.util.*;
 
@@ -17,6 +19,7 @@ import java.util.*;
 public class DescriptorBuilder {
 
     public static final String TARGET_PACKAGE = "targetPackage";
+    public static final String TARGET_PREFIX = "targetPrefix";
     public static final String TARGET_POSTFIX = "targetPostfix";
 
 
@@ -228,7 +231,17 @@ public class DescriptorBuilder {
 
 
     public Map<String, String> getPluginDefault(String pluginName) {
-        Map<String, String> result = PLUGIN_DEFAULTS.get(pluginName);
+        if(pluginName == null) {
+            return Collections.emptyMap();
+        }
+        CodeGeneratorPlugin plugin = ReflectUtil.loadInstance(CodeGeneratorPlugin.class, pluginName);
+
+        Map<String, String> result = plugin.getOptions();
+        if(result != null && ! result.isEmpty())   {
+            return result;
+        }
+
+        result = PLUGIN_DEFAULTS.get(pluginName);
         if (result == null) return Collections.emptyMap();
         return result;
     }
@@ -247,6 +260,9 @@ public class DescriptorBuilder {
         }
         if (targetPostfix == null && defaults.containsKey(TARGET_POSTFIX)) {
             targetPostfix = defaults.get(TARGET_POSTFIX);
+        }
+        if (targetPrefix == null && defaults.containsKey(TARGET_PREFIX)) {
+            targetPrefix = defaults.get(TARGET_PREFIX);
         }
         return new DescriptorImpl(sourcePackage, sourceClass, targetPackage, targetPrefix, targetPostfix, superType, interfaces, exclusions, inclusion, plugin, compilationSources, options, immutableImplementation);
     }

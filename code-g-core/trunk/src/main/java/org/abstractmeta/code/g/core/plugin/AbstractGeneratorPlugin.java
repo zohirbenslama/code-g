@@ -11,10 +11,7 @@ import com.google.common.base.Preconditions;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Abstract generator plugin.
@@ -163,4 +160,8 @@ public abstract class AbstractGeneratorPlugin {
     protected abstract JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor);
 
 
+    public Map<String, String> getOptions() {
+        return Collections.emptyMap();
+    }
+    
 }

@@ -3,6 +3,7 @@ package org.abstractmeta.code.g.core.util;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
+import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -199,4 +200,26 @@ public class ReflectUtil {
     }
 
 
+    public static <T> T loadInstance(Class<T> type, String className, ClassLoader classLoader) {
+        Class clazz = null;
+        try {
+            clazz = loadClass(className, classLoader);
+            return type.cast(clazz.newInstance());
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Failed to cast " + clazz + " " + type.getName());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load class " + className, e);
+        }
+    }
+
+    public static Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+        if(classLoader == null) {
+            classLoader = ReflectUtil.class.getClassLoader();
+        }
+        return classLoader.loadClass(className);
+    }
+
+    public static <T> T loadInstance(Class<T> type, String className) {
+        return loadInstance(type, className, type.getClassLoader());
+    }
 }
