@@ -3,7 +3,7 @@
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
     <name>code-g-maven-plugin</name>
     <url>http://code.google.com/p/code-g</url>
     <description>Java code generation maven plugin</description>
@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://code-g.googlecode.com/svn/code-g-maven-plugin/tags/code-g-maven-plugin-0.3.0</url>
-        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/tags/code-g-maven-plugin-0.3.0</connection>
-        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/tags/code-g-maven-plugin-0.3.0</developerConnection>
+        <url>https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk/</url>
+        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</connection>
+        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
