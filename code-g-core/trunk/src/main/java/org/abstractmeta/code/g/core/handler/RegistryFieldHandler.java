@@ -15,6 +15,7 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
@@ -25,10 +26,9 @@ import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
-import org.abstractmeta.code.g.handler.JavaFieldHandler;
 import org.abstractmeta.code.g.expression.MethodMatch;
 import org.abstractmeta.code.g.expression.MethodMatcher;
-import com.google.common.base.CaseFormat;
+import org.abstractmeta.code.g.handler.JavaFieldHandler;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -58,18 +58,18 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         }
         Map<String, AbstractionMatch> matches = methodMatcher.indexByName(methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.REGISTRY_PATTERN));
         String fieldName = javaField.getName();
-        if(! fieldName.toLowerCase().endsWith("registry")) {
+        if (!fieldName.toLowerCase().endsWith("registry")) {
             return;
         }
         String groupName;
-        if(fieldName.equals("registry")) {
+        if (fieldName.equals("registry")) {
             groupName = AbstractionMatch.DEFAULT_GROUP_NAME;
-        }  else {
+        } else {
             //a registry filed name is generate from group name as follow xxxRegistry, where xxxx is group name
             String registryFiledName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, fieldName);
             groupName = registryFiledName.substring(0, registryFiledName.length() - 8);
         }
-     
+
         AbstractionMatch groupMatch = matches.get(groupName);
         if (groupMatch == null) {
             return;
@@ -78,7 +78,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         for (MethodMatch match : groupMatch.getMatches()) {
             JavaMethod javaMethod = match.getMethod();
             String methodName = javaMethod.getName();
-            JavaMethodBuilder methodBuilder =  new JavaMethodBuilder()
+            JavaMethodBuilder methodBuilder = new JavaMethodBuilder()
                     .setName(javaMethod.getName())
                     .setResultType(javaMethod.getResultType());
 
@@ -107,12 +107,12 @@ public class RegistryFieldHandler implements JavaFieldHandler {
                 buildGetMethod(methodBuilder, javaMethod, javaField);
 
             } else if (methodName.startsWith("is") && methodName.endsWith("Registered")) {
-                if(AbstractionMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
+                if (AbstractionMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
                     buildIsRegisteredMethod(methodBuilder, javaMethod, javaField);
                 }
             }
 
-              ownerTypeBuilder.addMethod(methodBuilder.build());
+            ownerTypeBuilder.addMethod(methodBuilder.build());
         }
     }
 
@@ -155,8 +155,16 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         MethodMatch getMethodMatch = groupMatch.getMatch("get", Object.class);
         Type registryIndexType = getMethodMatch.getMethod().getParameterTypes().get(0);
         Type registryValueType = unregisteredMethod.getParameterTypes().get(0);
-        JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryIndexType);
-        methodBuilder.addBody(String.format("%s.remove(%s.%s());", javaField.getName(), parameterName, accessor.getName()));
+        if (registryIndexType.equals(registryValueType)) {
+            methodBuilder.addBody(String.format("%s.remove(%s);", javaField.getName(), parameterName));
+
+        } else {
+            JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryIndexType);
+            if (accessor == null) {
+                throw new IllegalStateException("Failed to match be accessor type " + registryValueType + " " + registryIndexType);
+            }
+            methodBuilder.addBody(String.format("%s.remove(%s.%s());", javaField.getName(), parameterName, accessor.getName()));
+        }
     }
 
 }
