@@ -59,8 +59,7 @@ public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements Cod
 
 
     public ClassGeneratorPlugin() {
-        super(Arrays.asList(new AccessorFieldExtractor(),
-                new RegistryFieldExtractor()), Collections.<MethodExtractor>emptyList());
+        super(Arrays.asList(new RegistryFieldExtractor(), new AccessorFieldExtractor()), Collections.<MethodExtractor>emptyList());
     }
 
     @Override

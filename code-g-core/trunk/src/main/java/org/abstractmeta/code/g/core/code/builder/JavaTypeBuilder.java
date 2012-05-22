@@ -137,13 +137,28 @@ public class JavaTypeBuilder {
 
 
     public JavaTypeBuilder addField(JavaField field) {
+        if(containsField(field.getName())) {
+            return this;
+        }
         this.fields.add(field);
         return this;
     }
 
     public JavaTypeBuilder addFields(Collection<JavaField> fields) {
-        this.fields.addAll(fields);
+        for(JavaField field: fields) {
+            addField(field);
+        }
         return this;
+    }
+
+
+    public boolean containsField(String fieldName) {
+        for (JavaField field : getFields()) {
+            if (fieldName.equals(field.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -103,8 +103,13 @@ public class RegistryFieldHandler implements JavaFieldHandler {
             } else if (methodName.startsWith("unregister")) {
                 buildUnregisteredMethod(methodBuilder, groupMatch, javaMethod, javaField);
 
-            } else if (methodName.startsWith("get")) {
+            } else if (methodName.startsWith("getAll")) {
+                buildGetAllMethod(methodBuilder, javaMethod, javaField);
+
+
+            } else if (methodName.startsWith("get") ) {
                 buildGetMethod(methodBuilder, javaMethod, javaField);
+                
 
             } else if (methodName.startsWith("is") && methodName.endsWith("Registered")) {
                 if (AbstractionMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
@@ -116,11 +121,15 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         }
     }
 
-    private void buildUnregisterAllMethod(JavaMethodBuilder methodBuilder, JavaField javaField) {
+    protected void buildGetAllMethod(JavaMethodBuilder methodBuilder, JavaMethod getMethodMatch, JavaField javaField) {
+        methodBuilder.addBody(String.format("return %s.values();", javaField.getName()));
+    }
+
+    protected void buildUnregisterAllMethod(JavaMethodBuilder methodBuilder, JavaField javaField) {
         methodBuilder.addBody(String.format("%s.clear();", javaField.getName()));
     }
 
-    private void buildRegisterAllMethod(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod javaMethod, JavaField javaField) {
+    protected void buildRegisterAllMethod(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod javaMethod, JavaField javaField) {
         MethodMatch registerMatch = groupMatch.getMatch("register", Object.class);
         String parameterName = javaMethod.getParameterNames().get(0);
         Class collectionType = ReflectUtil.getGenericArgument(javaField.getType(), 1, Object.class);
