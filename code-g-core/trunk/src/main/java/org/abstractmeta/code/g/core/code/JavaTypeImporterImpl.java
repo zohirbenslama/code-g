@@ -165,9 +165,6 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
 
     protected void addTypeName(String name) {
-        if (name.equals("org.abstractmeta.code.g.core.plugin.BuilderClassGeneratorTest.Bar")) {
-            throw new IllegalStateException("!!!");
-        }
         typeNames.add(name);
     }
 
