@@ -105,7 +105,7 @@ public class BuilderMergeHandler implements JavaTypeHandler {
             Type fieldType = javaField.getType();
             Class rawType = ReflectUtil.getRawClass(fieldType);
             String setterMethodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
-            String getterMethodPrefix = Boolean.class.equals(javaField.getType()) ? "is" : "get";
+            String getterMethodPrefix = boolean.class.equals(javaField.getType()) || Boolean.class.equals(javaField.getType()) ? "is" : "get";
             String getterMethodName = StringUtil.format(CaseFormat.LOWER_CAMEL, getterMethodPrefix, fieldName, CaseFormat.LOWER_CAMEL);
 
             boolean isPrimitive = rawType.isPrimitive();

@@ -52,7 +52,7 @@ public class GetterFieldHandler implements JavaFieldHandler {
 
 
         String fieldName = javaField.getName();
-        String methodPrefix = Boolean.class.equals(javaField.getType()) ? "is" : "get";
+        String methodPrefix = Boolean.class.equals(javaField.getType()) || boolean.class.equals(javaField.getType()) ? "is" : "get";
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName, CaseFormat.LOWER_CAMEL);
         if (! ownerTypeBuilder.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
