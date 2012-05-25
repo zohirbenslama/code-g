@@ -110,10 +110,17 @@ public class JavaTypeUtil {
         if (dotIndex != -1) {
             className = className.substring(dotIndex + 1, className.length());
         }
-
-        if (className.indexOf('$') != -1) {
-            return className.replace("$", ".");
+        if(className.indexOf(';') != -1) {
+            className = className.replace(";", "[]");
         }
+        if (className.indexOf('$') != -1) {
+            className = className.replace("$", ".");
+            if(appendInnerClassDefiner) {
+                return className;
+            }
+            return getSimpleClassName(className, true);
+        }
+
         return className;
     }
 
