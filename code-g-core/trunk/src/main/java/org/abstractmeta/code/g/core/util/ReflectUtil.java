@@ -18,7 +18,6 @@ package org.abstractmeta.code.g.core.util;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
-import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -39,7 +38,11 @@ public class ReflectUtil {
             Type componentType = GenericArrayType.class.cast(type).getGenericComponentType();
             if (componentType instanceof Class) {
                 return Array.newInstance((Class) componentType, 0).getClass();
+            } else if (componentType instanceof  TypeVariable) {
+                 return Object[].class;
             }
+        } else if(type instanceof TypeVariable) {   
+            return Object.class;
         }
         return Object.class;
     }
@@ -75,12 +78,52 @@ public class ReflectUtil {
                 return result;
             }
             return new Type[]{};
+        } else if(type instanceof TypeVariable) {
+            return TypeVariable.class.cast(type).getBounds();
+        } else if(type instanceof WildcardType) {
+            return WildcardType.class.cast(type).getLowerBounds();
         }
-        throw new IllegalStateException(String.format("Unsupported type %s", type));
+        throw new IllegalStateException(String.format("Unsupported type %s", type + " "  + type.getClass()));
     }
 
 
-    public static String extractFieldNameFromMethodName(String methodName) {
+    public static Set<Type> getTypeVariables(Type type) {
+        HashSet<Type> result = new HashSet<Type>();
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
+            for(Type candidate: parameterizedType.getActualTypeArguments()) {
+                result.addAll(getTypeVariables(candidate));
+            }
+          
+            
+        } else if (type instanceof GenericArrayType) {
+            return getTypeVariables(GenericArrayType.class.cast(type).getGenericComponentType());
+        } else if (type instanceof Class) {
+            Class clazz = ((Class) type);
+            if (clazz.isPrimitive()) {
+                clazz = getPrimitiveCounterType(clazz);
+            }
+            TypeVariable[] typeVariables = clazz.getTypeParameters();
+            if (typeVariables != null && typeVariables.length > 0) {
+                for (int i = 0; i < typeVariables.length; i++) {
+                    result.addAll(getTypeVariables(typeVariables[i]));
+                }
+            }
+        } else if(type instanceof TypeVariable) {
+            result.add(type);
+        } else if(type instanceof WildcardType) {
+            
+            for(Type lowerType: WildcardType.class.cast(type).getLowerBounds()) {
+                result.addAll(getTypeVariables(lowerType));
+            }
+            for(Type upperType: WildcardType.class.cast(type).getUpperBounds()) {
+                result.addAll(getTypeVariables(upperType));
+            }
+        }
+        return result;
+    }
+    
+    public static   String extractFieldNameFromMethodName(String methodName) {
         int methodNameLength = methodName.length();
         if ((methodName.startsWith("set") || methodName.startsWith("get")) && methodNameLength > 3) {
             String upperCaseMethodName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);

@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -39,6 +40,8 @@ public class JavaConstructorBuilder {
     private List<Type> parameterTypes = new ArrayList<Type>();
 
     private List<String> parameterNames = new ArrayList<String>();
+
+    private List<Type> exceptionTypes = new ArrayList<Type>();
 
     private List<String> body = new ArrayList<String>();
 
@@ -81,11 +84,23 @@ public class JavaConstructorBuilder {
         return this;
     }
 
-    
+    public JavaConstructorBuilder addParameterNames(Collection<String> parameterNames) {
+        this.parameterNames.addAll(parameterNames);
+        return this;
+    }
 
+    public JavaConstructorBuilder setExceptionTypes(List<Type> exceptionTypes) {
+        this.exceptionTypes = exceptionTypes;
+        return this;
+    }
 
-    public JavaConstructorBuilder addArgumentNames(Collection<String> argumentNames) {
-        this.parameterNames.addAll(argumentNames);
+    public JavaConstructorBuilder addExceptionTypes(Collection<Type> exceptionTypes) {
+        this.exceptionTypes.addAll(exceptionTypes);
+        return this;
+    }
+
+    public JavaConstructorBuilder addExceptionTypes(Type ... exceptionTypes) {
+        Collections.addAll(this.exceptionTypes, exceptionTypes);
         return this;
     }
 
@@ -181,7 +196,7 @@ public class JavaConstructorBuilder {
     }
 
     public JavaConstructor build() {
-        JavaConstructor result = new JavaConstructorImpl(parameterModifiers, parameterTypes, parameterNames, body, modifiers, name, annotations, documentation);
+        JavaConstructor result = new JavaConstructorImpl(parameterModifiers, parameterTypes, parameterNames, exceptionTypes, body, modifiers, name, annotations, documentation);
         return result;
     }
 
@@ -193,7 +208,10 @@ public class JavaConstructorBuilder {
             addArgumentTypes(instance.getParameterTypes());
         }
         if (instance.getParameterNames() != null) {
-            addArgumentNames(instance.getParameterNames());
+            addParameterNames(instance.getParameterNames());
+        }
+        if (instance.getExceptionTypes() != null) {
+            addExceptionTypes(instance.getExceptionTypes());
         }
         if (instance.getBody() != null) {
             addBody(instance.getBody());

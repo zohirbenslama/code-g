@@ -89,10 +89,16 @@ public class ClassTypeProvider implements Provider<JavaType> {
     protected List<JavaMethod> readMethods() {
         List<JavaMethod> result = new ArrayList<JavaMethod>();
         for (Method method : ReflectUtil.getMethods(sourceType)) {
+
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder()
                     .setName(method.getName())
                     .setResultType(method.getGenericReturnType());
 
+            if(method.getExceptionTypes() != null) {
+                for(Type exceptionType: method.getExceptionTypes()) {
+                    methodBuilder.addExceptionTypes(exceptionType);
+                }
+            }
             for (String modifier : Splitter.on(" ").split(Modifier.toString(method.getModifiers()))) {
                 methodBuilder.addModifier(modifier);
             }
@@ -121,6 +127,15 @@ public class ClassTypeProvider implements Provider<JavaType> {
 
             for (Constructor constructor : sourceType.getConstructors()) {
                 JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
+                for (String modifier : Splitter.on(" ").split(Modifier.toString(constructor.getModifiers()))) {
+                    constructorBuilder.addModifier(modifier);
+                }
+
+                if(constructor.getExceptionTypes() != null) {
+                    for(Type exceptionType: constructor.getExceptionTypes()) {
+                        constructorBuilder.addExceptionTypes(exceptionType);
+                    }
+                }
                 constructorBuilder.setName(sourceType.getSimpleName());
                 addConstructorParameters(constructor, constructorBuilder, resultBuilder);
                 result.add(constructorBuilder.build());
@@ -131,6 +146,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
     }
 
     protected void addConstructorParameters(Constructor constructor, JavaConstructorBuilder constructorBuilder, JavaTypeBuilder resultBuilder) {
+
         if (constructor.getParameterTypes() == null) return;
         int i = 0;
         Class[] parameterTypes = constructor.getParameterTypes();

@@ -79,6 +79,7 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
         }
         builderClassBuilder.setSourceType(sourceType);
         builderClassBuilder.addModifier("public").setTypeName(targetTypeName);
+        builderClassBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());
         for (JavaField field : sourceType.getFields()) {
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.addModifier("private");

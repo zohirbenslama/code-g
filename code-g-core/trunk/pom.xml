@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-core</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>code-g-core</name>
     <url>http://code.google.com/p/code-g</url>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>code-g-api</artifactId>
-            <version>0.3.0</version>
+            <version>0.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.abstractmeta</groupId>

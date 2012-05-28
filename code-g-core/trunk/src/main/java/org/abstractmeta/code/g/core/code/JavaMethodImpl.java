@@ -37,6 +37,8 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<String> parameterNames;
 
+    private final List<Type> exceptionTypes;
+
     private final List<String> body;
 
     private final Type resultType;
@@ -51,10 +53,11 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<String> documentation;
 
-    public JavaMethodImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<String> body, Type resultType, List<JavaType> javaTypes, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+    public JavaMethodImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<Type> exceptionTypes, List<String> body, Type resultType, List<JavaType> javaTypes, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
         this.parameterModifiers = parameterModifiers;
         this.parameterTypes = parameterTypes;
         this.parameterNames = parameterNames;
+        this.exceptionTypes = exceptionTypes;
         this.body = body;
         this.resultType = resultType;
         this.javaTypes = javaTypes;
@@ -71,6 +74,11 @@ public class JavaMethodImpl implements JavaMethod {
     @Override
     public List<String> getParameterNames() {
         return parameterNames;
+    }
+
+    @Override
+    public List<Type> getExceptionTypes() {
+        return exceptionTypes;
     }
 
     @Override

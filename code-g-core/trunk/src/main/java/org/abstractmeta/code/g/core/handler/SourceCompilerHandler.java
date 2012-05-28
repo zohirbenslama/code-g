@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SourceCompilerHandler implements CodeHandler {
 
-    private final  JavaSourceCompiler javaSourceCompiler;
+    private final JavaSourceCompiler javaSourceCompiler;
     private final JavaSourceCompiler.CompilationUnit compilationUnit;
     private final List<String> generatedTypes = new ArrayList<String>();
 
@@ -41,16 +41,19 @@ public class SourceCompilerHandler implements CodeHandler {
 
     @Override
     public void handle(JavaType javaType, CharSequence sourceCode) {
+        if(sourceCode == null) {
+            throw new IllegalArgumentException("sourceCode was null for "+ javaType);
+        }
         compilationUnit.addJavaSource(javaType.getName(), sourceCode.toString());
         generatedTypes.add(javaType.getName());
     }
 
     public ClassLoader compile() {
-       return  javaSourceCompiler.compile(compilationUnit);
+        return javaSourceCompiler.compile(compilationUnit);
     }
 
     public ClassLoader compile(ClassLoader parentClassLoader) {
-       return  javaSourceCompiler.compile(parentClassLoader, compilationUnit);
+        return javaSourceCompiler.compile(parentClassLoader, compilationUnit);
     }
 
 

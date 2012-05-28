@@ -36,6 +36,8 @@ public class JavaConstructorImpl implements JavaConstructor {
 
     private final List<String> parameterNames;
 
+    private final List<Type> exceptionTypes;
+
     private final List<String> body;
 
     private final List<String> modifiers;
@@ -46,10 +48,11 @@ public class JavaConstructorImpl implements JavaConstructor {
 
     private final List<String> documentation;
 
-    public JavaConstructorImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<String> body, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+    public JavaConstructorImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<Type> exceptionTypes, List<String> body, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
         this.parameterModifiers = parameterModifiers;
         this.parameterTypes = parameterTypes;
         this.parameterNames = parameterNames;
+        this.exceptionTypes = exceptionTypes;
         this.body = body;
         this.modifiers = modifiers;
         this.name = name;
@@ -64,6 +67,11 @@ public class JavaConstructorImpl implements JavaConstructor {
     @Override
     public List<String> getParameterNames() {
         return this.parameterNames;
+    }
+
+    @Override
+    public List<Type> getExceptionTypes() {
+        return exceptionTypes;
     }
 
     public List<String> getBody() {

@@ -80,7 +80,12 @@ public class JavaSourceLoaderImpl implements JavaSourceLoader {
 
     private void loadJavaSource(File sourceDirectory, String sourceName, Map<String, String> result) {
         File javaSourceClass = new File(sourceDirectory, sourceName.replace(".", "/") + ".java");
-        String sourceCode = loadFile(javaSourceClass);
+        String sourceCode = null; 
+        try {
+            sourceCode = loadFile(javaSourceClass);
+        } catch (IllegalStateException e) {
+	    return;
+        }
         result.put(sourceName, sourceCode);
     }
 

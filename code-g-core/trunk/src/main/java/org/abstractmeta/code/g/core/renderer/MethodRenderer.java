@@ -25,7 +25,7 @@ import com.google.common.base.Joiner;
 
 public class MethodRenderer extends AbstractRenderer<JavaMethod> implements JavaMethodRenderer {
 
-    public static final String TEMPLATE = String.format("${%s}${%s}${%s}${%s} ${%s}(${%s}) {\n" +
+    public static final String TEMPLATE = String.format("${%s}${%s}${%s}${%s} ${%s}(${%s}) ${%s}{\n" +
         "${%s}\n}\n\n",
         DOCUMENTATION_PARAMETER,
         ANNOTATIONS_PARAMETER,
@@ -33,6 +33,7 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
         TYPE_PARAMETER,
         NAME_PARAMETER,
         ARGUMENTS_PARAMETER,
+        EXCEPTION_PARAMETER,
         BODY_PARAMETER
     );
 
@@ -58,6 +59,7 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
         template.set(TYPE_PARAMETER, importer.getSimpleTypeName(instance.getResultType()));
         template.set(NAME_PARAMETER, instance.getName());
         template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameterModifiers(), instance.getParameterTypes(), instance.getParameterNames()));
+        template.set(EXCEPTION_PARAMETER, getMethodExceptions(importer, instance.getExceptionTypes()));
         String javaInlineTypes = getJavaTypes(javaTypeRenderer, importer, instance.getNestedJavaTypes());
         String body = Joiner.on("\n").join(instance.getBody());
         template.set(BODY_PARAMETER, StringUtil.indent(String.format("%s%s", javaInlineTypes, body), indentSize + 4));

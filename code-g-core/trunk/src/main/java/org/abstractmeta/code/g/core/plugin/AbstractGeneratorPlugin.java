@@ -121,6 +121,10 @@ public abstract class AbstractGeneratorPlugin {
         if (targetPrefix == null) targetPrefix = "";
         String targetPostfix = descriptor.getTargetPostfix();
         if (targetPostfix == null) targetPostfix = "";
+        if(targetPackage.startsWith("java")) {
+            targetPackage = "org.abstractmeta." + targetPackage;
+        }
+
         return targetPackage + "." + targetPrefix + name + targetPostfix;
     }
 

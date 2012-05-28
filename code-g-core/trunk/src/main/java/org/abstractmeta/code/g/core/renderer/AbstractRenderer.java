@@ -39,6 +39,7 @@ public abstract class AbstractRenderer<T> {
     public static final String NAME_PARAMETER = "name";
     public static final String ANNOTATIONS_PARAMETER = "annotation";
     public static final String ARGUMENTS_PARAMETER = "arguments";
+    public static final String EXCEPTION_PARAMETER = "exceptions";
     public static final String BODY_PARAMETER = "body";
 
 
@@ -109,6 +110,18 @@ public abstract class AbstractRenderer<T> {
             }
         }
         return result.toString();
+    }
+
+    protected String getMethodExceptions(JavaTypeImporter importer, List<Type> exceptionTypes) {
+        StringBuilder result = new StringBuilder();
+        for (Type exceptionType: exceptionTypes) {
+            if(result.length() > 0) result.append(", ");
+            result.append(importer.getSimpleTypeName(exceptionType));              
+        }
+        if(result.length() > 0) {
+            return "throws " + result.toString();
+        }
+        return "";
     }
 
 
