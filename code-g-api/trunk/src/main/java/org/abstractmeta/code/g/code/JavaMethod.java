@@ -35,12 +35,14 @@ public interface JavaMethod  {
     List<String> getModifiers();
 
     Type getResultType();
-    
+
+    List<String> getParameterModifiers();
+
     List<Type> getParameterTypes();
 
     List<String> getParameterNames();
 
-    List<String> getParameterModifiers();
+    List<Type> getExceptionTypes();
 
     List<String> getBody();
     

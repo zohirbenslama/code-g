@@ -39,6 +39,9 @@ public interface JavaConstructor  {
     List<Type> getParameterTypes();
 
     List<String> getParameterNames();
+
+    List<Type> getExceptionTypes();
+
     
     List<String> getBody();
 }
