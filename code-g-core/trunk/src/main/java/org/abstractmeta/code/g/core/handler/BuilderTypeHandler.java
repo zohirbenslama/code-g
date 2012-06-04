@@ -181,6 +181,7 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         } else if (rawType.isArray()) {
             componentType = rawType.getComponentType();
             typeBuilder.addImportType(componentType);
+            componentSimpleTypeName =  JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
             field.setInitBody(String.format(" = new %s[]{}", componentSimpleTypeName));
 
         }

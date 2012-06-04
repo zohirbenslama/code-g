@@ -93,6 +93,9 @@ public class JavaTypeUtil {
 
 
     public static boolean matchFieldMethods(Type candidate, Collection<JavaMethod> methods) {
+        if(candidate instanceof TypeNameWrapper) {
+            return true;
+        }
         Class rawClass = ReflectUtil.getRawClass(candidate);
         JavaType candidateType = new ClassTypeProvider(rawClass).get();
         Set<String> candidateMethods = new HashSet<String>();
@@ -102,7 +105,6 @@ public class JavaTypeUtil {
         for(JavaMethod method: methods) {
             String methodName = method.getName();
             if(methodName.length() > 3 && (methodName.startsWith("get") 
-                    || methodName.startsWith("set") 
                     || methodName.startsWith("is"))) {
                 if(! candidateMethods.contains(methodName))  {
                     return false;
