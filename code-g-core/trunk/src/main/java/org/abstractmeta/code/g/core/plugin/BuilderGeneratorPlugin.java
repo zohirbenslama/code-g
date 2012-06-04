@@ -64,7 +64,9 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
     @Override
     protected boolean isApplicable(JavaType sourceType) {
         List<JavaField> fields = sourceType.getFields();
-        return  ! ((sourceType.getModifiers().contains("abstract") || fields.size() == 0)
+        return  ! ((sourceType.getModifiers().contains("abstract")
+                || "enum".equals(sourceType.getKind())
+                || fields.size() == 0)
                 || (fields.size() == 1 && fields.get(0).getName().equals("registry")));
     }
 
@@ -100,8 +102,9 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
 
 
     protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
-        String buildResultTypeName = JavaTypeUtil.getSuperTypeName(sourceType);
+        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
         String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
         return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
     }
     

@@ -198,7 +198,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         String name = annotationName.substring(index + 1, annotationName.length());
 
         name = name.replace("$", ".");
-        Map<String, Object> values = ReflectUtil.readAnnotation(annotation);
+        Map<String, Object> values = ReflectUtil.indexAnnotation(annotation);
         StringBuilder valueBuilder = new StringBuilder();
         for (String key : values.keySet()) {
             Object value = values.get(key);

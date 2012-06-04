@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.handler;
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
@@ -95,12 +96,15 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName("build");
         methodBuilder.addModifier("public");
-        Type buildResultType = JavaTypeUtil.getSuperType(sourceType);
-        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(JavaTypeUtil.getSuperTypeName(sourceType), true);
+        Type buildResultType = JavaTypeUtil.matchDeclaringType(sourceType);
+        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(JavaTypeUtil.matchDeclaringTypeName(sourceType), true);
         methodBuilder.setResultType(buildResultType);
         List<String> buildTypeConstructorCallArguments = new ArrayList<String>();
         List<String> buildTypeSettingCode = new ArrayList<String>();
-
+        Set<String> sourceMethods = new HashSet<String>();
+        for (JavaMethod sourceMethod : sourceType.getMethods()) {
+            sourceMethods.add(sourceMethod.getName());
+        }
         for (JavaField field : sourceType.getFields()) {
             String fieldName = field.getName();
             Class fieldRawType = ReflectUtil.getRawClass(field.getType());
@@ -117,8 +121,11 @@ public class BuilderTypeHandler implements JavaTypeHandler {
                     buildTypeConstructorCallArguments.add(fieldName);
                 }
             } else {
+
                 String setterMethodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
-                buildTypeSettingCode.add(String.format("result.%s(%s);", setterMethodName, fieldName));
+                if (sourceMethods.contains(setterMethodName)) {
+                    buildTypeSettingCode.add(String.format("result.%s(%s);", setterMethodName, fieldName));
+                }
             }
         }
         typeBuilder.addImportType(methodBuilder.getResultType());
@@ -138,31 +145,43 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         Class rawType = ReflectUtil.getRawClass(field.getType());
         Type[] genericTypeArguments = ReflectUtil.getGenericActualTypeArguments(field.getType());
         Class componentType = ReflectUtil.getGenericArgument(genericTypeArguments, 0, Object.class);
-
-        if (Set.class.isAssignableFrom(rawType)) {
+        String componentSimpleTypeName = JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
+        if (NavigableSet.class.isAssignableFrom(rawType)) {
+            typeBuilder.addImportType(TreeSet.class);
+            typeBuilder.addImportType(componentType);
+            field.setInitBody(String.format(" = new %s<%s>()", TreeSet.class.getSimpleName(), componentSimpleTypeName));
+        } else if (Set.class.isAssignableFrom(rawType)) {
             typeBuilder.addImportType(HashSet.class);
             typeBuilder.addImportType(componentType);
-            field.setInitBody(String.format(" = new %s<%s>()", HashSet.class.getSimpleName(), componentType.getSimpleName()));
+            field.setInitBody(String.format(" = new %s<%s>()", HashSet.class.getSimpleName(), componentSimpleTypeName));
         } else if (Collection.class.isAssignableFrom(rawType)) {
             typeBuilder.addImportType(ArrayList.class);
             typeBuilder.addImportType(componentType);
-            field.setInitBody(String.format(" = new %s<%s>()", ArrayList.class.getSimpleName(), componentType.getSimpleName()));
-
+            field.setInitBody(String.format(" = new %s<%s>()", ArrayList.class.getSimpleName(), componentSimpleTypeName));
         } else if (Properties.class.isAssignableFrom(rawType)) {
             typeBuilder.addImportType(HashSet.class);
             typeBuilder.addImportType(componentType);
             field.setInitBody(" = new Properties()");
+        } else if (NavigableMap.class.isAssignableFrom(rawType)) {
+            typeBuilder.addImportType(HashSet.class);
+            typeBuilder.addImportType(componentType);
+            Class valueType = ReflectUtil.getGenericArgument(genericTypeArguments, 1, Object.class);
+            String valueSimpleTypeName = JavaTypeUtil.getSimpleClassName(valueType.getName(), true);
+            ownerTypeBuilder.addImportType(valueType);
+            ownerTypeBuilder.addImportType(TreeMap.class);
+            field.setInitBody(String.format(" = new %s<%s, %s>()", TreeMap.class.getSimpleName(), componentSimpleTypeName, valueSimpleTypeName));
         } else if (Map.class.isAssignableFrom(rawType)) {
             typeBuilder.addImportType(HashSet.class);
             typeBuilder.addImportType(componentType);
             Class valueType = ReflectUtil.getGenericArgument(genericTypeArguments, 1, Object.class);
+            String valueSimpleTypeName = JavaTypeUtil.getSimpleClassName(valueType.getName(), true);
             ownerTypeBuilder.addImportType(HashMap.class);
-            field.setInitBody(String.format(" = new %s<%s, %s>()", HashMap.class.getSimpleName(), componentType.getSimpleName(), valueType.getSimpleName()));
-
+            ownerTypeBuilder.addImportType(valueType);
+            field.setInitBody(String.format(" = new %s<%s, %s>()", HashMap.class.getSimpleName(), componentSimpleTypeName, valueSimpleTypeName));
         } else if (rawType.isArray()) {
             componentType = rawType.getComponentType();
             typeBuilder.addImportType(componentType);
-            field.setInitBody(String.format(" = new %s[]{}", componentType.getSimpleName()));
+            field.setInitBody(String.format(" = new %s[]{}", componentSimpleTypeName));
 
         }
     }

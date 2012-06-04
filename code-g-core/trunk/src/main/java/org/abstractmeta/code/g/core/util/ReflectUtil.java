@@ -186,7 +186,7 @@ public class ReflectUtil {
         }
     }
 
-    public static Map<String, Object> readAnnotation(Annotation annotation) {
+    public static Map<String, Object> indexAnnotation(Annotation annotation) {
         Class type = annotation.annotationType();
         Map<String, Object> result = new HashMap<String, Object>();
         for (Method method : type.getMethods()) {
@@ -210,6 +210,8 @@ public class ReflectUtil {
         switch (c) {
             case 'i':
                 return Integer.class;
+            case 's':
+                return Short.class;
             case 'l':
                 return Long.class;
             case 'c':
