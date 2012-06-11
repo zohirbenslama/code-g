@@ -15,22 +15,22 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
-import com.google.common.base.CaseFormat;
 
 /**
- * This handler creates has[field name] method for any field prefixed with '_'.
- * Has method only returns true if original
+ * This handler creates is[field name]Present method for any field prefixed with '_'.
+ * This method only returns true if original
  * field was mutated.
  * <p>
  * <ul>For 'foo' field the following method is generated.
- * <li> has: <pre>
- * public boolean hasFoo() {
+ * <li> isXXXPresent: <pre>
+ * public boolean isFooPresent() {
  *    return this._foo;
  * }
  * </pre></li>
@@ -38,25 +38,29 @@ import com.google.common.base.CaseFormat;
  *
  * @author Adrian Witas
  */
-public class HasFieldHandler implements JavaFieldHandler {
+public class IsFieldPresentHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final boolean generatePresentCheck;
 
-    public HasFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public IsFieldPresentHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.generatePresentCheck = generatePresentCheck;
     }
 
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
-        if(! (javaField.getName().charAt(0) == '_' && javaField.getType().equals(boolean.class))) {
-             return;
+        if (!(javaField.getName().charAt(0) == '_' && javaField.getType().equals(boolean.class))) {
+            return;
         }
-
+        if (!generatePresentCheck) {
+            return;
+        }
         String fieldName = javaField.getName();
-        String methodPrefix = "has";
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName, CaseFormat.LOWER_CAMEL);
-        if (! ownerTypeBuilder.containsMethod(methodName)) {
+        String methodPrefix = "is";
+        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName + "Present", CaseFormat.LOWER_CAMEL);
+        if (!ownerTypeBuilder.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.setName(methodName);
             methodBuilder.setResultType(boolean.class);

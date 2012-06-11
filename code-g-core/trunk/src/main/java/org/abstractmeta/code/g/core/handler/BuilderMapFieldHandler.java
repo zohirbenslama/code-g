@@ -64,9 +64,11 @@ import java.util.Map;
 public class BuilderMapFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final boolean generatePresentCheck;
 
-    public BuilderMapFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public BuilderMapFieldHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.generatePresentCheck = generatePresentCheck;
     }
 
 
@@ -90,7 +92,9 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             methodBuilder.setName(methodName);
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addBody(String.format("this.%s.putAll(%s);", fieldName, fieldName));
-            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            if (generatePresentCheck) {
+                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());
         }
@@ -110,7 +114,9 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter("key", keyType);
             methodBuilder.addParameter("value", valueType);
             methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
-            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            if(generatePresentCheck) {
+                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());
         }

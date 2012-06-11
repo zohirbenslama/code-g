@@ -90,7 +90,7 @@ public class BuilderMergeHandler implements JavaTypeHandler {
 
     @Override
     public void handle(JavaType sourceType) {
-        JavaMethod buildMethod = ownerTypeBuilder.getMethod("generate");
+        JavaMethod buildMethod = ownerTypeBuilder.getMethod("build");
         if (buildMethod == null || ownerTypeBuilder.containsMethod("merge")) {
             return;
         }

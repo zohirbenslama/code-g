@@ -23,10 +23,9 @@ import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
-import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ import java.util.Map;
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderMapFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderArrayFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.GetterFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.HasFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.IsFieldPresentHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderTypeHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.BuilderMergeHandler}</li>
  * </ul>
@@ -64,7 +63,7 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
     @Override
     protected boolean isApplicable(JavaType sourceType) {
         List<JavaField> fields = sourceType.getFields();
-        return  ! ((sourceType.getModifiers().contains("abstract")
+        return !((sourceType.getModifiers().contains("abstract")
                 || "enum".equals(sourceType.getKind())
                 || fields.size() == 0)
                 || (fields.size() == 1 && fields.get(0).getName().equals("registry")));
@@ -72,7 +71,12 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
 
     @Override
     protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
-        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType);
+        Map<String, String> options = getOptions();
+        if (options == null) options = Collections.emptyMap();
+        String skipIsPresentMethod = options.get("skipIsPresentMethod");
+        if (skipIsPresentMethod == null) skipIsPresentMethod = "false";
+        boolean generatePresentCheck = ("false".equalsIgnoreCase(skipIsPresentMethod));
+        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType, generatePresentCheck);
         Map<String, String> immutableImplementation = descriptor.getImmutableImplementation();
         if (immutableImplementation != null) {
             for (String key : immutableImplementation.keySet()) {
@@ -88,17 +92,17 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
             fieldBuilder.setType(field.getType());
             fieldBuilder.setName(field.getName());
             builderClassBuilder.addField(fieldBuilder.build());
-
-            JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
-            trackerFieldBuilder.addModifier("private");
-            trackerFieldBuilder.setType(boolean.class);
-            trackerFieldBuilder.setName("_" + field.getName());
-            builderClassBuilder.addField(trackerFieldBuilder.build());
+            if (generatePresentCheck) {
+                JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
+                trackerFieldBuilder.addModifier("private");
+                trackerFieldBuilder.setType(boolean.class);
+                trackerFieldBuilder.setName("_" + field.getName());
+                builderClassBuilder.addField(trackerFieldBuilder.build());
+            }
         }
 
         return builderClassBuilder;
     }
-
 
 
     protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
@@ -107,6 +111,6 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
         buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
         return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
     }
-    
-   
+
+
 }

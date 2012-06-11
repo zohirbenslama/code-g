@@ -15,15 +15,15 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
-import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -73,9 +73,12 @@ import java.util.Collections;
 public class BuilderCollectionFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final boolean generatePresentCheck;
 
-    public BuilderCollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public BuilderCollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder,boolean generatePresentCheck) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.generatePresentCheck = generatePresentCheck;
+
     }
 
 
@@ -101,7 +104,9 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, fieldType);
         methodBuilder.addBody(String.format("this.%s.addAll(%s);", fieldName, fieldName));
-        methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        if(generatePresentCheck) {
+            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
     }
@@ -117,7 +122,9 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
         methodBuilder.addParameter("..." + fieldName, componentType);
         ownerTypeBuilder.addImportType(Collections.class);
         methodBuilder.addBody(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));
-        methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        if(generatePresentCheck) {
+            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
     }

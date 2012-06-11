@@ -15,6 +15,7 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
@@ -24,7 +25,6 @@ import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
-import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -73,11 +73,14 @@ import java.util.Collection;
 public class BuilderArrayFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final boolean generatePresentCheck;
 
-    public BuilderArrayFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public BuilderArrayFieldHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.generatePresentCheck =generatePresentCheck;
     }
 
+    //TODO add generic array type support
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
         Type fieldType = javaField.getType();
@@ -107,7 +110,9 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("int i = this.%s.length;", fieldName));
         methodBuilder.addBody(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        if(generatePresentCheck) {
+            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
     }
@@ -124,7 +129,9 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
         methodBuilder.addBody(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        if(generatePresentCheck) {
+            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+        }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
     }

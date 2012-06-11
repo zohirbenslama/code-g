@@ -23,6 +23,7 @@ import org.abstractmeta.code.g.core.extractor.AccessorFieldExtractor;
 import org.abstractmeta.code.g.core.extractor.RegistryFieldExtractor;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
@@ -83,6 +84,14 @@ public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements Cod
 
         addExtractableFields(classBuilder, sourceType);
         return classBuilder;
+    }
+
+
+    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
+        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
+        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
+        return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
     }
 
 

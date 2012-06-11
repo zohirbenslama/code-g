@@ -233,6 +233,31 @@ public class ReflectUtil {
         }
     }
 
+
+    public static Class getPrimitiveType(Class type) {
+    
+       if(Integer.class.equals(type)) {
+           return int.class;
+       } else if(Long.class.equals(type)) {
+            return long.class;   
+       } else if(Short.class.equals(type)) {
+            return short.class;   
+       } else if(Character.class.equals(type)) {
+           return char.class;
+       } else if(Byte.class.equals(type)) {
+           return byte.class;
+       } else if(Boolean.class.equals(type)) {
+           return boolean.class;
+       } else if(Float.class.equals(type)) {
+           return float.class;
+       } else if(Double.class.equals(type)) {
+           return double.class;
+       } else if(Void.class.equals(type)) {
+           return void.class;
+       }
+       return null;
+    }
+
     public static Class getGenericArgument(Type type, int argumentIndex, Class defaultType) {
         if (type instanceof ParameterizedType) {
             Type[] types = ParameterizedType.class.cast(type).getActualTypeArguments();

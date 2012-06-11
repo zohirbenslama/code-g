@@ -19,6 +19,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.handler.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,17 +32,17 @@ public class BuilderClassBuilder extends JavaTypeBuilder {
 
     private final Map<String, String> immutableImplementation;
     private final JavaType buildType;
-    
-    public BuilderClassBuilder(JavaType builtType) {
+
+    public BuilderClassBuilder(JavaType builtType, boolean generatePresentCheck) {
         super();
         this.buildType = builtType;
         this.immutableImplementation = new HashMap<String, String>();
-        addFieldHandler(new BuilderSetterFieldHandler(this));
-        addFieldHandler(new BuilderCollectionFieldHandler(this));
-        addFieldHandler(new BuilderMapFieldHandler(this));
-        addFieldHandler(new BuilderArrayFieldHandler(this));
+        addFieldHandler(new BuilderSetterFieldHandler(this, generatePresentCheck));
+        addFieldHandler(new BuilderCollectionFieldHandler(this, generatePresentCheck));
+        addFieldHandler(new BuilderMapFieldHandler(this, generatePresentCheck));
+        addFieldHandler(new BuilderArrayFieldHandler(this, generatePresentCheck));
         addFieldHandler(new GetterFieldHandler(this));
-        addFieldHandler(new HasFieldHandler(this));
+        addFieldHandler(new IsFieldPresentHandler(this, generatePresentCheck));
 
         addTypeHandler(new BuilderTypeHandler(this, immutableImplementation));
         addTypeHandler(new BuilderMergeHandler(this));

@@ -80,6 +80,7 @@ public class CodeGeneratorImpl implements CodeGenerator {
             CodeGeneratorPlugin plugin = ReflectUtil.loadInstance(CodeGeneratorPlugin.class, descriptor.getPlugin(), classLoader);
             List<String> generated = plugin.generate(loadedTypes, registry, descriptor);
             renderCode(handler, generated, registry);
+
         }
     }
 

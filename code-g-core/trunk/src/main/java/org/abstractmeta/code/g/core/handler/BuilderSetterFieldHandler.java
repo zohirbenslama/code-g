@@ -15,14 +15,14 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
-import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
 
@@ -46,9 +46,11 @@ import java.lang.reflect.Type;
 public class BuilderSetterFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final boolean generatePresentCheck;
 
-    public BuilderSetterFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public BuilderSetterFieldHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.generatePresentCheck = generatePresentCheck;
     }
 
     @Override
@@ -65,7 +67,9 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addModifier("public");
             methodBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
-            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            if(generatePresentCheck) {
+                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());
         }
