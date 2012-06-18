@@ -103,6 +103,7 @@ public class CodeGeneratorImplTest {
         ClassLoader classLoader = compilerHandler.compile();
         Class generatedClass = classLoader.loadClass(generated.get(1));
         Object builder = generatedClass.newInstance();
+        TestHelper.invokeMethod(builder, "setActive", new Class[]{Boolean.class}, true);
         TestHelper.invokeMethod(builder, "addAliases", new Class[]{String[].class}, new Object[]{new String[]{"foo", "bar"}});
 
         User user = User.class.cast(TestHelper.invokeMethod(builder, "build", new Class[]{}));
