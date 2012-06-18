@@ -67,6 +67,7 @@ public class IsFieldPresentHandler implements JavaFieldHandler {
             methodBuilder.addModifier("public");
             methodBuilder.addBody(String.format("return this.%s;", fieldName));
             ownerTypeBuilder.addMethod(methodBuilder.build());
+
         }
     }
 }

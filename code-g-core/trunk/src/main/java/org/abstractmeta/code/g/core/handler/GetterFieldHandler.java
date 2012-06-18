@@ -49,8 +49,6 @@ public class GetterFieldHandler implements JavaFieldHandler {
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
-
-
         String fieldName = javaField.getName();
         String methodPrefix = Boolean.class.equals(javaField.getType()) || boolean.class.equals(javaField.getType()) ? "is" : "get";
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName, CaseFormat.LOWER_CAMEL);

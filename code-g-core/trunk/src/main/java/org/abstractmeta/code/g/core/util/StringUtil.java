@@ -108,4 +108,8 @@ public class StringUtil {
         return result.toString();
     }
 
+    public static String isPresentFieldName(String fieldName) {
+        return  "_" +  fieldName + "Present";
+    }
+    
 }

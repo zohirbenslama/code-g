@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.test;
 
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public interface User {
@@ -27,5 +28,8 @@ public interface User {
     int getSequenceChangeNo();
 
     void setSequenceChangeNo(int scn);
+
+    @Nonnull
+    Boolean isActive();
 
 }

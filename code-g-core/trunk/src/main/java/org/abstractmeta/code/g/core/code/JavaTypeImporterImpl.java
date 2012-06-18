@@ -213,6 +213,9 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
             if (value.getClass().isArray()) {
                 valueBuilder.append(formatAnnotationValueArray(value));
 
+            } else if(value.getClass().isEnum()) {
+                addTypeName(value.getClass().getName());
+                valueBuilder.append(value.getClass().getSimpleName() + "." + value);
             } else {
                 valueBuilder.append(value);
             }

@@ -28,9 +28,11 @@ import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 
 
 import javax.inject.Provider;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -81,6 +83,9 @@ public class ClassTypeProvider implements Provider<JavaType> {
             for (String modifier : Splitter.on(" ").split(Modifier.toString(field.getModifiers()))) {
                 fieldBuilder.addModifier(modifier);
             }
+            List<Annotation> annotations = new ArrayList<Annotation>();
+            Collections.addAll(annotations, field.getAnnotations());
+            fieldBuilder.addAnnotations(annotations);
             result.add(fieldBuilder.build());
         }
         return result;
@@ -102,7 +107,9 @@ public class ClassTypeProvider implements Provider<JavaType> {
             for (String modifier : Splitter.on(" ").split(Modifier.toString(method.getModifiers()))) {
                 methodBuilder.addModifier(modifier);
             }
-
+            List<Annotation> annotations = new ArrayList<Annotation>();
+            Collections.addAll(annotations, method.getAnnotations());
+            methodBuilder.addAnnotations(annotations);
             if (sourceType.isInterface() && methodBuilder.getModifiers().size() == 0) {
                 methodBuilder.addModifier("public");
             }

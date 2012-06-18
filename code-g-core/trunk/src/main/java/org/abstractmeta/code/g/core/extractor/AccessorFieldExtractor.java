@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.core.extractor;
 
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
@@ -26,6 +27,7 @@ import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +73,14 @@ public class AccessorFieldExtractor implements FieldExtractor {
         List<AbstractionMatch> matchedGroups = methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.ACCESSOR_MUTATOR_PATTERN);
         for (AbstractionMatch match : matchedGroups) {
             Type fieldType;
+            JavaMethod matchedMethod;
             if (match.containsMatch("get")) {
-                fieldType = match.getMatch("get").getMethod().getResultType();
+                matchedMethod = match.getMatch("get").getMethod();
+                fieldType =matchedMethod.getResultType();
+
             } else if (match.containsMatch("is")) {
-                fieldType = match.getMatch("is").getMethod().getResultType();
+                matchedMethod = match.getMatch("is").getMethod();
+                fieldType = matchedMethod.getResultType();
             } else {
                 continue;
             }
@@ -84,7 +90,9 @@ public class AccessorFieldExtractor implements FieldExtractor {
             fieldBuilder.addModifier("private");
             fieldBuilder.setImmutable(!(match.containsMatch("set", Object.class) || match.containsMatch("add", Object.class)));
             fieldBuilder.setType(fieldType);
+            fieldBuilder.addAnnotations(matchedMethod.getAnnotations());
             result.add(fieldBuilder.build());
+
         }
         return result;
     }

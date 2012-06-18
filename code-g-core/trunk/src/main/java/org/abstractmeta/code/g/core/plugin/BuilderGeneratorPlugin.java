@@ -23,6 +23,7 @@ import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
+import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 
 import java.util.Collections;
@@ -91,12 +92,13 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
             fieldBuilder.addModifier("private");
             fieldBuilder.setType(field.getType());
             fieldBuilder.setName(field.getName());
+            fieldBuilder.addAnnotations(field.getAnnotations());
             builderClassBuilder.addField(fieldBuilder.build());
             if (generatePresentCheck) {
                 JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
                 trackerFieldBuilder.addModifier("private");
                 trackerFieldBuilder.setType(boolean.class);
-                trackerFieldBuilder.setName("_" + field.getName());
+                trackerFieldBuilder.setName(StringUtil.isPresentFieldName(field.getName()));
                 builderClassBuilder.addField(trackerFieldBuilder.build());
             }
         }
@@ -111,6 +113,8 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
         buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
         return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
     }
+
+
 
 
 }

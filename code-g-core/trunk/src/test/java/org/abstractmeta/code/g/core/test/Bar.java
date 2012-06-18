@@ -27,4 +27,6 @@ public interface Bar {
     int getId();
     
     String getName();
+
+    boolean isFoo();
 }

@@ -20,6 +20,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,7 @@ public class SourceCompilerHandler implements CodeHandler {
     public JavaSourceCompiler.CompilationUnit getCompilationUnit() {
         return compilationUnit;
     }
+
 
     public List<String> getGeneratedTypes() {
         return generatedTypes;

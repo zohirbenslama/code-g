@@ -29,6 +29,8 @@ import org.abstractmeta.code.g.core.util.TestHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import javax.annotation.Nonnull;
+import javax.annotation.meta.When;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -74,13 +76,14 @@ public class CodeGeneratorImplTest {
         Assert.assertEquals(user.getId(), 1);
         Assert.assertEquals(user.getAliases(), Arrays.asList("foo", "bar"));
         user.getAliases().add("Dummy");
-        Assert.assertEquals(user.getAliases().size(), 3);
+        Assert.assertEquals(user.getAliases().size(), 4);
 
     }
 
 
 
 
+    @Nonnull(when = When.NEVER)
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testCodeBuilderWithSimpleClassGeneratorWithCustomCollection() throws Exception {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
@@ -98,7 +101,6 @@ public class CodeGeneratorImplTest {
         ClassLoader classLoader = compilerHandler.compile();
         Class generatedClass = classLoader.loadClass(generated.get(1));
         Object builder = generatedClass.newInstance();
-
         TestHelper.invokeMethod(builder, "addAliases", new Class[]{String[].class}, new Object[]{new String[]{"foo", "bar"}});
 
         User user = User.class.cast(TestHelper.invokeMethod(builder, "build", new Class[]{}));

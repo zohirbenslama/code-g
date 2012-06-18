@@ -93,7 +93,7 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addBody(String.format("this.%s.putAll(%s);", fieldName, fieldName));
             if (generatePresentCheck) {
-                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+                methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());
@@ -115,7 +115,7 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter("value", valueType);
             methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
             if(generatePresentCheck) {
-                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+                methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());

@@ -55,6 +55,7 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
+        if(javaField.getName().startsWith("_")) return;;
         addSetterMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
     }
 
@@ -68,7 +69,7 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
             methodBuilder.addModifier("public");
             methodBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
             if(generatePresentCheck) {
-                methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+                methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());

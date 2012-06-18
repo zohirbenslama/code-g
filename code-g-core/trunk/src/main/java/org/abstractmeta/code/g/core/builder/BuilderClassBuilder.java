@@ -42,8 +42,6 @@ public class BuilderClassBuilder extends JavaTypeBuilder {
         addFieldHandler(new BuilderMapFieldHandler(this, generatePresentCheck));
         addFieldHandler(new BuilderArrayFieldHandler(this, generatePresentCheck));
         addFieldHandler(new GetterFieldHandler(this));
-        addFieldHandler(new IsFieldPresentHandler(this, generatePresentCheck));
-
         addTypeHandler(new BuilderTypeHandler(this, immutableImplementation));
         addTypeHandler(new BuilderMergeHandler(this));
     }

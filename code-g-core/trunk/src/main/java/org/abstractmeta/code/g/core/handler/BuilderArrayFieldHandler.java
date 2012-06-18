@@ -111,7 +111,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
         if(generatePresentCheck) {
-            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
@@ -130,7 +130,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
         if(generatePresentCheck) {
-            methodBuilder.addBody(String.format("this._%s = true;", fieldName));
+            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());

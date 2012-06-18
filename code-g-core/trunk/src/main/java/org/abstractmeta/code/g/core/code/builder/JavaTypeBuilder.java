@@ -53,7 +53,7 @@ public class JavaTypeBuilder {
     private List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 
     private List<Type> genericTypeArguments = new ArrayList<Type>();
-    
+
     private Map<String, Type> genericTypeVariables = new HashMap<String, Type>();
 
     private Set<Type> importTypes = new HashSet<Type>();
@@ -137,7 +137,7 @@ public class JavaTypeBuilder {
 
 
     public JavaTypeBuilder addField(JavaField field) {
-        if(containsField(field.getName())) {
+        if (containsField(field.getName())) {
             return this;
         }
         this.fields.add(field);
@@ -145,7 +145,7 @@ public class JavaTypeBuilder {
     }
 
     public JavaTypeBuilder addFields(Collection<JavaField> fields) {
-        for(JavaField field: fields) {
+        for (JavaField field : fields) {
             addField(field);
         }
         return this;
@@ -461,8 +461,11 @@ public class JavaTypeBuilder {
         for (JavaTypeHandler typeHandler : typeHandlers) {
             typeHandler.handle(sourceType);
         }
-        addDocumentation(CODE_G_GENERATOR_SIGNATURE);
+        if (getModifiers().contains("public")) {
+            addDocumentation(CODE_G_GENERATOR_SIGNATURE);
+        }
         return new JavaTypeImpl(getFields(), getMethods(), getConstructors(), importTypes, superInterfaces, packageName, kind, body, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, getSimpleName(), genericTypeArguments, genericTypeVariables);
+
     }
 
 
