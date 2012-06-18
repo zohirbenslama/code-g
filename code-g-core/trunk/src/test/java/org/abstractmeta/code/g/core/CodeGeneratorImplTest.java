@@ -71,12 +71,14 @@ public class CodeGeneratorImplTest {
         Class generatedClass = classLoader.loadClass(generated.get(1));
         Object builder = generatedClass.newInstance();
         TestHelper.invokeMethod(builder, "setId", new Class[]{int.class}, 1);
+        TestHelper.invokeMethod(builder, "setActive", new Class[]{Boolean.class}, true);
+
         TestHelper.invokeMethod(builder, "addAliases", new Class[]{String[].class}, new Object[]{new String[]{"foo", "bar"}});
         User user = User.class.cast(TestHelper.invokeMethod(builder, "build", new Class[]{}));
         Assert.assertEquals(user.getId(), 1);
         Assert.assertEquals(user.getAliases(), Arrays.asList("foo", "bar"));
         user.getAliases().add("Dummy");
-        Assert.assertEquals(user.getAliases().size(), 4);
+        Assert.assertEquals(user.getAliases().size(), 3);
 
     }
 
