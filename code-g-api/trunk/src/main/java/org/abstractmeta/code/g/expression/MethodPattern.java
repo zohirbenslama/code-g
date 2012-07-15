@@ -31,6 +31,8 @@ import java.util.List;
 
  *  </ul>
  *  <i>Object.class</i> can be used as any type
+ *  <i>Object[].class</i> can be used as any types, vany number of arguments
+
  *
  *
 * @author Adrian Witas
