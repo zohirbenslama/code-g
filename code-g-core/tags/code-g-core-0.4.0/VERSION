@@ -1,0 +1,17 @@
+0.3.0 Initial version
+
+  class generator
+    - getter/setter
+    - registry
+  builder generator
+
+0.4.0
+    - fixed boolean type field detection issue
+    - added generic variable support
+    - improved generic support
+    - enhanced annotation support in code generator plugins
+    - added required filed validation to builder
+    - add skipIsPresentMethod configuration parameter to skip method generation by builder plugin
+    - renamed has<Filed> to is<Field>Present method to builder
+    - extended method argument matching by adding Object[] for any type arguments.
+    - minor bug fixes
