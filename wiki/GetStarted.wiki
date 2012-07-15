@@ -83,6 +83,7 @@ public interface ViewRegistry {
     void register(View view);
     void unregister(View view);
     View get(int id);
+    Map<Integer, View> getRegistry();
 }
 
 }}}
@@ -363,3 +364,5 @@ For more examples please check out [http://code-g.googlecode.com/svn/code-g-exam
 
 
   * Specialised plugin descriptors like _CodeGenerator_, _BuilderGenerator_ derive from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
+
+
