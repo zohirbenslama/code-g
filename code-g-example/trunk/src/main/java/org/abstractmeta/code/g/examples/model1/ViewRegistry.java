@@ -1,5 +1,7 @@
 package org.abstractmeta.code.g.examples.model1;
 
+import java.util.Map;
+
 /**
  * Represents ViewRegistry
  *
@@ -13,5 +15,6 @@ public interface ViewRegistry {
     
     View get(int id);
 
+    Map<Integer, View> getRegistry();
 }
 
