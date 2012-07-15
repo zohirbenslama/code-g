@@ -76,12 +76,18 @@ public class RegistryFieldExtractor implements FieldExtractor {
             }
             MethodMatch getMethodMatch = match.getMatch("get", Object[].class);
             MethodMatch registerMatch = match.getMatch("register", Object[].class);
-
-            Type registryType = buildRegistryBackingGenericMap(registerMatch.getMethod().getParameterTypes());
+            Type registryType;
+            if(registerMatch.getMethod().getParameterNames().size() > 1) {
+                registryType = buildRegistryBackingGenericMap(registerMatch.getMethod().getParameterTypes());
+            } else {
+                Type keyType = getMethodMatch.getMethod().getParameterTypes().get(0);
+                Type valueType = registerMatch.getMethod().getParameterTypes().get(0);
+                registryType  = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType));
+            }
             String name = match.getName();
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.addModifier("private").setImmutable(true);
-               fieldBuilder.setType(registryType);
+            fieldBuilder.setType(registryType);
             if (name.isEmpty()) {
                 fieldBuilder.setName("registry");
             } else {
