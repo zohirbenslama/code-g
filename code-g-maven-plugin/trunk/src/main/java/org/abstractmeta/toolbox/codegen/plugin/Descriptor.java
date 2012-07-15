@@ -18,9 +18,9 @@ package org.abstractmeta.toolbox.codegen.plugin;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
 
 /**
- * Represents Descriptor
- * <p>
- * </p>
+ *
+ * Convenience class for maven plugin
+ * Represents code plugin configuration descriptor.
  *
  * @author Adrian Witas
  */

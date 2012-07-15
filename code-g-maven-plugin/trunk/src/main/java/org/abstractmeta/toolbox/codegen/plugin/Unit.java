@@ -21,9 +21,7 @@ import org.abstractmeta.code.g.core.config.UnitDescriptorImpl;
 import java.util.Collection;
 
 /**
- * Represents Unit
- * <p>
- * </p>
+ * Convenience Unit descriptor for  maven plugin.
  *
  * @author Adrian Witas
  */
