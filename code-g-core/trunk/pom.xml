@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-core</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>code-g-core</name>
     <url>http://code.google.com/p/code-g</url>
@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://code-g.googlecode.com/svn/code-g-core/tags/code-g-core-0.4.0</url>
-        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/tags/code-g-core-0.4.0</connection>
-        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/tags/code-g-core-0.4.0</developerConnection>
+        <url>https://code-g.googlecode.com/svn/code-g-core/trunk/</url>
+        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/trunk</connection>
+        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-core/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
