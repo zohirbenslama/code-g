@@ -45,6 +45,7 @@ public class TypeMatchPredicate implements Predicate<Type> {
         Class candidate = ReflectUtil.getRawClass(rawTypeCandidate);
         return baseType == null
             || Object.class.equals(baseType)
+            || Object[].class.equals(baseType)
             || baseType.isAssignableFrom(candidate);
     }
 }

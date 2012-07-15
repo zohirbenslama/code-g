@@ -39,7 +39,6 @@ import java.util.List;
 public class CodeGeneratorImplTest {
 
 
-
     public void testCodeClassGenerator() throws IOException, ClassNotFoundException {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
         List<Descriptor> descriptors = Arrays.asList(
@@ -58,8 +57,8 @@ public class CodeGeneratorImplTest {
     public void testCodeBuilderWithSimpleClassGenerator() throws Exception {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
         List<Descriptor> descriptors = Arrays.asList(
-            new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
-            new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName()).build()
+                new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
+                new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName()).build()
         );
 
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
@@ -83,9 +82,6 @@ public class CodeGeneratorImplTest {
     }
 
 
-
-
-    @Nonnull(when = When.NEVER)
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testCodeBuilderWithSimpleClassGeneratorWithCustomCollection() throws Exception {
         CodeGenerator codeBuilder = new CodeGeneratorImpl();
@@ -105,6 +101,7 @@ public class CodeGeneratorImplTest {
         Object builder = generatedClass.newInstance();
         TestHelper.invokeMethod(builder, "setActive", new Class[]{Boolean.class}, true);
         TestHelper.invokeMethod(builder, "addAliases", new Class[]{String[].class}, new Object[]{new String[]{"foo", "bar"}});
+        Assert.assertNotNull(TestHelper.invokeMethod(builder, "getAliases", new Class[]{}));
 
         User user = User.class.cast(TestHelper.invokeMethod(builder, "build", new Class[]{}));
         Assert.assertEquals(user.getAliases(), Arrays.asList("foo", "bar"));

@@ -103,14 +103,8 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
         } else if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
-            StringBuilder arguments = new StringBuilder();
-            for (Type argument : parameterizedType.getActualTypeArguments()) {
-                if (arguments.length() > 0) {
-                    arguments.append(", ");
-                }
-                arguments.append(getSimpleTypeName(argument));
-            }
-            return String.format("%s<%s>", getSimpleTypeName(parameterizedType.getRawType()), arguments.toString());
+            String argumentTypeName = getGenericArgumentTypeName(type);
+            return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
         } else if (type instanceof TypeVariable) {
@@ -140,14 +134,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
     protected String getSimpleTypeNameWithGenericArgumentTypes(String simpleTypeName, Collection<Type> genericArgumentTypes) {
         if (genericArgumentTypes != null && !genericArgumentTypes.isEmpty()) {
-            StringBuilder genericArgumentTypesBuilder = new StringBuilder();
-            for (Type genericArgumentType : genericArgumentTypes) {
-                if (genericArgumentTypesBuilder.length() > 0) {
-                    genericArgumentTypesBuilder.append(", ");
-                }
-                genericArgumentTypesBuilder.append(getSimpleTypeName(genericArgumentType));
-            }
-            return simpleTypeName + "<" + genericArgumentTypesBuilder.toString() + ">";
+            return simpleTypeName + "<" + getGenericArgumentTypeName(genericArgumentTypes)+ ">";
         }
         return simpleTypeName;
     }
@@ -173,21 +160,43 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
     @Override
     public String getGenericArgumentTypeName(Type type) {
+        String result = "";
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
-            StringBuilder arguments = new StringBuilder();
-            for (Type argument : parameterizedType.getActualTypeArguments()) {
-                if (arguments.length() > 0) {
-                    arguments.append(", ");
-                }
-                arguments.append(getSimpleTypeName(argument));
-            }
-            return String.format("%s", arguments.toString());
+            Collection<Type> actualTypeArguments = new ArrayList<Type>();
+            Collections.addAll(actualTypeArguments, parameterizedType.getActualTypeArguments());
+            result = getGenericArgumentTypeName(actualTypeArguments);
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
-        } else {
-            return "";
+        } else if (type instanceof TypeVariable) {
+            String typeVariableName = TypeVariable.class.cast(type).getName();
+            if (genericTypeVariables.containsKey(typeVariableName)) {
+                Type resultType = genericTypeVariables.get(typeVariableName);
+                result = getSimpleTypeName(resultType);
+            } else {
+                result = typeVariableName;
+            }
+        } else if (type instanceof WildcardType) {
+            result =  WildcardType.class.cast(type).toString();
+        } else if(type instanceof TypeNameWrapper) {
+            Collection<Type> actualTypeArguments = TypeNameWrapper.class.cast(type).getGenericArgumentTypes();
+            if(actualTypeArguments != null) {
+                result =  getGenericArgumentTypeName(actualTypeArguments);
+            }
         }
+        if(result.isEmpty()) return "";
+        return "<" + result + ">";
+    }
+    
+    protected String getGenericArgumentTypeName(Collection<Type> arguments) {
+        StringBuilder argumentBuilder = new StringBuilder();
+        for (Type argument : arguments) {
+            if (argumentBuilder.length() > 0) {
+                argumentBuilder.append(", ");
+            }
+            argumentBuilder.append(getSimpleTypeName(argument));
+        }
+        return String.format("%s", argumentBuilder.toString());
     }
 
     @Override
@@ -213,7 +222,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
             if (value.getClass().isArray()) {
                 valueBuilder.append(formatAnnotationValueArray(value));
 
-            } else if(value.getClass().isEnum()) {
+            } else if (value.getClass().isEnum()) {
                 addTypeName(value.getClass().getName());
                 valueBuilder.append(value.getClass().getSimpleName() + "." + value);
             } else {

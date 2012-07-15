@@ -28,9 +28,13 @@ import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -76,7 +80,7 @@ public class AccessorFieldExtractor implements FieldExtractor {
             JavaMethod matchedMethod;
             if (match.containsMatch("get")) {
                 matchedMethod = match.getMatch("get").getMethod();
-                fieldType =matchedMethod.getResultType();
+                fieldType = matchedMethod.getResultType();
 
             } else if (match.containsMatch("is")) {
                 matchedMethod = match.getMatch("is").getMethod();
@@ -84,7 +88,14 @@ public class AccessorFieldExtractor implements FieldExtractor {
             } else {
                 continue;
             }
+
+            //skip field that are generic variable type without owner type variable
+            //i.e  <T> T getFoo() { ... }
+            if (isLocalTypeVariable(sourceType, fieldType)) continue;
             String filedName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, match.getName());
+            if (filedName.isEmpty()) {
+                filedName = "_";
+            }
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.setName(filedName);
             fieldBuilder.addModifier("private");
@@ -95,5 +106,18 @@ public class AccessorFieldExtractor implements FieldExtractor {
 
         }
         return result;
+    }
+
+    protected boolean isLocalTypeVariable(JavaType ownerType, Type fieldType) {
+        if (fieldType instanceof TypeVariable) {
+            Set<String> variableTypes = new HashSet<String>();
+            for (Type variableType : ownerType.getGenericTypeArguments()) {
+                if (variableType instanceof TypeVariable)
+                    variableTypes.add(TypeVariable.class.cast(variableType).getName());
+            }
+            return !variableTypes.contains(TypeVariable.class.cast(fieldType).getName());
+
+        }
+        return false;
     }
 }

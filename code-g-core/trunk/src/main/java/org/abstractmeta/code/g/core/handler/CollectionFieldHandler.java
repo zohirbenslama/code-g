@@ -103,7 +103,7 @@ public class CollectionFieldHandler implements JavaFieldHandler {
 
         Iterable<JavaMethod> filteredMethods = Iterables.filter(sourceType.getMethods(), new MethodNamePredicate(methodName));
         for (JavaMethod method : filteredMethods) {
-            if (method.getParameterNames().size() == 0) {
+            if (method.getParameterNames().size() == 0 || method.getParameterNames().size() > 1) {
                 continue;
             }
             Type resultType = method.getResultType();

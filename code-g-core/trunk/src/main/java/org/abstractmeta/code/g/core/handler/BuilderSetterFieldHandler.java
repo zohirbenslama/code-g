@@ -55,7 +55,8 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
-        if(javaField.getName().startsWith("_")) return;;
+        String fieldName = javaField.getName();
+        if(fieldName.startsWith("_") && fieldName.length() > 1) return;
         addSetterMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
     }
 

@@ -18,6 +18,8 @@ package org.abstractmeta.code.g.core.handler;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.code.JavaTypeImporter;
+import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
@@ -66,7 +68,8 @@ public class BuilderTypeHandler implements JavaTypeHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
     private final Map<String, String> immutableImplementations;
-
+    private final JavaTypeImporter importer = new JavaTypeImporterImpl("");
+    
     public BuilderTypeHandler(JavaTypeBuilder ownerTypeBuilder, Map<String, String> immutableImplementations) {
         this.ownerTypeBuilder = ownerTypeBuilder;
         this.immutableImplementations = immutableImplementations;
@@ -142,9 +145,13 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         typeBuilder.addImportType(methodBuilder.getResultType());
         String builtImplementationSimpleTypeName = JavaTypeUtil.getSimpleClassName(sourceType.getName());
         ownerTypeBuilder.addImportType(new TypeNameWrapper(sourceType.getName()));
-        methodBuilder.addBody(String.format("%s result = new %s(%s);",
+       
+        String genericArgument = importer.getGenericArgumentTypeName(buildResultType);
+        methodBuilder.addBody(String.format("%s%s result = new %s%s(%s);",
                 buildResultSimpleClassName,
+                genericArgument,
                 builtImplementationSimpleTypeName,
+                genericArgument,
                 Joiner.on(", ").join(buildTypeConstructorCallArguments)
         ));
         methodBuilder.addBody(buildTypeSettingCode);

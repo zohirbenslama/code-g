@@ -53,6 +53,9 @@ public class MethodMatchPredicate implements Predicate<JavaMethod> {
 
     protected boolean matchesParameterTypes(JavaMethod candidate) {
         if(pattern.getBaseParameterTypes().size() != candidate.getParameterTypes().size())  {
+            if(pattern.getBaseParameterTypes().size() == 1 && Object[].class.equals(pattern.getBaseParameterTypes().get(0))) {
+                return true;
+            }
             return false;
         }
         for (int i = 0; i < pattern.getBaseParameterTypes().size(); i++) {

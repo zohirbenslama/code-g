@@ -20,11 +20,6 @@ import org.abstractmeta.code.g.core.test.Foo;
 
 import java.util.List;
 
-/**
- * Represents CollectionTest
-*
- * @author Adrian Witas
- */
 public abstract class CollectionTest {
     
     public abstract List<Bar> getBars();

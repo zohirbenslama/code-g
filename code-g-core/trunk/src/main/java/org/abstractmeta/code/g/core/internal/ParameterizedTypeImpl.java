@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.core.internal;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 public class ParameterizedTypeImpl implements ParameterizedType {
     
@@ -40,5 +41,18 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 
     public Type[] getActualTypeArguments() {
         return actualTypeArguments;
+    }
+
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Type argument : actualTypeArguments) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(",");
+            }
+            String rawArgumentType = argument instanceof Class ? Class.class.cast(argument).getName() : String.valueOf(argument);
+            stringBuilder.append(rawArgumentType);
+        }
+        String rawTypeName = rawType instanceof Class ? Class.class.cast(rawType).getName() : String.valueOf(rawType);
+        return String.format("%s<%s>", rawTypeName, stringBuilder.toString());
     }
 }

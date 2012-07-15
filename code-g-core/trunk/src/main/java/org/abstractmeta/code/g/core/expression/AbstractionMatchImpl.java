@@ -56,6 +56,10 @@ public class AbstractionMatchImpl implements AbstractionMatch {
             if (match.getPattern().getOperationNames().contains(operationName)) {
                 List<Class> patternBaseParameterTypes = match.getPattern().getBaseParameterTypes();
                 if (superParameterTypes.length != patternBaseParameterTypes.size()) {
+                    //Object[] means any number or type of argument types
+                    if(superParameterTypes.length == 1 && Object[].class.equals(superParameterTypes[0])) {
+                        return match;
+                    }
                     continue;
                 }
                 for (int i = 0; i < superParameterTypes.length; i++) {

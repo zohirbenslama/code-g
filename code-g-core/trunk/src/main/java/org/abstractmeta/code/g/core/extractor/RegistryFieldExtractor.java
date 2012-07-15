@@ -30,9 +30,7 @@ import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Registry field extractor from source java type.
@@ -49,7 +47,7 @@ public class RegistryFieldExtractor implements FieldExtractor {
 
 
     /**
-     **
+     * *
      * <p>Matches registry expression usage to extract registry field.</p>
      * <p>Matches getter setter method to generate related field.</p>
      * For instance for given methods: <ul>
@@ -73,19 +71,17 @@ public class RegistryFieldExtractor implements FieldExtractor {
         List<JavaField> result = new ArrayList<JavaField>();
         List<AbstractionMatch> matchedGroups = methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.REGISTRY_PATTERN);
         for (AbstractionMatch match : matchedGroups) {
-            if (!(match.containsMatch("register", Object.class) && match.containsMatch("get", Object.class))) {
+            if (!(match.containsMatch("register", Object[].class) && match.containsMatch("get", Object[].class))) {
                 continue;
             }
-            MethodMatch registerMethodMatch = match.getMatch("register", Object.class);
-            MethodMatch getMethodMatch = match.getMatch("get", Object.class);
-            Type keyType = getMethodMatch.getMethod().getParameterTypes().get(0);
-            Type valueType = registerMethodMatch.getMethod().getParameterTypes().get(0);
+            MethodMatch getMethodMatch = match.getMatch("get", Object[].class);
+            MethodMatch registerMatch = match.getMatch("register", Object[].class);
+
+            Type registryType = buildRegistryBackingGenericMap(registerMatch.getMethod().getParameterTypes());
             String name = match.getName();
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.addModifier("private").setImmutable(true);
-
-
-            fieldBuilder.setType(new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType)));
+               fieldBuilder.setType(registryType);
             if (name.isEmpty()) {
                 fieldBuilder.setName("registry");
             } else {
@@ -96,4 +92,25 @@ public class RegistryFieldExtractor implements FieldExtractor {
         }
         return result;
     }
+
+    protected static Type buildRegistryBackingGenericMap(Collection<Type> types) {
+         return buildRegistryBackingGenericMap(types.toArray(new Type[]{}));
+    }
+
+    protected static Type buildRegistryBackingGenericMap(Type[] types) {
+        Type result = Map.class;
+        for (int i = types.length - 2; i >= 0; i--) {
+           if(i == types.length - 2) {
+                result = new ParameterizedTypeImpl(null, Map.class,
+                        ReflectUtil.getObjectType(types[i]),
+                        ReflectUtil.getObjectType(types[i + 1]));
+           } else {
+               result = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(types[i]), result);
+           }
+        }
+        return result;
+    }
+    
+
+
 }
