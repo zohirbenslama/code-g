@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-api</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
     <name>code-g-api</name>
     <url>http://code.google.com/p/code-g</url>
@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://code-g.googlecode.com/svn/code-g-api/trunk</url>
-        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-api/trunk/</connection>
-        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-api/trunk/</developerConnection>
+        <url>https://code-g.googlecode.com/svn/code-g-api/tags/code-g-api-0.4.0</url>
+        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-api/tags/code-g-api-0.4.0</connection>
+        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-api/tags/code-g-api-0.4.0</developerConnection>
     </scm>
     <developers>
         <developer>
