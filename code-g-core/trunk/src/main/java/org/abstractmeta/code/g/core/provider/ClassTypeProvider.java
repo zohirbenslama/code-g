@@ -70,6 +70,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
         resultBuilder.addMethods(readMethods());
         resultBuilder.addFields(readFields());
         resultBuilder.addConstructors(readConstructors(resultBuilder));
+        resultBuilder.addAnnotations(Arrays.asList(sourceType.getAnnotations()));
         return resultBuilder.build();
     }
 
@@ -83,9 +84,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
             for (String modifier : Splitter.on(" ").split(Modifier.toString(field.getModifiers()))) {
                 fieldBuilder.addModifier(modifier);
             }
-            List<Annotation> annotations = new ArrayList<Annotation>();
-            Collections.addAll(annotations, field.getAnnotations());
-            fieldBuilder.addAnnotations(annotations);
+            fieldBuilder.addAnnotations(Arrays.asList(field.getAnnotations()));
             result.add(fieldBuilder.build());
         }
         return result;
@@ -144,6 +143,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
                     }
                 }
                 constructorBuilder.setName(sourceType.getSimpleName());
+                constructorBuilder.addAnnotations(Arrays.asList(constructor.getAnnotations()));
                 addConstructorParameters(constructor, constructorBuilder, resultBuilder);
                 result.add(constructorBuilder.build());
             }

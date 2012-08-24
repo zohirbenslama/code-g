@@ -15,11 +15,14 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
@@ -94,11 +97,16 @@ public class BuilderMergeHandler implements JavaTypeHandler {
         if (buildMethod == null || ownerTypeBuilder.containsMethod("merge")) {
             return;
         }
+
+        Multimap<String, JavaMethod> indexMethods = Multimaps.index(sourceType.getMethods(), new MethodNameKeyFunction());
+
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier("public");
         methodBuilder.setName("merge");
         methodBuilder.setResultType(new TypeNameWrapper(ownerTypeBuilder.getName()));
         methodBuilder.addParameter("instance", buildMethod.getResultType());
+
+
 
         for (JavaField javaField : sourceType.getFields()) {
             String fieldName = javaField.getName();
@@ -107,7 +115,6 @@ public class BuilderMergeHandler implements JavaTypeHandler {
             String setterMethodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
             String getterMethodPrefix = boolean.class.equals(javaField.getType()) || Boolean.class.equals(javaField.getType()) ? "is" : "get";
             String getterMethodName = StringUtil.format(CaseFormat.LOWER_CAMEL, getterMethodPrefix, fieldName, CaseFormat.LOWER_CAMEL);
-
             boolean isPrimitive = rawType.isPrimitive();
             if (isPrimitive) {
                 methodBuilder.addBody(String.format("this.%s(instance.%s());", setterMethodName, getterMethodName));
@@ -126,7 +133,7 @@ public class BuilderMergeHandler implements JavaTypeHandler {
                 }
             }
 
-            methodBuilder.addBody(String.format("    this.%s(%s());", setterMethodName, getterMethodName));
+            methodBuilder.addBody(String.format("    this.%s(instance.%s());", setterMethodName, getterMethodName));
             methodBuilder.addBody("}");
         }
         methodBuilder.addBody("return this;");

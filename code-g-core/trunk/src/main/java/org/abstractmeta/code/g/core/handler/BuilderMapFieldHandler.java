@@ -77,7 +77,6 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
         Type fieldType = javaField.getType();
         Class rawFieldType = ReflectUtil.getRawClass(fieldType);
         if (Map.class.isAssignableFrom(rawFieldType)) {
-            addCollectionAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
             addCollectionAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
             addCollectionClearMethod(ownerTypeBuilder, javaField.getName());
         }
@@ -97,29 +96,28 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             }
             methodBuilder.addBody("return this;");
             typeBuilder.addMethod(methodBuilder.build());
+            addCollectionAddItemsMethod(ownerTypeBuilder, fieldName, fieldType);
         }
     }
 
 
-    protected void addCollectionAddItemMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
+    protected void addCollectionAddMethods(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
         String singularName = StringUtil.getSingular(fieldName);
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", singularName, CaseFormat.LOWER_CAMEL);
-        if (!typeBuilder.containsMethod(methodName)) {
-            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier("public");
-            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-            methodBuilder.setName(methodName);
-            Type keyType = ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
-            Type valueType = ReflectUtil.getGenericArgument(fieldType, 1, Object.class);
-            methodBuilder.addParameter("key", keyType);
-            methodBuilder.addParameter("value", valueType);
-            methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
-            if(generatePresentCheck) {
-                methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-            }
-            methodBuilder.addBody("return this;");
-            typeBuilder.addMethod(methodBuilder.build());
+        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+        methodBuilder.addModifier("public");
+        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+        methodBuilder.setName(methodName);
+        Type keyType = ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
+        Type valueType = ReflectUtil.getGenericArgument(fieldType, 1, Object.class);
+        methodBuilder.addParameter("key", keyType);
+        methodBuilder.addParameter("value", valueType);
+        methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
+        if (generatePresentCheck) {
+            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
+        methodBuilder.addBody("return this;");
+        typeBuilder.addMethod(methodBuilder.build());
     }
 
 

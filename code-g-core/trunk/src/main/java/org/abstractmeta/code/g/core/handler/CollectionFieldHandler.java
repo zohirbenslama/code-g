@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.collection.predicates.MethodNamePredicate;
+import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
@@ -28,6 +29,7 @@ import org.abstractmeta.code.g.handler.JavaFieldHandler;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Iterables;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -150,7 +152,9 @@ public class CollectionFieldHandler implements JavaFieldHandler {
             Type argumentType = method.getParameterTypes().get(0);
             Class rawArgumentType = ReflectUtil.getRawClass(argumentType);
             if (Collection.class.isAssignableFrom(rawArgumentType)) {
-                methodBuilder.addParameter(fieldName, argumentType);
+                ParameterizedType actualParameterizedType = ParameterizedType.class.cast(argumentType);
+                Type collectionParametrizedType = new ParameterizedTypeImpl(null, Collection.class, actualParameterizedType.getActualTypeArguments());
+                methodBuilder.addParameter(fieldName, collectionParametrizedType);
                 methodBuilder.addBody(String.format("this.%s.addAll(%s);", fieldName, fieldName));
             } else {
                 String singularName = StringUtil.getSingular(fieldName);
