@@ -34,4 +34,5 @@ public interface JavaFieldHandler {
      */
     void handle(JavaType sourceType, JavaField javaField);
 
+
 }

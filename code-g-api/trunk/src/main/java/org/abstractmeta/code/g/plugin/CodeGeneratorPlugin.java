@@ -45,5 +45,7 @@ public interface CodeGeneratorPlugin {
      * @return configuration options
      */
     Map<String, String> getOptions();
+
+
     
 }

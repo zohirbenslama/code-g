@@ -15,6 +15,8 @@
  */
 package org.abstractmeta.code.g.config;
 
+import org.abstractmeta.code.g.config.loader.JavaSourceLoader;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +136,11 @@ public interface Descriptor {
      * @return
      */
     Map<String, String> getImmutableImplementation();
-    
-    
+
+
+    /**
+     *
+     * @return
+     */
+    String getJavaTypeLoaderClassName();
 }

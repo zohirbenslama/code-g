@@ -25,14 +25,22 @@ import java.util.List;
  * @author Adrian Witas
  */
 public interface UnitDescriptor {
-    
+
     String getSourcePackage();
 
     String getTargetDirectory();
-    
+
     String getSourceDirectory();
-    
+
     List<String> getClassPathEntries();
-    
+
     List<? extends Descriptor> getDescriptors();
+
+    /**
+     * If specified this descriptor would execute after all unit descriptor are processed
+     * with all java types generated
+     *
+     * @return post descriptor
+     */
+    Descriptor getPostDescriptor();
 }

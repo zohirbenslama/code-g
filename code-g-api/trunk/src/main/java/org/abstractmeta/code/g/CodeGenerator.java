@@ -16,14 +16,17 @@
 package org.abstractmeta.code.g;
 
 
+import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.handler.CodeHandler;
+
+import java.util.Collection;
 
 
 /**
  * Represents a code builder.
  * <p>This abstraction is responsible for building code.
- * It uses code generation plugins to generate specialised code.
+ * It uses code generation plugins to generate a custom code.
  * </p>
  * <p><b>Usage:</b>
  * <code><pre>
@@ -43,7 +46,6 @@ import org.abstractmeta.code.g.handler.CodeHandler;
 public interface CodeGenerator {
 
 
-    
     /**
      * Builds code for the specified descriptors.
      *
@@ -51,7 +53,7 @@ public interface CodeGenerator {
      * @param handler     code handler
      * @param classLoader class loader
      */
-    void generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
+    Collection<JavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
 
 
     /**
@@ -60,7 +62,7 @@ public interface CodeGenerator {
      * @param descriptors descriptors
      * @param handler     code handler
      */
-    void generate(Iterable<Descriptor> descriptors, CodeHandler handler);
+    Collection<JavaType>  generate(Iterable<Descriptor> descriptors, CodeHandler handler);
 
 
 }

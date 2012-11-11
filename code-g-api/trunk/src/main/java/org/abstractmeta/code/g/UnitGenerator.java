@@ -15,18 +15,32 @@
  */
 package org.abstractmeta.code.g;
 
-import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
-import org.abstractmeta.code.g.handler.CodeHandler;
+import org.abstractmeta.code.g.macros.MacroRegistry;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
- * Represents UnitGenerator
+ * Unit generator uses unit descriptor to drive generation process.
  * <p>
+ * MacroRegistry is used to substitute all descriptor with specified macro's value.
  * </p>
+ * <h2>Code generation</h2>
+ * <ol>For each unit descriptor
+ *
+ * <li>Unit generator compiles source with compilation unit for specified class path entries{@link UnitDescriptor#getClassPathEntries()} and source path  {@link UnitDescriptor#getSourceDirectory()}</li>
+ * <li>Unit generator delegates actual code generation to code generator with compilation unit class loader. See {@link CodeGenerator} for more details</li>
+ * <li>All generated classes are added to this method scope registry</li>
+ *
+ * </ol>
+
+ * <h2>Post code generation</h2>
+ * <ol>For each unit descriptor if {@link UnitDescriptor#getPostDescriptor()} is defined
+ * <li>Unit generator delegates actual code generation with a registry containing classes generated in code generation phase.</li>
+ * <li>Generated code is stored in location defined by {@link UnitDescriptor#getTargetDirectory()}</li>
+ * </ol>
  *
  * @author Adrian Witas
  */
@@ -35,10 +49,9 @@ public interface UnitGenerator {
     /**
      * Builds code for the specified descriptors.
      *
-     * @param unitDescriptor descriptor
+     * @param unitDescriptors descriptors
      * @return list of the source code files
      */
-   Collection<File> generate(UnitDescriptor unitDescriptor);
-
+    Collection<File> generate(Iterable<UnitDescriptor> unitDescriptors);
 
 }
