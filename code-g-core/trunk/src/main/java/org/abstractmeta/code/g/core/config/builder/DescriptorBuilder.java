@@ -63,6 +63,7 @@ public class DescriptorBuilder {
     private Map<String, String> options = new HashMap<String, String>();
     private Map<String, String> immutableImplementation = new HashMap<String, String>();
 
+    private String typeLoaderClassName;
 
     public String getSourcePackage() {
         return sourcePackage;
@@ -131,6 +132,10 @@ public class DescriptorBuilder {
         return this;
     }
 
+    public void setImmutableImplementation(Map<String, String> immutableImplementation) {
+        this.immutableImplementation = immutableImplementation;
+    }
+
     public DescriptorBuilder addImmutableImplementation(String source, String target) {
         immutableImplementation.put(source, target);
         return this;
@@ -154,10 +159,16 @@ public class DescriptorBuilder {
         return this;
     }
 
-    public DescriptorBuilder addCompilationPaths(String... compilationPaths) {
+    public DescriptorBuilder addCompilationSources(String... compilationPaths) {
         Collections.addAll(this.compilationSources, compilationPaths);
         return this;
     }
+
+    public DescriptorBuilder addCompilationSources(Collection<String> compilationPaths) {
+        this.compilationSources.addAll(compilationPaths);
+        return this;
+    }
+
 
     public Map<String, String> getOptions() {
         return options;
@@ -197,6 +208,15 @@ public class DescriptorBuilder {
 
     public DescriptorBuilder setTargetPostfix(String targetPostfix) {
         this.targetPostfix = targetPostfix;
+        return this;
+    }
+
+    public String getTypeLoaderClassName() {
+        return typeLoaderClassName;
+    }
+
+    public DescriptorBuilder setTypeLoaderClassName(String typeLoaderClassName) {
+        this.typeLoaderClassName = typeLoaderClassName;
         return this;
     }
 
@@ -241,18 +261,21 @@ public class DescriptorBuilder {
         if (descriptor.getImmutableImplementation() != null) {
             this.immutableImplementation.putAll(descriptor.getImmutableImplementation());
         }
+        if (descriptor.getTypeLoaderClassName() != null) {
+            this.typeLoaderClassName = descriptor.getTypeLoaderClassName();
+        }
         return this;
     }
 
 
     public Map<String, String> getPluginDefault(String pluginName) {
-        if(pluginName == null) {
+        if (pluginName == null) {
             return Collections.emptyMap();
         }
         CodeGeneratorPlugin plugin = ReflectUtil.loadInstance(CodeGeneratorPlugin.class, pluginName);
 
         Map<String, String> result = plugin.getOptions();
-        if(result != null && ! result.isEmpty())   {
+        if (result != null && !result.isEmpty()) {
             return result;
         }
 
@@ -279,7 +302,7 @@ public class DescriptorBuilder {
         if (targetPrefix == null && defaults.containsKey(TARGET_PREFIX)) {
             targetPrefix = defaults.get(TARGET_PREFIX);
         }
-        return new DescriptorImpl(sourcePackage, sourceClass, targetPackage, targetPrefix, targetPostfix, superType, interfaces, exclusions, inclusion, plugin, compilationSources, options, immutableImplementation);
+        return new DescriptorImpl(sourcePackage, sourceClass, targetPackage, targetPrefix, targetPostfix, superType, interfaces, exclusions, inclusion, plugin, compilationSources, options, immutableImplementation, typeLoaderClassName);
     }
 
 }

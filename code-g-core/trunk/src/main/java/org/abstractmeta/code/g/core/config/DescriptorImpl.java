@@ -44,11 +44,12 @@ public class DescriptorImpl implements Descriptor {
     private String plugin;
     private List<String> compilationSources;
     private Map<String, String> options;
+    private String typeLoaderClassName;
 
     public DescriptorImpl() {
     }
 
-    public DescriptorImpl(String sourcePackage, String sourceClass, String targetPackage, String targetPrefix, String targetPostfix, String superType, String interfaces, Set<String> exclusions, Set<String> inclusions, String plugin, List<String> compilationSources, Map<String, String> options, Map<String, String> immutableImplementation) {
+    public DescriptorImpl(String sourcePackage, String sourceClass, String targetPackage, String targetPrefix, String targetPostfix, String superType, String interfaces, Set<String> exclusions, Set<String> inclusions, String plugin, List<String> compilationSources, Map<String, String> options, Map<String, String> immutableImplementation, String typeLoaderClassName) {
         this.sourcePackage = sourcePackage;
         this.sourceClass = sourceClass;
         this.targetPackage = targetPackage;
@@ -62,6 +63,7 @@ public class DescriptorImpl implements Descriptor {
         this.compilationSources = compilationSources;
         this.options = options;
         this.immutableImplementation = immutableImplementation;
+        typeLoaderClassName = typeLoaderClassName;
     }
 
     public void setSourceClass(String sourceClass) {
@@ -160,6 +162,15 @@ public class DescriptorImpl implements Descriptor {
 
     public Map<String, String> getImmutableImplementation() {
         return immutableImplementation;
+    }
+
+
+    public void setTypeLoaderClassName(String typeLoaderClassName) {
+        this.typeLoaderClassName = typeLoaderClassName;
+    }
+
+    public String getTypeLoaderClassName() {
+        return typeLoaderClassName;
     }
 
     @Override

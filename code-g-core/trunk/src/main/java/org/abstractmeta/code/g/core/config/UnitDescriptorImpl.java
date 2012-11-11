@@ -18,13 +18,10 @@ package org.abstractmeta.code.g.core.config;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Default UnitDescriptor implementation.
- * <p>
- * </p>
  *
  * @author Adrian Witas
  */
@@ -35,16 +32,18 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     private String targetDirectory;
     private List<String> classPathEntries;
     private List<Descriptor> descriptors;
+    private Descriptor postDescriptor;
 
     public UnitDescriptorImpl() {
     }
 
-    public UnitDescriptorImpl(String sourcePackage, String sourceDirectory, String targetDirectory, List<String> classPathEntries, List<Descriptor> descriptors) {
+    public UnitDescriptorImpl(String sourcePackage, String sourceDirectory, String targetDirectory, List<String> classPathEntries, List<Descriptor> descriptors, Descriptor postDescriptor) {
         this.sourcePackage = sourcePackage;
         this.sourceDirectory = sourceDirectory;
         this.targetDirectory = targetDirectory;
         this.classPathEntries = classPathEntries;
         this.descriptors = descriptors;
+        this.postDescriptor = postDescriptor;
     }
 
     public void setSourcePackage(String sourcePackage) {
@@ -88,6 +87,11 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     }
 
     @Override
+    public Descriptor getPostDescriptor() {
+        return postDescriptor;
+    }
+
+    @Override
     public String toString() {
         return "UnitDescriptorImpl{" +
                 "sourcePackage='" + sourcePackage + '\'' +
@@ -95,6 +99,7 @@ public class UnitDescriptorImpl implements UnitDescriptor {
                 ", targetDirectory='" + targetDirectory + '\'' +
                 ", classPathEntries=" + classPathEntries +
                 ", descriptors=" + descriptors +
+                ", postDescriptor=" + postDescriptor +
                 '}';
     }
 }

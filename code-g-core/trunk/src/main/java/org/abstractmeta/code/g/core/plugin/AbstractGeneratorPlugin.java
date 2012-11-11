@@ -32,9 +32,6 @@ import java.util.*;
  * Abstract plugin plugin.
  * <p>Convenience class that provides default implementation for most core cases.</p>
  * <h3>Plugin configuration</h3>
- * The following naming convention is used to configure a plugin: <b>
- * PLUGIN_NAME.CONFIGURATION_OPTION_NAME</b>
- * <p/>
  * <ul>
  * The following option use default value from descriptor
  * <li>targetPackage</li>
@@ -67,24 +64,24 @@ public abstract class AbstractGeneratorPlugin {
     }
 
 
-    public List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
+    public List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry typeRegistry, Descriptor descriptor) {
         List<String> generatedTypeNames = new ArrayList<String>();
         for (String sourceTypeName : sourceTypeNames) {
-            JavaType sourceType = registry.get(sourceTypeName);
+            JavaType sourceType = typeRegistry.get(sourceTypeName);
             if (! isApplicable(sourceType)) {
                 continue;
             }
-            String targetTypeName = getTargetTypeName(sourceType, descriptor, registry);
-            if(registry.isRegistered(targetTypeName)) {
+            String targetTypeName = getTargetTypeName(sourceType, descriptor, typeRegistry);
+            if(typeRegistry.isRegistered(targetTypeName)) {
                 continue;
             }
-            JavaTypeBuilder typeBuilder = generateType(sourceType, registry, targetTypeName, descriptor);
+            JavaTypeBuilder typeBuilder = generateType(sourceType, typeRegistry, targetTypeName, descriptor);
             if (typeBuilder == null) {
                 continue;
             }
             buildSuperType(descriptor, typeBuilder);
             buildInterfaces(descriptor, typeBuilder);
-            registry.register(typeBuilder.build());
+            typeRegistry.register(typeBuilder.build());
             generatedTypeNames.add(targetTypeName);
         }
 

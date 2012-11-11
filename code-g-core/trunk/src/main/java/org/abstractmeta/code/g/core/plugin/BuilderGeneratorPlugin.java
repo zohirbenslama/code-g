@@ -55,11 +55,18 @@ import java.util.Map;
  * </ul>
  * </li>
  * </ul>
+ *
  * </p>
+ * <p>Builder options</p>
+ * <ul>
+ *     <li>skipIsPresentMethod - skips adding 'is present' field and method for each non transient field </li>
+ * </ul>
  *
  * @author Adrian Witas
  */
 public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
+
+    public static final String SKIP_PRESENT_METHOD = "skipIsPresentMethod";
 
     @Override
     protected boolean isApplicable(JavaType sourceType) {
@@ -74,10 +81,10 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
     protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
         Map<String, String> options = getOptions();
         if (options == null) options = Collections.emptyMap();
-        String skipIsPresentMethod = options.get("skipIsPresentMethod");
+        String skipIsPresentMethod = options.get(SKIP_PRESENT_METHOD);
         if (skipIsPresentMethod == null) skipIsPresentMethod = "false";
-        boolean generatePresentCheck = ("false".equalsIgnoreCase(skipIsPresentMethod));
-        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType, generatePresentCheck);
+        boolean buildIsPresentMethod = ("false".equalsIgnoreCase(skipIsPresentMethod));
+        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType, buildIsPresentMethod);
         Map<String, String> immutableImplementation = descriptor.getImmutableImplementation();
         if (immutableImplementation != null) {
             for (String key : immutableImplementation.keySet()) {
@@ -92,17 +99,15 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
             fieldBuilder.addModifier("private");
             fieldBuilder.setType(field.getType());
             fieldBuilder.setName(field.getName());
-            fieldBuilder.addAnnotations(field.getAnnotations());
             builderClassBuilder.addField(fieldBuilder.build());
-            if (generatePresentCheck) {
+            if (buildIsPresentMethod) {
                 JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
-                trackerFieldBuilder.addModifier("private");
+                trackerFieldBuilder.addModifier("private").addModifier("transient");
                 trackerFieldBuilder.setType(boolean.class);
                 trackerFieldBuilder.setName(StringUtil.isPresentFieldName(field.getName()));
                 builderClassBuilder.addField(trackerFieldBuilder.build());
             }
         }
-
         return builderClassBuilder;
     }
 

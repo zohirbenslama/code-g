@@ -21,7 +21,9 @@ import org.abstractmeta.code.g.core.CodeGeneratorImpl;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.handler.MemCodeHandler;
 import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
+import org.abstractmeta.code.g.core.macro.MacroRegistryImpl;
 import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
+import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,8 +39,14 @@ import java.util.List;
 public class RegistryTest {
 
 
+    private final MacroRegistry macroRegistry;
+
+    public RegistryTest() {
+        this.macroRegistry = new MacroRegistryImpl();
+    }
+
     public void testRegistry() throws ClassNotFoundException {
-        CodeGenerator codeBuilder = new CodeGeneratorImpl();
+        CodeGenerator codeBuilder = new CodeGeneratorImpl(macroRegistry);
         List<Descriptor> descriptors = Arrays.asList(
                 new DescriptorBuilder().setSourceClass(FooRegistry.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
         );
@@ -57,9 +65,6 @@ public class RegistryTest {
             codeBuilder.generate(descriptors, compilerHandler);
             List<String> generated = compilerHandler.getTypeNames();
             Assert.assertEquals(generated.size(), 1);
-//            for (String k : generated) {
-//                System.out.println(compilerHandler.getSourceCode(k));
-//            }
         }
     }
 

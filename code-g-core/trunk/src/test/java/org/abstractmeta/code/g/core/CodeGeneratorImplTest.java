@@ -21,16 +21,16 @@ import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
+import org.abstractmeta.code.g.core.macro.MacroRegistryImpl;
 import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
 import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
 import org.abstractmeta.code.g.core.test.Bar;
 import org.abstractmeta.code.g.core.test.User;
 import org.abstractmeta.code.g.core.util.TestHelper;
+import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.annotation.Nonnull;
-import javax.annotation.meta.When;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -38,29 +38,43 @@ import java.util.List;
 @Test
 public class CodeGeneratorImplTest {
 
+    private final MacroRegistry macroRegistry;
+
+    public CodeGeneratorImplTest() {
+        this.macroRegistry = new MacroRegistryImpl();
+    }
 
     public void testCodeClassGenerator() throws IOException, ClassNotFoundException {
-        CodeGenerator codeBuilder = new CodeGeneratorImpl();
+        CodeGenerator codeBuilder = new CodeGeneratorImpl(macroRegistry);
         List<Descriptor> descriptors = Arrays.asList(
                 new DescriptorBuilder().setSourceClass(Bar.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
         );
+
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
         Assert.assertEquals(generated.size(), 1);
         Assert.assertTrue(generated.get(0).endsWith("BarImpl"));
+
+
         ClassLoader classLoader = compilerHandler.compile();
         Class generatedClass = classLoader.loadClass(generated.get(0));
         Assert.assertTrue(Bar.class.isAssignableFrom(generatedClass));
     }
 
     public void testCodeBuilderWithSimpleClassGenerator() throws Exception {
-        CodeGenerator codeBuilder = new CodeGeneratorImpl();
+        CodeGenerator codeBuilder = new CodeGeneratorImpl(macroRegistry);
         List<Descriptor> descriptors = Arrays.asList(
                 new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
                 new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName()).build()
         );
 
+
+//        MemCodeHandler codeHandler = new MemCodeHandler();
+//        codeBuilder.generate(descriptors, codeHandler);
+//
+//        Assert.assertEquals(codeHandler.getSourceCode(codeHandler.getTypeNames().get(1)), "");
+//
         SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
@@ -84,7 +98,7 @@ public class CodeGeneratorImplTest {
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testCodeBuilderWithSimpleClassGeneratorWithCustomCollection() throws Exception {
-        CodeGenerator codeBuilder = new CodeGeneratorImpl();
+        CodeGenerator codeBuilder = new CodeGeneratorImpl(macroRegistry);
         List<Descriptor> descriptors = Arrays.asList(
                 new DescriptorBuilder().setSourceClass(User.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build(),
                 new DescriptorBuilder().setSourcePackage(User.class.getPackage().getName() + ".impl").setPlugin(BuilderGeneratorPlugin.class.getName())

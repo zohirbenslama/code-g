@@ -51,7 +51,7 @@ public class IsFieldPresentHandler implements JavaFieldHandler {
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
-        if (!(javaField.getName().charAt(0) == '_' && javaField.getType().equals(boolean.class))) {
+        if (!(javaField.getName().endsWith("Present")  && javaField.getType().equals(boolean.class))) {
             return;
         }
         if (!generatePresentCheck) {
@@ -60,7 +60,7 @@ public class IsFieldPresentHandler implements JavaFieldHandler {
         String fieldName = javaField.getName();
         String methodPrefix = "is";
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName + "Present", CaseFormat.LOWER_CAMEL);
-        if (!ownerTypeBuilder.containsMethod(methodName)) {
+        if (! ownerTypeBuilder.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.setName(methodName);
             methodBuilder.setResultType(boolean.class);

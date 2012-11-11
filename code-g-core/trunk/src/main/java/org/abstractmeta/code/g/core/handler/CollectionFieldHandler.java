@@ -18,6 +18,7 @@ package org.abstractmeta.code.g.core.handler;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.collection.predicates.MethodNamePredicate;
@@ -67,12 +68,15 @@ import java.util.Collection;
  *
  * @author Adrian Witas
  */
-public class CollectionFieldHandler implements JavaFieldHandler {
+public class    CollectionFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final Descriptor descriptor;
 
-    public CollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+
+    public CollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.descriptor = descriptor;
     }
 
 

@@ -17,11 +17,15 @@ package org.abstractmeta.code.g.core.handler;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
 import com.google.common.base.CaseFormat;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * This handler creates set method.
@@ -42,15 +46,17 @@ import com.google.common.base.CaseFormat;
 public class SetterFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final Descriptor descriptor;
 
-    public SetterFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public SetterFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.descriptor = descriptor;
     }
 
 
     @Override
     public void handle(JavaType sourceType, JavaField javaField) {
-        if (! javaField.isImmutable()) {
+        if (!javaField.isImmutable()) {
             String fieldName = javaField.getName();
             String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
             if (!ownerTypeBuilder.containsMethod(methodName)) {
@@ -59,10 +65,13 @@ public class SetterFieldHandler implements JavaFieldHandler {
                 methodBuilder.setResultType(void.class);
                 methodBuilder.addParameter(fieldName, javaField.getType());
                 methodBuilder.addModifier("public");
-                methodBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
+                methodBuilder.addBody(generateBody(fieldName, fieldName));
                 ownerTypeBuilder.addMethod(methodBuilder.build());
-
             }
         }
+    }
+
+    protected Collection<String> generateBody(String thisFieldName, String argumentFieldName) {
+        return Arrays.asList(String.format("this.%s = %s;", thisFieldName, argumentFieldName));
     }
 }

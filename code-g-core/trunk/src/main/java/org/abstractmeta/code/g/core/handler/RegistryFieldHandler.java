@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
@@ -57,11 +58,13 @@ public class RegistryFieldHandler implements JavaFieldHandler {
     private final JavaTypeBuilder ownerTypeBuilder;
     private final MethodMatcher methodMatcher;
     private final JavaTypeImporter importer;
+    private final  Descriptor descriptor;
 
-    public RegistryFieldHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public RegistryFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
         this.methodMatcher = new MethodMatcherImpl();
         this.importer = new JavaTypeImporterImpl(ownerTypeBuilder.getName());
+        this.descriptor = descriptor;
     }
 
 
@@ -337,7 +340,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         } else {
             JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryIndexType);
             if (accessor == null) {
-                throw new IllegalStateException("Failed to match be accessor type " + registryValueType + " " + registryIndexType);
+                throw new IllegalStateException("Failed to match be scanner type " + registryValueType + " " + registryIndexType);
             }
             methodBuilder.addBody(String.format("%s.remove(%s.%s());", javaField.getName(), parameterName, accessor.getName()));
         }

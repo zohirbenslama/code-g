@@ -37,6 +37,7 @@ public class UnitDescriptorBuilder {
     private String targetDirectory;
     private Collection<String> classPathEntries = new ArrayList<String>();
     private Collection<Descriptor> descriptors = new ArrayList<Descriptor>();
+    private Descriptor postDescriptor;
 
     public UnitDescriptorBuilder setSourcePackage(String sourcePackage) {
         this.sourcePackage = sourcePackage;
@@ -58,7 +59,7 @@ public class UnitDescriptorBuilder {
         return this;
     }
 
-    public UnitDescriptorBuilder addClassPathEntries(String ... classPathEntries) {
+    public UnitDescriptorBuilder addClassPathEntries(String... classPathEntries) {
         Collections.addAll(this.classPathEntries, classPathEntries);
         return this;
     }
@@ -68,7 +69,7 @@ public class UnitDescriptorBuilder {
         return this;
     }
 
-   public UnitDescriptorBuilder setDescriptors(Descriptor ... descriptors) {
+    public UnitDescriptorBuilder setDescriptors(Descriptor... descriptors) {
         Collections.addAll(this.descriptors, descriptors);
         return this;
     }
@@ -94,35 +95,47 @@ public class UnitDescriptorBuilder {
     }
 
 
+    public Descriptor getPostDescriptor() {
+        return postDescriptor;
+    }
+
+    public UnitDescriptorBuilder setPostDescriptor(Descriptor postDescriptor) {
+        this.postDescriptor = postDescriptor;
+        return this;
+    }
+
     public UnitDescriptorBuilder merge(UnitDescriptor unitDescriptor) {
-        if(unitDescriptor.getTargetDirectory() != null) {
+        if (unitDescriptor.getTargetDirectory() != null) {
             this.targetDirectory = unitDescriptor.getTargetDirectory();
         }
-        
-        if(unitDescriptor.getSourceDirectory() != null) {
+
+        if (unitDescriptor.getSourceDirectory() != null) {
             this.sourceDirectory = unitDescriptor.getSourceDirectory();
         }
 
-        if(unitDescriptor.getSourcePackage() != null) {
-            this.sourcePackage  = unitDescriptor.getSourcePackage();
+        if (unitDescriptor.getSourcePackage() != null) {
+            this.sourcePackage = unitDescriptor.getSourcePackage();
         }
 
-        if(unitDescriptor.getClassPathEntries() != null) {
-            for(String classEntry: unitDescriptor.getClassPathEntries())  {
+        if (unitDescriptor.getClassPathEntries() != null) {
+            for (String classEntry : unitDescriptor.getClassPathEntries()) {
                 addClassPathEntries(classEntry);
             }
         }
-        if(unitDescriptor.getDescriptors() != null) {
-                descriptors.addAll(unitDescriptor.getDescriptors());
+        if (unitDescriptor.getDescriptors() != null) {
+            descriptors.addAll(unitDescriptor.getDescriptors());
         }
+        if (unitDescriptor.getPostDescriptor() != null) {
+            this.postDescriptor = unitDescriptor.getPostDescriptor();
+        }
+
         return this;
     }
 
     public UnitDescriptor build() {
         List<String> classPathEntries = ImmutableList.copyOf(this.classPathEntries);
         List<Descriptor> descriptors = ImmutableList.copyOf(this.descriptors);
-         return new UnitDescriptorImpl(sourcePackage, sourceDirectory, targetDirectory, classPathEntries, descriptors);
+        return new UnitDescriptorImpl(sourcePackage, sourceDirectory, targetDirectory, classPathEntries, descriptors, postDescriptor);
     }
-    
-    
+
 }

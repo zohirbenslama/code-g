@@ -15,18 +15,21 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import com.google.common.collect.Iterables;
 import org.abstractmeta.code.g.code.JavaConstructor;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.collection.predicates.ConstructorArgumentPredicate;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.handler.JavaTypeHandler;
-import com.google.common.collect.Iterables;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * This handler creates constructor for all fields defined on the owner type.
@@ -38,9 +41,11 @@ import java.lang.reflect.Type;
 public class SimpleTypeHandler implements JavaTypeHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
+    private final Descriptor descriptor;
 
-    public SimpleTypeHandler(JavaTypeBuilder ownerTypeBuilder) {
+    public SimpleTypeHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
+        this.descriptor = descriptor;
     }
 
 
@@ -51,7 +56,7 @@ public class SimpleTypeHandler implements JavaTypeHandler {
         }
         JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
         addSuperCall(sourceType, constructorBuilder);
-        addConstructorParameters(sourceType,  constructorBuilder);
+        addConstructorParameters(sourceType, constructorBuilder);
         constructorBuilder.setName(ownerTypeBuilder.getSimpleName());
         constructorBuilder.addModifier("public");
         if (!JavaTypeUtil.isMethodCompatible(sourceType, ownerTypeBuilder)) {
@@ -61,12 +66,18 @@ public class SimpleTypeHandler implements JavaTypeHandler {
     }
 
     protected void addConstructorParameters(JavaType sourceType, JavaConstructorBuilder constructorBuilder) {
-            Iterable<JavaField> constructorArguments = Iterables.filter(ownerTypeBuilder.getFields(),new ConstructorArgumentPredicate(sourceType));
-        for(JavaField field: constructorArguments) {
-                 String fieldName = field.getName();
+        Iterable<JavaField> constructorArguments = Iterables.filter(ownerTypeBuilder.getFields(), new ConstructorArgumentPredicate(sourceType));
+        for (JavaField field : constructorArguments) {
+            String fieldName = field.getName();
             constructorBuilder.addParameter(field.getName(), field.getType());
-            constructorBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
+            constructorBuilder.addBody(generateParameterInitialisation(fieldName, fieldName, field.getType()));
         }
+    }
+
+
+
+    protected Collection<String> generateParameterInitialisation(String thisFieldName, String constructorArgumentName, Type type) {
+        return Arrays.asList(String.format("this.%s = %s;", thisFieldName, constructorArgumentName));
     }
 
 
@@ -88,15 +99,17 @@ public class SimpleTypeHandler implements JavaTypeHandler {
         }
 
         StringBuilder result = new StringBuilder();
-        for (Type parameterType : constructorCandidate.getParameterTypes()) {
-            Class parameterRawClass = ReflectUtil.getRawClass(parameterType);
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            if (parameterRawClass.isPrimitive()) {
-                result.append("0");
-            } else {
-                result.append("null");
+        if (constructorCandidate != null) {
+            for (Type parameterType : constructorCandidate.getParameterTypes()) {
+                Class parameterRawClass = ReflectUtil.getRawClass(parameterType);
+                if (result.length() > 0) {
+                    result.append(", ");
+                }
+                if (parameterRawClass.isPrimitive()) {
+                    result.append("0");
+                } else {
+                    result.append("null");
+                }
             }
         }
         constructorBuilder.addBody("super(" + result.toString() + ");");

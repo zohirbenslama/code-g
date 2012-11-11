@@ -109,7 +109,7 @@ public class StringUtil {
     }
 
     public static String isPresentFieldName(String fieldName) {
-        return  "_" +  fieldName + "Present";
+        return   fieldName + "Present";
     }
     
 }

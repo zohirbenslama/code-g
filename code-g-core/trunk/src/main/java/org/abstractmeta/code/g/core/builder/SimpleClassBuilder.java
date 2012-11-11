@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.builder;
 
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.handler.*;
 
@@ -26,14 +27,14 @@ import org.abstractmeta.code.g.core.handler.*;
  */
 public class SimpleClassBuilder extends JavaTypeBuilder {
 
-    public SimpleClassBuilder(JavaType sourceType) {
+    public SimpleClassBuilder(JavaType sourceType, Descriptor descriptor) {
         super();
         setSourceType(sourceType);
-        addFieldHandler(new RegistryFieldHandler(this));
-        addFieldHandler(new CollectionFieldHandler(this));
-        addFieldHandler(new SetterFieldHandler(this));
+        addFieldHandler(new RegistryFieldHandler(this, descriptor));
+        addFieldHandler(new CollectionFieldHandler(this, descriptor));
+        addFieldHandler(new SetterFieldHandler(this, descriptor));
         addFieldHandler(new GetterFieldHandler(this));
-        addTypeHandler(new SimpleTypeHandler(this));
+        addTypeHandler(new SimpleTypeHandler(this, descriptor));
     }
 
 }

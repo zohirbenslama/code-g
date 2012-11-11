@@ -70,7 +70,7 @@ public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements Cod
 
     @Override
     protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
-        SimpleClassBuilder classBuilder = new SimpleClassBuilder(sourceType);
+        SimpleClassBuilder classBuilder = new SimpleClassBuilder(sourceType, descriptor);
         classBuilder.setSourceType(sourceType);
         classBuilder.addModifier("public").setTypeName(targetTypeName);
         if (!sourceType.getGenericTypeArguments().isEmpty()) {
@@ -81,7 +81,6 @@ public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements Cod
         } else {
             classBuilder.addSuperInterface(new TypeNameWrapper(sourceType.getName(), sourceType.getGenericTypeArguments()));
         }
-
         addExtractableFields(classBuilder, sourceType);
         return classBuilder;
     }

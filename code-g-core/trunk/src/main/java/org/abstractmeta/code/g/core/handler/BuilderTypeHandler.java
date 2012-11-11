@@ -114,7 +114,7 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         for (JavaField field : sourceType.getFields()) {
                
             if(! isPrimitiveType(field) && isRequired(field)) {
-                simpleValidationBuilder.append(String.format("if(%s == null) throw new %s(\"%s was null\");\n", field.getName(),NullPointerException.class.getSimpleName(), field.getName()));
+                simpleValidationBuilder.append(String.format("if(%s == null) throw new %s(\"%s was null\");\n", field.getName(), NullPointerException.class.getSimpleName(), field.getName()));
             }
             String fieldName = field.getName();
             Class fieldRawType = ReflectUtil.getRawClass(field.getType());
