@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
@@ -36,7 +36,7 @@ import java.util.Collection;
 
 /**
  * This handler is experimental, it checks for a collection type, and matches methods like add, get to
- * generate implementation code. Please see also {@link RegistryFieldHandler}
+ * generate implementation code. Please see also {@link org.abstractmeta.code.g.core.handler.field.RegistryFieldHandler}
  * <p/>
  * <p>For instance for the given source type
  * <code><pre>
@@ -178,5 +178,7 @@ public class    CollectionFieldHandler implements JavaFieldHandler {
         ownerTypeBuilder.addMethod(methodBuilder.build());
     }
 
-
+    public Descriptor getDescriptor() {
+        return descriptor;
+    }
 }

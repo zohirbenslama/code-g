@@ -27,6 +27,8 @@ import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,14 +47,14 @@ public class RegistryTest {
         this.macroRegistry = new MacroRegistryImpl();
     }
 
-    public void testRegistry() throws ClassNotFoundException {
+    public void testRegistry() throws ClassNotFoundException, IOException {
         CodeGenerator codeBuilder = new CodeGeneratorImpl(macroRegistry);
         List<Descriptor> descriptors = Arrays.asList(
                 new DescriptorBuilder().setSourceClass(FooRegistry.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
         );
 
         {
-        SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
+        SourceCompilerHandler compilerHandler = new SourceCompilerHandler(File.createTempFile("code-g", "test"));
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
         ClassLoader classLoader = compilerHandler.compile();
@@ -61,7 +63,7 @@ public class RegistryTest {
         }
 
         {
-            MemCodeHandler compilerHandler = new MemCodeHandler();
+            MemCodeHandler compilerHandler = new MemCodeHandler(File.createTempFile("code-g", "test"));
             codeBuilder.generate(descriptors, compilerHandler);
             List<String> generated = compilerHandler.getTypeNames();
             Assert.assertEquals(generated.size(), 1);

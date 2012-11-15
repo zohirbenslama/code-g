@@ -15,12 +15,16 @@
  */
 package org.abstractmeta.code.g.core.handler;
 
+import org.abstractmeta.code.g.code.SourcedJavaType;
+import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.handler.CodeHandler;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.handler.CodeHandlerFactory;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,19 +38,37 @@ public class SourceCompilerHandler implements CodeHandler {
     private final JavaSourceCompiler javaSourceCompiler;
     private final JavaSourceCompiler.CompilationUnit compilationUnit;
     private final List<String> generatedTypes = new ArrayList<String>();
+    private final File rootDirectory;
 
     public SourceCompilerHandler() {
+        this(null);
+    }
+
+    public SourceCompilerHandler(@Nullable File rootDirectory) {
+        this.rootDirectory = rootDirectory;
         this.javaSourceCompiler = new JavaSourceCompilerImpl();
-        this.compilationUnit = javaSourceCompiler.createCompilationUnit();
+        if (rootDirectory == null) {
+            this.compilationUnit = javaSourceCompiler.createCompilationUnit();
+
+        } else {
+            this.compilationUnit = javaSourceCompiler.createCompilationUnit(rootDirectory);
+        }
     }
 
     @Override
-    public void handle(JavaType javaType, CharSequence sourceCode) {
-        if(sourceCode == null) {
-            throw new IllegalArgumentException("sourceCode was null for "+ javaType);
+    public void handle(SourcedJavaType sourcedJavaType) {
+        CharSequence sourceCode = sourcedJavaType.getSourceCode();
+        JavaType javaType = sourcedJavaType.getType();
+        if (sourceCode == null) {
+            throw new IllegalArgumentException("sourceCode was null for " + javaType);
         }
         compilationUnit.addJavaSource(javaType.getName(), sourceCode.toString());
         generatedTypes.add(javaType.getName());
+    }
+
+    @Override
+    public File getRootDirectory() {
+        return rootDirectory;
     }
 
     public ClassLoader compile() {
@@ -54,7 +76,7 @@ public class SourceCompilerHandler implements CodeHandler {
     }
 
     public ClassLoader compile(ClassLoader parentClassLoader) {
-        return javaSourceCompiler.compile(parentClassLoader, compilationUnit);
+        return  javaSourceCompiler.compile(parentClassLoader, compilationUnit);
     }
 
 
@@ -70,5 +92,18 @@ public class SourceCompilerHandler implements CodeHandler {
     public JavaSourceCompiler getJavaSourceCompiler() {
         return javaSourceCompiler;
     }
+
+
+     /**
+     * Represents  PersistenceCodeHandlerFactory.
+     *
+     */
+    public static class Factory implements CodeHandlerFactory {
+        @Override
+        public CodeHandler create(File rootDirectory) {
+            return new SourceCompilerHandler(rootDirectory);
+        }
+    }
+
 
 }

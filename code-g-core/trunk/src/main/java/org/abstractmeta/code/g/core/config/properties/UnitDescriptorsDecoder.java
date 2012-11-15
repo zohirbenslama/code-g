@@ -1,9 +1,11 @@
 package org.abstractmeta.code.g.core.config.properties;
 
 import org.abstractmeta.code.g.config.UnitDescriptor;
+import org.abstractmeta.code.g.core.util.DecoderUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,14 +28,18 @@ public class UnitDescriptorsDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public Collection<UnitDescriptor> decode(Map properties) {
-        Collection<UnitDescriptor> result = new ArrayList<UnitDescriptor>();
+    public List<UnitDescriptor> decode(Map properties) {
+        List<UnitDescriptor> result = new ArrayList<UnitDescriptor>();
         for(int i =0;;i++) {
             Map<String, String> unitDescriptorProperties = DecoderUtil.matchWithPrefix(properties, UNIT_DESCRIPTOR_KEY + "_" + i);
-            if(unitDescriptorProperties.isEmpty()) break;
+            if(unitDescriptorProperties.isEmpty()) {
+                if(i > 1) break;
+                continue;
+            }
             UnitDescriptor unitDescriptor = unitDescriptorDecoder.decode(unitDescriptorProperties);
             result.add(unitDescriptor);
         }
+
         return result;
     }
 

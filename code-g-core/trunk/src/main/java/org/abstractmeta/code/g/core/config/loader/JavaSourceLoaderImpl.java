@@ -94,7 +94,7 @@ public class JavaSourceLoaderImpl implements JavaSourceLoader {
         try {
             Files.copy(file, outputStream);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to load file " + file.getAbsolutePath(), e);
+            throw new IllegalStateException("Failed to loadColumnFieldMap file " + file.getAbsolutePath(), e);
         } finally {
             Closeables.closeQuietly(outputStream);
         }

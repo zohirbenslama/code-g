@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.util;
 
 import com.google.common.collect.Maps;
+import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
@@ -25,6 +26,8 @@ import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -71,12 +74,12 @@ public class JavaTypeUtil {
     public static Type matchDeclaringType(JavaType sourceType) {
         Type candidateType = null;
         if (sourceType.getSuperInterfaces() != null && sourceType.getSuperInterfaces().size() > 0) {
-             candidateType =  sourceType.getSuperInterfaces().get(0);
+            candidateType = sourceType.getSuperInterfaces().get(0);
 
         } else if (sourceType.getSuperType() != null && !Object.class.equals(sourceType.getSuperType())) {
-            candidateType =  sourceType.getSuperType();
+            candidateType = sourceType.getSuperType();
         }
-        if(candidateType != null &&  matchFieldMethods(candidateType, sourceType.getMethods())) {
+        if (candidateType != null && matchFieldMethods(candidateType, sourceType.getMethods())) {
             return candidateType;
         }
         return new TypeNameWrapper(sourceType.getName());
@@ -84,7 +87,7 @@ public class JavaTypeUtil {
 
     public static String matchDeclaringTypeName(JavaType sourceType) {
         Type candidateType = matchDeclaringType(sourceType);
-        if(candidateType instanceof TypeNameWrapper) {
+        if (candidateType instanceof TypeNameWrapper) {
             return TypeNameWrapper.class.cast(candidateType).getTypeName();
         }
         Class rawType = ReflectUtil.getRawClass(candidateType);
@@ -93,25 +96,25 @@ public class JavaTypeUtil {
 
 
     public static boolean matchFieldMethods(Type candidate, Collection<JavaMethod> methods) {
-        if(candidate instanceof TypeNameWrapper) {
+        if (candidate instanceof TypeNameWrapper) {
             return true;
         }
         Class rawClass = ReflectUtil.getRawClass(candidate);
         JavaType candidateType = new ClassTypeProvider(rawClass).get();
         Set<String> candidateMethods = new HashSet<String>();
-        for(JavaMethod method: candidateType.getMethods()) {
+        for (JavaMethod method : candidateType.getMethods()) {
             candidateMethods.add(method.getName());
         }
-        for(JavaMethod method: methods) {
+        for (JavaMethod method : methods) {
             String methodName = method.getName();
-            if(methodName.length() > 3 && (methodName.startsWith("get") 
+            if (methodName.length() > 3 && (methodName.startsWith("get")
                     || methodName.startsWith("is"))) {
-                if(! candidateMethods.contains(methodName))  {
+                if (!candidateMethods.contains(methodName)) {
                     return false;
                 }
             }
         }
-       return true; 
+        return true;
     }
 
     /**
@@ -196,5 +199,24 @@ public class JavaTypeUtil {
         return null;
     }
 
+
+    public static File getFileName(JavaType javaType, File rootDirectory) {
+        String classFileName = javaType.getPackageName().replace('.', '/') + "/" + javaType.getSimpleName() + ".java";
+        return new File(rootDirectory, classFileName);
+    }
+
+
+    public static boolean contains(Collection<Annotation> annotations, String annotationName) {
+        if(annotations == null) return false;
+        for(Annotation annotation: annotations) {
+            String candidateAnnotationName = annotation.annotationType().getName();
+            if(candidateAnnotationName.equals(annotationName)) {
+                return true;
+            }
+
+
+        }
+        return false;
+    }
 
 }

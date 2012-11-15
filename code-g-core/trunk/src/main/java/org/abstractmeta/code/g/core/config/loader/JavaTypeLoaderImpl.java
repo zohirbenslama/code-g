@@ -49,7 +49,7 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
             if (descriptor.getSourceClass() != null) {
                 String loadedClass = loadSourceClass(registry, descriptor.getSourceClass(), classLoader);
                 if (loadedClass == null) {
-                    throw new IllegalStateException("Failed to load class " + descriptor.getSourceClass());
+                    throw new IllegalStateException("Failed to loadColumnFieldMap class " + descriptor.getSourceClass());
                 }
                 return Arrays.asList(loadedClass);
             } else if (descriptor.getSourcePackage() != null) {
@@ -102,7 +102,7 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
             }
 
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to load source " + descriptor, e);
+            throw new IllegalStateException("Failed to loadColumnFieldMap source " + descriptor, e);
         }
         return result;
     }
@@ -169,7 +169,7 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
             }
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load class from jar file" + e, e);
+            throw new IllegalStateException("Failed to loadColumnFieldMap class from jar file" + e, e);
         } finally {
             Closeables.closeQuietly(inputStream);
         }
@@ -203,7 +203,7 @@ public class JavaTypeLoaderImpl implements JavaTypeLoader {
             registry.register(javaType);
             return result.getName();
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Failed to load class " + sourceClass, e);
+            throw new IllegalStateException("Failed to loadColumnFieldMap class " + sourceClass, e);
         }
     }
 }

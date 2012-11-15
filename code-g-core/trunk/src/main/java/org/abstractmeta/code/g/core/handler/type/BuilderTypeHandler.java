@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.type;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
@@ -67,12 +68,12 @@ public class BuilderTypeHandler implements JavaTypeHandler {
 
 
     private final JavaTypeBuilder ownerTypeBuilder;
-    private final Map<String, String> immutableImplementations;
+    private final Descriptor descriptor;
     private final JavaTypeImporter importer = new JavaTypeImporterImpl("");
     
-    public BuilderTypeHandler(JavaTypeBuilder ownerTypeBuilder, Map<String, String> immutableImplementations) {
+    public BuilderTypeHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
-        this.immutableImplementations = immutableImplementations;
+        this.descriptor = descriptor;
     }
 
 
@@ -119,8 +120,9 @@ public class BuilderTypeHandler implements JavaTypeHandler {
             String fieldName = field.getName();
             Class fieldRawType = ReflectUtil.getRawClass(field.getType());
             if (field.isImmutable()) {
-                if (immutableImplementations.containsKey(fieldRawType.getName())) {
-                    String immutableImplementation = immutableImplementations.get(fieldRawType.getName());
+
+                if (descriptor.getImmutableImplementation() != null  && descriptor.getImmutableImplementation() .containsKey(fieldRawType.getName())) {
+                    String immutableImplementation = descriptor.getImmutableImplementation() .get(fieldRawType.getName());
                     String implementationMethod = StringUtil.substringAfterLastIndexOf(immutableImplementation, ".");
                     String importType = StringUtil.substringBeforeLastIndexOf(immutableImplementation, ".");
                     String importSimpleTypeName = JavaTypeUtil.getSimpleClassName(importType);

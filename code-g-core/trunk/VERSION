@@ -22,4 +22,5 @@
     - added macro registry to support macro/mini variable substitution
     - added properties support for unit descriptor/descriptor loader
     - jpa entity generator
+    - added hashCode, equals method handler
     - minor bug fixes

@@ -45,10 +45,10 @@ import java.util.Collections;
  * <li>Method generation - once all fields are defined and type is being generate the following
  * field handlers are fired with ability to generate relevant method
  * <ul>
- * <li>{@link org.abstractmeta.code.g.core.handler.RegistryFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.CollectionFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.GetterFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.SimpleTypeHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.RegistryFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.CollectionFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.type.SimpleTypeHandler}</li>
  * </ul>
  * </li>
  * <p/>

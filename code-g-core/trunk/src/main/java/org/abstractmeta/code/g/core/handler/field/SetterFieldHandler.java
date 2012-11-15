@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.handler.JavaBodyHandler;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
 import com.google.common.base.CaseFormat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This handler creates set method.
@@ -45,6 +49,7 @@ import java.util.Collection;
  */
 public class SetterFieldHandler implements JavaFieldHandler {
 
+    public static final String ON_BEFORE_FIELD_ASSIGNMENT_HANDLER = "onBeforeFieldAssignmentHandler";
     private final JavaTypeBuilder ownerTypeBuilder;
     private final Descriptor descriptor;
 
@@ -63,15 +68,29 @@ public class SetterFieldHandler implements JavaFieldHandler {
                 JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
                 methodBuilder.setName(methodName);
                 methodBuilder.setResultType(void.class);
-                methodBuilder.addParameter(fieldName, javaField.getType());
+                methodBuilder.addParameter("final", fieldName, javaField.getType());
                 methodBuilder.addModifier("public");
+                methodBuilder.addBody(initBody(descriptor, sourceType, javaField, fieldName));
                 methodBuilder.addBody(generateBody(fieldName, fieldName));
                 ownerTypeBuilder.addMethod(methodBuilder.build());
             }
         }
     }
 
+    protected Collection<String> initBody(Descriptor descriptor, JavaType sourceType, JavaField javaField, String argument) {
+        JavaBodyHandler javaBodyHandler = DescriptorUtil.getInstance(descriptor, JavaBodyHandler.class, ON_BEFORE_FIELD_ASSIGNMENT_HANDLER);
+        List<String> result = new ArrayList<String>();
+        if(javaBodyHandler != null) {
+            javaBodyHandler.handle(descriptor, sourceType, javaField, result, argument);
+        }
+        return result;
+   }
+
     protected Collection<String> generateBody(String thisFieldName, String argumentFieldName) {
         return Arrays.asList(String.format("this.%s = %s;", thisFieldName, argumentFieldName));
+    }
+
+    public Descriptor getDescriptor() {
+        return descriptor;
     }
 }

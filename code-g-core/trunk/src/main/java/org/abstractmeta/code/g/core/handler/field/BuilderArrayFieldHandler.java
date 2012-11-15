@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
 import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
@@ -73,11 +76,11 @@ import java.util.Collection;
 public class BuilderArrayFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
-    private final boolean generatePresentCheck;
+    private final Descriptor descriptor;
 
-    public BuilderArrayFieldHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
+    public BuilderArrayFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
-        this.generatePresentCheck =generatePresentCheck;
+        this.descriptor =descriptor;
     }
 
     //TODO add generic array type support
@@ -110,7 +113,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("int i = this.%s.length;", fieldName));
         methodBuilder.addBody(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(generatePresentCheck) {
+        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
@@ -129,7 +132,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
         methodBuilder.addBody(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(generatePresentCheck) {
+        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");

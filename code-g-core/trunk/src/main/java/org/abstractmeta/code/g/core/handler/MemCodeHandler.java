@@ -16,9 +16,13 @@
 package org.abstractmeta.code.g.core.handler;
 
 
+import org.abstractmeta.code.g.code.SourcedJavaType;
+import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.handler.CodeHandler;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.handler.CodeHandlerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,21 +35,54 @@ import java.util.Map;
  */
 public class MemCodeHandler implements CodeHandler {
 
-    private final Map<String, String> sourceCodes = new HashMap<String, String>();
+    private final Map<String, SourcedJavaType> sourceCodes = new HashMap<String, SourcedJavaType>();
     private final List<String> typeNames = new ArrayList<String>();
+    protected final File rootDirectory;
+
+    public MemCodeHandler(File rootDirectory) {
+        this.rootDirectory = rootDirectory;
+    }
 
     @Override
-    public void handle(JavaType javaType, CharSequence sourceCode) {
-        sourceCodes.put(javaType.getName(), sourceCode.toString());
-        typeNames.add(javaType.getName());
+    public void handle(SourcedJavaType sourcedJavaType) {
+        sourceCodes.put(sourcedJavaType.getType().getName(), sourcedJavaType);
+        typeNames.add(sourcedJavaType.getType().getName());
+
+    }
+
+    @Override
+    public File getRootDirectory() {
+        return rootDirectory;
+    }
+
+    @Override
+    public ClassLoader compile() {
+        return null;
+    }
+
+    @Override
+    public ClassLoader compile(ClassLoader classLoader) {
+        return classLoader;
     }
 
     public String getSourceCode(String typeName) {
-        return sourceCodes.get(typeName);
+        return "" + sourceCodes.get(typeName).getSourceCode();
     }
 
 
     public List<String> getTypeNames() {
         return typeNames;
     }
+
+    /**
+     * Represents  PersistenceCodeHandlerFactory.
+     *
+     */
+    public static class Factory implements CodeHandlerFactory {
+        @Override
+        public CodeHandler create(File rootDirectory) {
+            return new MemCodeHandler(rootDirectory);
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ package org.abstractmeta.code.g.core.config.properties;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.config.builder.UnitDescriptorBuilder;
+import org.abstractmeta.code.g.core.util.DecoderUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +42,8 @@ public class UnitDescriptorDecoder {
         for (int i = 0; ; i++) {
             Map<String, String> descriptorProperties = DecoderUtil.matchWithPrefix(properties, DESCRIPTOR_KEY + "_" + i);
             if (descriptorProperties.isEmpty()) {
-                break;
+                if(i > 1) break;
+                continue;
             }
             Descriptor descriptor = descriptorDecoder.decode(descriptorProperties);
             descriptors.add(descriptor);

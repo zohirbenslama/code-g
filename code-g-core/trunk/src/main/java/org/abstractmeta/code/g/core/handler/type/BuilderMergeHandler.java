@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.type;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;

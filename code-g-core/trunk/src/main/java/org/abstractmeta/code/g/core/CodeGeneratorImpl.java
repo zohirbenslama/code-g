@@ -20,13 +20,18 @@ import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
+import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.loader.JavaTypeLoader;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
+import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.config.loader.JavaTypeLoaderImpl;
+import org.abstractmeta.code.g.core.diconfig.JavaTypeRegistryProvider;
+import org.abstractmeta.code.g.core.diconfig.JavaTypeRendererProvider;
 import org.abstractmeta.code.g.core.renderer.TypeRenderer;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.MacroUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.handler.CodeHandler;
@@ -34,7 +39,10 @@ import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import javax.inject.Provider;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -49,21 +57,11 @@ public class CodeGeneratorImpl implements CodeGenerator {
 
 
     public CodeGeneratorImpl(MacroRegistry macroRegistry) {
-        this(new JavaTypeLoaderImpl(), macroRegistry, new Provider<JavaTypeRegistry>() {
-                    @Override
-                    public JavaTypeRegistry get() {
-                        return new JavaTypeRegistryImpl();
-                    }
-                }, new Provider<JavaTypeRenderer>() {
-                    @Override
-                    public JavaTypeRenderer get() {
-                        return new TypeRenderer();
-                    }
-                }
-        );
+        this(new JavaTypeLoaderImpl(), macroRegistry, new JavaTypeRegistryProvider(),new JavaTypeRendererProvider());
     }
 
-    protected CodeGeneratorImpl(JavaTypeLoader typeLoader, MacroRegistry macroRegistry, Provider<JavaTypeRegistry> registryProvider, Provider<JavaTypeRenderer> rendererProvider) {
+    @Inject
+    public CodeGeneratorImpl(JavaTypeLoader typeLoader, MacroRegistry macroRegistry, Provider<JavaTypeRegistry> registryProvider, Provider<JavaTypeRenderer> rendererProvider) {
         this.typeLoader = typeLoader;
         this.macroRegistry = macroRegistry;
         this.registryProvider = registryProvider;
@@ -72,17 +70,20 @@ public class CodeGeneratorImpl implements CodeGenerator {
 
 
     @Override
-    public Collection<JavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader) {
-        Collection<JavaType> result = new ArrayList<JavaType>();
+    public Collection<SourcedJavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, @Nullable ClassLoader classLoader) {
+        Collection<SourcedJavaType> result = new ArrayList<SourcedJavaType>();
         if (classLoader == null) {
             classLoader = handler.getClass().getClassLoader();
         }
         JavaTypeRegistry registry = registryProvider.get();
         for (Descriptor itemDescriptor : descriptors) {
             Descriptor descriptor = substitute(itemDescriptor);
-            JavaTypeLoader typeLoader = getTypeLoader(descriptor);
-            Collection<String> loadedTypes = typeLoader.load(registry, descriptor, classLoader);
-            Collection<JavaType> generatedTypesByThisDescriptor = runPlugin(registry, loadedTypes, classLoader, descriptor, handler);
+            Collection<String> loadedTypes = Collections.emptyList();
+            if(descriptor.getSourceClass() != null || descriptor.getSourcePackage() != null) {
+                JavaTypeLoader typeLoader = getTypeLoader(descriptor);
+                loadedTypes = typeLoader.load(registry, descriptor, classLoader);
+            }
+            Collection<SourcedJavaType> generatedTypesByThisDescriptor = runPlugin(registry, loadedTypes, classLoader, descriptor, handler);
             result.addAll(generatedTypesByThisDescriptor);
         }
         return result;
@@ -102,11 +103,11 @@ public class CodeGeneratorImpl implements CodeGenerator {
         }
     }
 
-    public Collection<JavaType> runPlugin(JavaTypeRegistry registry, Collection<String> typeCandidates, ClassLoader classLoader, Descriptor descriptor, CodeHandler handler) {
-        if(classLoader == null) {
+    public Collection<SourcedJavaType> runPlugin(JavaTypeRegistry registry, Collection<String> typeCandidates, ClassLoader classLoader, Descriptor descriptor, CodeHandler handler) {
+        if (classLoader == null) {
             throw new IllegalArgumentException("classLoader was null");
         }
-        if(descriptor.getPlugin() == null) {
+        if (descriptor.getPlugin() == null) {
             throw new IllegalArgumentException("descriptor.plugin was null");
         }
 
@@ -133,12 +134,12 @@ public class CodeGeneratorImpl implements CodeGenerator {
     }
 
     @Override
-    public Collection<JavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler) {
+    public Collection<SourcedJavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler) {
         return generate(descriptors, handler, null);
     }
 
-    protected Collection<JavaType> renderCode(CodeHandler codeHandler, Iterable<String> generatedTypes, JavaTypeRegistry registry) {
-        Collection<JavaType> result = new ArrayList<JavaType>();
+    protected Collection<SourcedJavaType> renderCode(CodeHandler codeHandler, Iterable<String> generatedTypes, JavaTypeRegistry registry) {
+        Collection<SourcedJavaType> result = new ArrayList<SourcedJavaType>();
         for (String generatedType : generatedTypes) {
             JavaTypeRenderer renderer = rendererProvider.get();
             JavaType javaType = registry.get(generatedType);
@@ -146,8 +147,13 @@ public class CodeGeneratorImpl implements CodeGenerator {
             importer.getGenericTypeVariables().putAll(javaType.getGenericTypeVariables());
             importer.addTypes(javaType.getImportTypes());
             String sourceCode = renderer.render(javaType, importer, 0);
-            codeHandler.handle(javaType, sourceCode);
-            result.add(javaType);
+            SourcedJavaTypeBuilder sourcedJavaTypeBuilder = new SourcedJavaTypeBuilder();
+            sourcedJavaTypeBuilder.setType(javaType);
+            sourcedJavaTypeBuilder.setSourceCode(sourceCode);
+            sourcedJavaTypeBuilder.setFile(JavaTypeUtil.getFileName(javaType, codeHandler.getRootDirectory()));
+            SourcedJavaType sourcedJavaType = sourcedJavaTypeBuilder.build();
+            codeHandler.handle(sourcedJavaType);
+            result.add(sourcedJavaType);
         }
         return result;
     }

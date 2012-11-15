@@ -31,6 +31,7 @@ import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ public class CodeGeneratorImplTest {
                 new DescriptorBuilder().setSourceClass(Bar.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
         );
 
-        SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
+        SourceCompilerHandler compilerHandler = new SourceCompilerHandler(File.createTempFile("code-g", "test"));
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
         Assert.assertEquals(generated.size(), 1);
@@ -75,7 +76,7 @@ public class CodeGeneratorImplTest {
 //
 //        Assert.assertEquals(codeHandler.getSourceCode(codeHandler.getTypeNames().get(1)), "");
 //
-        SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
+        SourceCompilerHandler compilerHandler = new SourceCompilerHandler(File.createTempFile("code-g", "test"));
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
 
@@ -106,7 +107,7 @@ public class CodeGeneratorImplTest {
                         .build()
         );
 
-        SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
+        SourceCompilerHandler compilerHandler = new SourceCompilerHandler(File.createTempFile("code-g", "test"));
         codeBuilder.generate(descriptors, compilerHandler);
         List<String> generated = compilerHandler.getGeneratedTypes();
 

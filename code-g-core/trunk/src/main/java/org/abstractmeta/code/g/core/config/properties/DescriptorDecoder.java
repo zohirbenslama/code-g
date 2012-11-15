@@ -2,6 +2,7 @@ package org.abstractmeta.code.g.core.config.properties;
 
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
+import org.abstractmeta.code.g.core.util.DecoderUtil;
 
 import java.util.Map;
 

@@ -71,7 +71,7 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(KIND_PARAMETER, getValue(instance.getKind(), "class"));
-        
+        template.set(ANNOTATIONS_PARAMETER, getAnnotations(importer, instance.getAnnotations()));
         String typeName = importer.getTypeName(new TypeNameWrapper(instance.getName()), instance.getGenericTypeArguments());
 
         template.set(NAME_PARAMETER, importer.getSimpleTypeName(typeName));

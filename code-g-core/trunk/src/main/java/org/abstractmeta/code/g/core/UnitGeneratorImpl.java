@@ -17,8 +17,8 @@ package org.abstractmeta.code.g.core;
 
 import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.UnitGenerator;
-import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
+import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.config.loader.JavaSourceLoader;
@@ -27,6 +27,7 @@ import org.abstractmeta.code.g.core.config.loader.JavaSourceLoaderImpl;
 import org.abstractmeta.code.g.core.handler.PersistenceCodeHandler;
 import org.abstractmeta.code.g.core.util.MacroUtil;
 import org.abstractmeta.code.g.handler.CodeHandler;
+import org.abstractmeta.code.g.handler.CodeHandlerFactory;
 import org.abstractmeta.code.g.macros.MacroRegistry;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -43,70 +44,72 @@ public class UnitGeneratorImpl implements UnitGenerator {
 
     private final JavaSourceLoader sourceLoader;
     private final MacroRegistry macroRegistry;
+    private final CodeHandlerFactory codeHandlerFactory;
 
-    public UnitGeneratorImpl(MacroRegistry macroRegistry) {
-        this(new JavaSourceLoaderImpl(), macroRegistry);
+
+    public UnitGeneratorImpl(MacroRegistry macroRegistry, CodeHandlerFactory codeHandlerFactory) {
+        this(new JavaSourceLoaderImpl(), macroRegistry, codeHandlerFactory);
     }
 
-    protected UnitGeneratorImpl(JavaSourceLoader sourceLoader, MacroRegistry macroRegistry) {
+    protected UnitGeneratorImpl(JavaSourceLoader sourceLoader, MacroRegistry macroRegistry, CodeHandlerFactory codeHandlerFactory) {
         this.sourceLoader = sourceLoader;
         this.macroRegistry = macroRegistry;
+        this.codeHandlerFactory = codeHandlerFactory;
     }
 
 
-    public Collection<File> generate(UnitDescriptor unitDescriptor, List<JavaType> generatedTypes, Set<Descriptor> postPlugins) {
+    public void generate(UnitDescriptor unitDescriptor, List<SourcedJavaType> generatedTypes, Set<Descriptor> postPlugins, ClassLoader classLoader) {
+        CodeGenerator codeGenerator = new CodeGeneratorImpl(macroRegistry);
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
         JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
         compilationUnit.addClassPathEntries(MacroUtil.substitute(macroRegistry, unitDescriptor.getClassPathEntries(), new ArrayList<String>()));
         Collection<Descriptor> descriptors = getDescriptor(unitDescriptor);
-        ClassLoader classLoader;
-
         if (unitDescriptor.getSourceDirectory() != null) {
             File sourceDirectory = new File(MacroUtil.substitute(macroRegistry, unitDescriptor.getSourceDirectory()));
             Map<String, String> javaSources = sourceLoader.load(sourceDirectory, descriptors);
             for (String className : javaSources.keySet()) {
                 compilationUnit.addJavaSource(className, javaSources.get(className));
             }
-            classLoader = javaSourceCompiler.compile(compilationUnit);
-        } else {
-            classLoader = this.getClass().getClassLoader();
+            classLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
         }
 
-
-        PersistenceCodeHandler codeHandler = new PersistenceCodeHandler(new File(MacroUtil.substitute(macroRegistry, unitDescriptor.getTargetDirectory())));
-        CodeGenerator codeGenerator = new CodeGeneratorImpl(macroRegistry);
-
-        Collection<JavaType> generatedTypeForThisUnit = codeGenerator.generate(descriptors, codeHandler, classLoader);
+        File rootDirectory = new File(MacroUtil.substitute(macroRegistry, unitDescriptor.getTargetDirectory()));
+        CodeHandler codeHandler = codeHandlerFactory.create(rootDirectory);
+        Collection<SourcedJavaType> generatedTypeForThisUnit = codeGenerator.generate(descriptors, codeHandler, classLoader);
+        classLoader = codeHandler.compile(classLoader);
+        unitDescriptor.setClassLoader(classLoader);
         generatedTypes.addAll(generatedTypeForThisUnit);
         if (unitDescriptor.getPostDescriptor() != null) {
             postPlugins.add(unitDescriptor.getPostDescriptor());
         }
-        return codeHandler.getGeneratedFiles();
     }
 
 
     @Override
-    public Collection<File> generate(Iterable<UnitDescriptor> unitDescriptors) {
-        List<JavaType> generatedTypes = new ArrayList<JavaType>();
-        Set<Descriptor> postDescriptors = new HashSet<Descriptor>();
-        Collection<File> result = new HashSet<File>();
-        for (UnitDescriptor descriptor : unitDescriptors) {
-            Collection<File> filesForThisUnit = generate(descriptor, generatedTypes, postDescriptors);
-            result.addAll(filesForThisUnit);
-        }
-        for (UnitDescriptor unitDescriptor : unitDescriptors) {
-            applyPostDescriptors(unitDescriptor, generatedTypes);
-        }
-        return result;
+    public Collection<SourcedJavaType> generate(Iterable<UnitDescriptor> unitDescriptors) {
+        return generate(unitDescriptors, this.getClass().getClassLoader());
     }
 
-    private void applyPostDescriptors(UnitDescriptor unitDescriptor, List<JavaType> generatedTypes) {
+    @Override
+    public Collection<SourcedJavaType> generate(Iterable<UnitDescriptor> unitDescriptors, ClassLoader classLoader) {
+        List<SourcedJavaType> generatedTypes = new ArrayList<SourcedJavaType>();
+           Set<Descriptor> postDescriptors = new HashSet<Descriptor>();
+           for (UnitDescriptor descriptor : unitDescriptors) {
+               generate(descriptor, generatedTypes, postDescriptors, classLoader);
+           }
+           for (UnitDescriptor unitDescriptor : unitDescriptors) {
+               applyPostDescriptors(unitDescriptor, generatedTypes, classLoader);
+           }
+           return generatedTypes;
+       }
+
+    private void applyPostDescriptors(UnitDescriptor unitDescriptor, List<SourcedJavaType> sourcedJavaTypes, ClassLoader classLoader) {
         Descriptor postDescriptor = unitDescriptor.getPostDescriptor();
         if (postDescriptor == null) return;
         CodeGeneratorImpl codeGenerator = new CodeGeneratorImpl(macroRegistry);
         JavaTypeRegistry typeRegistry = codeGenerator.getRegistryProvider().get();
-        for (JavaType javaType : generatedTypes) {
-            typeRegistry.register(javaType);
+        for (SourcedJavaType sourcedJavaType : sourcedJavaTypes) {
+            typeRegistry.register(sourcedJavaType.getType());
         }
         PersistenceCodeHandler codeHandler = new PersistenceCodeHandler(new File(MacroUtil.substitute(macroRegistry, unitDescriptor.getTargetDirectory())));
         Descriptor descriptor = codeGenerator.substitute(postDescriptor);
@@ -124,7 +127,6 @@ public class UnitGeneratorImpl implements UnitGenerator {
                 descriptorBuilder.setSourcePackage(sourcePackage);
             }
             result.add(descriptorBuilder.build());
-
         }
         return result;
     }

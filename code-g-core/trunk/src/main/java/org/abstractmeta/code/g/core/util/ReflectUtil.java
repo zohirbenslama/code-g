@@ -38,10 +38,10 @@ public class ReflectUtil {
             Type componentType = GenericArrayType.class.cast(type).getGenericComponentType();
             if (componentType instanceof Class) {
                 return Array.newInstance((Class) componentType, 0).getClass();
-            } else if (componentType instanceof  TypeVariable) {
-                 return Object[].class;
+            } else if (componentType instanceof TypeVariable) {
+                return Object[].class;
             }
-        } else if(type instanceof TypeVariable) {   
+        } else if (type instanceof TypeVariable) {
             return Object.class;
         }
         return Object.class;
@@ -78,12 +78,12 @@ public class ReflectUtil {
                 return result;
             }
             return new Type[]{};
-        } else if(type instanceof TypeVariable) {
+        } else if (type instanceof TypeVariable) {
             return TypeVariable.class.cast(type).getBounds();
-        } else if(type instanceof WildcardType) {
+        } else if (type instanceof WildcardType) {
             return WildcardType.class.cast(type).getLowerBounds();
         }
-        throw new IllegalStateException(String.format("Unsupported type %s", type + " "  + type.getClass()));
+        throw new IllegalStateException(String.format("Unsupported type %s", type + " " + type.getClass()));
     }
 
 
@@ -91,11 +91,11 @@ public class ReflectUtil {
         HashSet<Type> result = new HashSet<Type>();
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
-            for(Type candidate: parameterizedType.getActualTypeArguments()) {
+            for (Type candidate : parameterizedType.getActualTypeArguments()) {
                 result.addAll(getTypeVariables(candidate));
             }
-          
-            
+
+
         } else if (type instanceof GenericArrayType) {
             return getTypeVariables(GenericArrayType.class.cast(type).getGenericComponentType());
         } else if (type instanceof Class) {
@@ -109,21 +109,21 @@ public class ReflectUtil {
                     result.addAll(getTypeVariables(typeVariables[i]));
                 }
             }
-        } else if(type instanceof TypeVariable) {
+        } else if (type instanceof TypeVariable) {
             result.add(type);
-        } else if(type instanceof WildcardType) {
-            
-            for(Type lowerType: WildcardType.class.cast(type).getLowerBounds()) {
+        } else if (type instanceof WildcardType) {
+
+            for (Type lowerType : WildcardType.class.cast(type).getLowerBounds()) {
                 result.addAll(getTypeVariables(lowerType));
             }
-            for(Type upperType: WildcardType.class.cast(type).getUpperBounds()) {
+            for (Type upperType : WildcardType.class.cast(type).getUpperBounds()) {
                 result.addAll(getTypeVariables(upperType));
             }
         }
         return result;
     }
-    
-    public static   String extractFieldNameFromMethodName(String methodName) {
+
+    public static String extractFieldNameFromMethodName(String methodName) {
         int methodNameLength = methodName.length();
         if ((methodName.startsWith("set") || methodName.startsWith("get")) && methodNameLength > 3) {
             String upperCaseMethodName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
@@ -197,6 +197,15 @@ public class ReflectUtil {
             try {
                 method.setAccessible(true);
                 Object instance = method.invoke(annotation);
+                Object defaultValue = method.getDefaultValue();
+                if (defaultValue != null && defaultValue.equals(instance)) {
+                    continue;
+                }
+                if (defaultValue != null && defaultValue.getClass().isArray()) {
+                    if (!defaultValue.getClass().isPrimitive()) {
+                        if (Arrays.equals((Object[]) defaultValue, (Object[]) instance)) continue;
+                    }
+                }
                 result.put(method.getName(), instance);
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to read annotation " + annotation, e);
@@ -235,27 +244,27 @@ public class ReflectUtil {
 
 
     public static Class getPrimitiveType(Class type) {
-    
-       if(Integer.class.equals(type)) {
-           return int.class;
-       } else if(Long.class.equals(type)) {
-            return long.class;   
-       } else if(Short.class.equals(type)) {
-            return short.class;   
-       } else if(Character.class.equals(type)) {
-           return char.class;
-       } else if(Byte.class.equals(type)) {
-           return byte.class;
-       } else if(Boolean.class.equals(type)) {
-           return boolean.class;
-       } else if(Float.class.equals(type)) {
-           return float.class;
-       } else if(Double.class.equals(type)) {
-           return double.class;
-       } else if(Void.class.equals(type)) {
-           return void.class;
-       }
-       return null;
+
+        if (Integer.class.equals(type)) {
+            return int.class;
+        } else if (Long.class.equals(type)) {
+            return long.class;
+        } else if (Short.class.equals(type)) {
+            return short.class;
+        } else if (Character.class.equals(type)) {
+            return char.class;
+        } else if (Byte.class.equals(type)) {
+            return byte.class;
+        } else if (Boolean.class.equals(type)) {
+            return boolean.class;
+        } else if (Float.class.equals(type)) {
+            return float.class;
+        } else if (Double.class.equals(type)) {
+            return double.class;
+        } else if (Void.class.equals(type)) {
+            return void.class;
+        }
+        return null;
     }
 
     public static Class getGenericArgument(Type type, int argumentIndex, Class defaultType) {
@@ -293,12 +302,12 @@ public class ReflectUtil {
         } catch (ClassCastException e) {
             throw new ClassCastException("Failed to cast " + clazz + " " + type.getName());
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load class " + className, e);
+            throw new IllegalStateException("Failed to loadColumnFieldMap class " + className, e);
         }
     }
 
     public static Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
-        if(classLoader == null) {
+        if (classLoader == null) {
             classLoader = ReflectUtil.class.getClassLoader();
         }
         return classLoader.loadClass(className);
@@ -307,4 +316,26 @@ public class ReflectUtil {
     public static <T> T loadInstance(Class<T> type, String className) {
         return loadInstance(type, className, type.getClassLoader());
     }
+
+
+    public static boolean isPrimitiveType(Type type) {
+        if (type instanceof TypeNameWrapper) {
+            return false;
+        }
+        Class rawClass = getRawClass(type);
+        return rawClass.isPrimitive();
+    }
+
+
+    public static boolean isArrayType(Type type) {
+        if (type instanceof TypeNameWrapper) {
+            return false;
+        }
+        if (type instanceof GenericArrayType) {
+            return true;
+        }
+        Class rawClass = getRawClass(type);
+        return rawClass.isArray();
+    }
+
 }

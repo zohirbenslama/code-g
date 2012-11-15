@@ -16,12 +16,11 @@
 package org.abstractmeta.code.g.core.builder;
 
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.handler.*;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.abstractmeta.code.g.core.handler.field.*;
+import org.abstractmeta.code.g.core.handler.type.BuilderMergeHandler;
+import org.abstractmeta.code.g.core.handler.type.BuilderTypeHandler;
 
 /**
  * BuilderClassBuilder
@@ -30,19 +29,19 @@ import java.util.Map;
  */
 public class BuilderClassBuilder extends JavaTypeBuilder {
 
-    private final Map<String, String> immutableImplementation;
     private final JavaType buildType;
-
-    public BuilderClassBuilder(JavaType builtType, boolean generatePresentCheck) {
+    private final Descriptor descriptor;
+    public BuilderClassBuilder(JavaType builtType, Descriptor descriptor) {
         super();
         this.buildType = builtType;
-        this.immutableImplementation = new HashMap<String, String>();
-        addFieldHandler(new BuilderSetterFieldHandler(this, generatePresentCheck));
-        addFieldHandler(new BuilderCollectionFieldHandler(this, generatePresentCheck));
-        addFieldHandler(new BuilderMapFieldHandler(this, generatePresentCheck));
-        addFieldHandler(new BuilderArrayFieldHandler(this, generatePresentCheck));
-        addFieldHandler(new GetterFieldHandler(this));
-        addTypeHandler(new BuilderTypeHandler(this, immutableImplementation));
+        this.descriptor = descriptor;
+
+        addFieldHandler(new BuilderSetterFieldHandler(this, descriptor));
+        addFieldHandler(new BuilderCollectionFieldHandler(this, descriptor));
+        addFieldHandler(new BuilderMapFieldHandler(this, descriptor));
+        addFieldHandler(new BuilderArrayFieldHandler(this, descriptor));
+        addFieldHandler(new GetterFieldHandler(this, descriptor));
+        addTypeHandler(new BuilderTypeHandler(this, descriptor));
         addTypeHandler(new BuilderMergeHandler(this));
     }
 
@@ -50,7 +49,9 @@ public class BuilderClassBuilder extends JavaTypeBuilder {
         return buildType;
     }
 
-    public void addImmutableImplementation(String source, String target) {
-        immutableImplementation.put(source, target);
+    protected Descriptor getDescriptor() {
+        return descriptor;
     }
+
+
 }

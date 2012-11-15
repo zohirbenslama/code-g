@@ -462,7 +462,9 @@ public class JavaTypeBuilder {
             typeHandler.handle(sourceType);
         }
         if (getModifiers().contains("public")) {
-            addDocumentation(CODE_G_GENERATOR_SIGNATURE);
+            if(! getDocumentation().contains(CODE_G_GENERATOR_SIGNATURE)) {
+                addDocumentation(CODE_G_GENERATOR_SIGNATURE);
+            }
         }
         return new JavaTypeImpl(getFields(), getMethods(), getConstructors(), importTypes, superInterfaces, packageName, kind, body, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, getSimpleName(), genericTypeArguments, genericTypeVariables);
 

@@ -44,14 +44,14 @@ import java.util.Map;
  * <li>Method generation - once all fields are defined and type is being generate the following
  * field handlers are fired with ability to generate relevant method
  * <ul>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderSetterFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderCollectionFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderMapFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderArrayFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.GetterFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.IsFieldPresentHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderTypeHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.BuilderMergeHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderSetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderCollectionFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderMapFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderArrayFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.field.IsFieldPresentHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderTypeHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderMergeHandler}</li>
  * </ul>
  * </li>
  * </ul>
@@ -84,13 +84,7 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
         String skipIsPresentMethod = options.get(SKIP_PRESENT_METHOD);
         if (skipIsPresentMethod == null) skipIsPresentMethod = "false";
         boolean buildIsPresentMethod = ("false".equalsIgnoreCase(skipIsPresentMethod));
-        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType, buildIsPresentMethod);
-        Map<String, String> immutableImplementation = descriptor.getImmutableImplementation();
-        if (immutableImplementation != null) {
-            for (String key : immutableImplementation.keySet()) {
-                builderClassBuilder.addImmutableImplementation(key, immutableImplementation.get(key));
-            }
-        }
+        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType,  descriptor);
         builderClassBuilder.setSourceType(sourceType);
         builderClassBuilder.addModifier("public").setTypeName(targetTypeName);
         builderClassBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());

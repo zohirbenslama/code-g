@@ -13,72 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
-import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
+import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
 
 /**
- * This handler creates 'add', 'clear' methods for any collection type field.
- * <p>For instance for the given source type
+ * This handler creates 'add', 'clear' methods for any Map type field.
+ * For instance for the given source type
  * <code><pre>
  * class Bar {
  *      ...
- *      private Collection&lt;Integer> bars;
+ *      private Map<&lt;String, String> bars;
  *      ...
  * }
  * </code></pre>
  * The following code is generated
  * <code><pre>
- * public FooBuilder setBars(List&lt;String> bars) {
- *     this.bars = bars;
+ * public FooBuilder addBars(String key, String value) {
+ *     this.bars.put(key, value);
  *     this._bars = true;
  *     return this;
  * }
  * <p/>
- * public FooBuilder addBars(String ...bars) {
- *     Collections.addAll(this.bars, bars);
- *     this._bars = true;
- *     return this;
- * }
- * <p/>
- * public FooBuilder addBars(List&lt;String> bars) {
- *     this.bars.addAll(bars);
+ * public FooBuilder addBars(Map&lt;String, String> bars) {
+ *     this.bars.putAll(bars);
  *     this._bars = true;
  *     return this;
  * }
  * <p/>
  * public FooBuilder clearBars() {
- *     this.bars.clear();
- *     return this;
+ *    this.bars.clear();
+ *    return this;
  * }
  * </pre></code>
- * <p>
- * <p/>
  * </p>
  *
  * @author Adrian Witas
  */
-public class BuilderCollectionFieldHandler implements JavaFieldHandler {
+public class BuilderMapFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
-    private final boolean generatePresentCheck;
+    private final Descriptor descriptor;
 
-    public BuilderCollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder,boolean generatePresentCheck) {
+    public BuilderMapFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
-        this.generatePresentCheck = generatePresentCheck;
-
+        this.descriptor = descriptor;
     }
 
 
@@ -86,11 +79,7 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
     public void handle(JavaType sourceType, JavaField javaField) {
         Type fieldType = javaField.getType();
         Class rawFieldType = ReflectUtil.getRawClass(fieldType);
-        String fieldName = javaField.getName();
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
-
-        if (Collection.class.isAssignableFrom(rawFieldType) && !ownerTypeBuilder.containsMethod(methodName)) {
-            addCollectionAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+        if (Map.class.isAssignableFrom(rawFieldType)) {
             addCollectionAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
             addCollectionClearMethod(ownerTypeBuilder, javaField.getName());
         }
@@ -98,36 +87,42 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
 
     protected void addCollectionAddItemsMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+        if (!typeBuilder.containsMethod(methodName)) {
+            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+            methodBuilder.addModifier("public");
+            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+            methodBuilder.setName(methodName);
+            methodBuilder.addParameter(fieldName, fieldType);
+            methodBuilder.addBody(String.format("this.%s.putAll(%s);", fieldName, fieldName));
+            if (! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+                methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
+            }
+            methodBuilder.addBody("return this;");
+            typeBuilder.addMethod(methodBuilder.build());
+            addCollectionAddItemsMethod(ownerTypeBuilder, fieldName, fieldType);
+        }
+    }
+
+
+    protected void addCollectionAddMethods(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
+        String singularName = StringUtil.getSingular(fieldName);
+        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", singularName, CaseFormat.LOWER_CAMEL);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier("public");
         methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
         methodBuilder.setName(methodName);
-        methodBuilder.addParameter(fieldName, fieldType);
-        methodBuilder.addBody(String.format("this.%s.addAll(%s);", fieldName, fieldName));
-        if(generatePresentCheck) {
+        Type keyType = ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
+        Type valueType = ReflectUtil.getGenericArgument(fieldType, 1, Object.class);
+        methodBuilder.addParameter("key", keyType);
+        methodBuilder.addParameter("value", valueType);
+        methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
+        if (! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
         typeBuilder.addMethod(methodBuilder.build());
     }
 
-
-    protected void addCollectionAddItemMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier("public");
-        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-        methodBuilder.setName(methodName);
-        Type componentType =  ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
-        methodBuilder.addParameter("..." + fieldName, componentType);
-        ownerTypeBuilder.addImportType(Collections.class);
-        methodBuilder.addBody(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));
-        if(generatePresentCheck) {
-            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-        }
-        methodBuilder.addBody("return this;");
-        typeBuilder.addMethod(methodBuilder.build());
-    }
 
     protected void addCollectionClearMethod(JavaTypeBuilder typeBuilder, String fieldName) {
         String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
@@ -141,5 +136,5 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
             typeBuilder.addMethod(methodBuilder.build());
         }
     }
-
 }
+

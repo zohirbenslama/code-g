@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
 import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
 
@@ -46,11 +49,11 @@ import java.lang.reflect.Type;
 public class BuilderSetterFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
-    private final boolean generatePresentCheck;
+    private final Descriptor descriptor;
 
-    public BuilderSetterFieldHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
+    public BuilderSetterFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
         this.ownerTypeBuilder = ownerTypeBuilder;
-        this.generatePresentCheck = generatePresentCheck;
+        this.descriptor = descriptor;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addModifier("public");
             methodBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
-            if(generatePresentCheck && ! fieldName.endsWith("Present")) {
+            if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD) && ! fieldName.endsWith("Present")) {
                 methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");

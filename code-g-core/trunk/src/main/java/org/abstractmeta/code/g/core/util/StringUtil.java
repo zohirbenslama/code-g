@@ -111,5 +111,10 @@ public class StringUtil {
     public static String isPresentFieldName(String fieldName) {
         return   fieldName + "Present";
     }
-    
+
+    public static boolean isNotEmpty(String fragment) {
+        return fragment != null  && ! fragment.isEmpty();
+
+    }
+
 }

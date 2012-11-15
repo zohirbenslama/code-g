@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.handler;
+package org.abstractmeta.code.g.core.handler.field;
 
 import com.google.common.base.CaseFormat;
 import com.sun.tools.doclets.internal.toolkit.builders.MethodBuilder;
@@ -54,7 +54,9 @@ import java.util.Map;
  */
 public class RegistryFieldHandler implements JavaFieldHandler {
 
-    private final static String CREATE_MAP_METHOD = "createMap";
+    public static final String ON_FIELD_CHANGE_INIT_BODY_HANDLER = "onFieldChangeInitBodyHandler";
+    public  final static String CREATE_MAP_METHOD = "createMap";
+
     private final JavaTypeBuilder ownerTypeBuilder;
     private final MethodMatcher methodMatcher;
     private final JavaTypeImporter importer;
@@ -346,5 +348,7 @@ public class RegistryFieldHandler implements JavaFieldHandler {
         }
     }
 
-
+    public Descriptor getDescriptor() {
+        return descriptor;
+    }
 }

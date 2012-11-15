@@ -33,6 +33,7 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     private List<String> classPathEntries;
     private List<Descriptor> descriptors;
     private Descriptor postDescriptor;
+    private ClassLoader classLoader;
 
     public UnitDescriptorImpl() {
     }
@@ -89,6 +90,14 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     @Override
     public Descriptor getPostDescriptor() {
         return postDescriptor;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     @Override
