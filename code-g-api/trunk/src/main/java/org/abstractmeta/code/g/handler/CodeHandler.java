@@ -15,7 +15,9 @@
  */
 package org.abstractmeta.code.g.handler;
 
-import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.code.SourcedJavaType;
+
+import java.io.File;
 
 /**
  * Code handler.
@@ -27,5 +29,13 @@ import org.abstractmeta.code.g.code.JavaType;
  */
 public interface CodeHandler {
 
-    void handle(JavaType javaType, CharSequence sourceCode);
+    void handle(SourcedJavaType sourcedJavaType);
+
+    File getRootDirectory();
+
+    ClassLoader compile();
+
+    ClassLoader compile(ClassLoader classLoader);
+
+
 }

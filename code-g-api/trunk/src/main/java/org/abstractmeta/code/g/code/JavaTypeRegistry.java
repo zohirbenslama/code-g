@@ -22,6 +22,7 @@ import java.util.Collection;
 /**
  * Java type registry.
  *
+ * @author Adrian Witas
  */
 public interface JavaTypeRegistry {
 

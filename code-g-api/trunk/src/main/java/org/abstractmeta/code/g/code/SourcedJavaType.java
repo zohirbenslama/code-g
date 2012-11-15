@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.extractor;
+package org.abstractmeta.code.g.code;
 
+import java.io.File;
 
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaType;
+/**
+ * Represents  JavaType with generated source and optional file path.
+ *
+ * @author Adrian Witas
+ */
+public interface SourcedJavaType {
 
-import java.util.List;
+    JavaType getType();
 
+    CharSequence getSourceCode();
 
-public interface MethodExtractor {
-
-    List<JavaMethod> extract(JavaType sourceType);
+    File getFile();
 
 }
+
+        

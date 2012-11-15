@@ -15,7 +15,7 @@
  */
 package org.abstractmeta.code.g.config;
 
-import java.util.Collection;
+
 import java.util.List;
 
 /**
@@ -43,4 +43,8 @@ public interface UnitDescriptor {
      * @return post descriptor
      */
     Descriptor getPostDescriptor();
+
+    void setClassLoader(ClassLoader classLoader);
+
+    ClassLoader getClassLoader();
 }

@@ -139,8 +139,8 @@ public interface Descriptor {
 
 
     /**
-     *
-     * @return
+     * Class name of type loader see {@link org.abstractmeta.code.g.config.loader.JavaTypeLoader}
+     * @return class name
      */
-    String getJavaTypeLoaderClassName();
+    String getTypeLoaderClassName();
 }

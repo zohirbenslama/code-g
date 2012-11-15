@@ -15,6 +15,8 @@
  */
 package org.abstractmeta.code.g;
 
+import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.macros.MacroRegistry;
 
@@ -52,6 +54,17 @@ public interface UnitGenerator {
      * @param unitDescriptors descriptors
      * @return list of the source code files
      */
-    Collection<File> generate(Iterable<UnitDescriptor> unitDescriptors);
+    Collection<SourcedJavaType> generate(Iterable<UnitDescriptor> unitDescriptors);
+
+
+
+    /**
+     * Builds code for the specified descriptors.
+     *
+     * @param unitDescriptors descriptors
+     * @param classLoader class loader
+     * @return list of the source code files
+     */
+    Collection<SourcedJavaType> generate(Iterable<UnitDescriptor> unitDescriptors, ClassLoader classLoader);
 
 }

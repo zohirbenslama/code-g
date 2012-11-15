@@ -2,10 +2,12 @@
 
 0.4.0
     - added generic variable support
-    - method parameter modifers
+    - add method parameter modifiers
 
 0.5.0
     - extended unit descriptor with post generation hook after all descriptor are processed
     - added macro registry to support macro/mini variable substitution
     - added properties support for unit descriptor/descriptor loader
-
+    - added SourcedJavaType which stores generated source code and location of java type
+    - updated code generator and unit generator, code handler api (backward incompatible)
+    - added body handler to extend existing basic handler functionality

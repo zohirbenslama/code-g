@@ -17,6 +17,7 @@ package org.abstractmeta.code.g;
 
 
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.handler.CodeHandler;
 
@@ -53,7 +54,7 @@ public interface CodeGenerator {
      * @param handler     code handler
      * @param classLoader class loader
      */
-    Collection<JavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
+    Collection<SourcedJavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, ClassLoader classLoader);
 
 
     /**
@@ -62,7 +63,7 @@ public interface CodeGenerator {
      * @param descriptors descriptors
      * @param handler     code handler
      */
-    Collection<JavaType>  generate(Iterable<Descriptor> descriptors, CodeHandler handler);
+    Collection<SourcedJavaType>  generate(Iterable<Descriptor> descriptors, CodeHandler handler);
 
 
 }
