@@ -18,6 +18,7 @@ package org.abstractmeta.code.g.core.util;
 import com.google.common.base.CaseFormat;
 
 /**
+ *
  * @author Adrian Witas
  */
 public class StringUtil {

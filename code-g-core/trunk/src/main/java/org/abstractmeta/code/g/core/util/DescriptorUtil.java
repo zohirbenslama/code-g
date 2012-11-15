@@ -5,8 +5,7 @@ import org.abstractmeta.code.g.config.Descriptor;
 /**
  * Represents  DescriptorUtil.
  *
- * @author awitas
- * @version 0.01 14/11/2012
+ * @author Adrian Witas
  */
 public class DescriptorUtil {
 

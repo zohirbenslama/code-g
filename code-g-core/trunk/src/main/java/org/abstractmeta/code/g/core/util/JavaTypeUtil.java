@@ -34,6 +34,8 @@ import java.util.*;
 
 /**
  * Java Type utility.
+ *
+ * @author Adrian Witas
  */
 public class JavaTypeUtil {
 

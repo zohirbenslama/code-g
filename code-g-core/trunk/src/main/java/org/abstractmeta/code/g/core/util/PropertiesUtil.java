@@ -11,8 +11,7 @@ import java.util.Properties;
 /**
  * Represents  PropertiesUtil.
  *
- * @author awitas
- * @version 0.01 13/11/2012
+ * @author Adrian Witas
  */
 public class PropertiesUtil {
 
