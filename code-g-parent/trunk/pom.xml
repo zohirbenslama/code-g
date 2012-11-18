@@ -16,6 +16,6 @@
         <module>../../code-g-api/trunk</module>
         <module>../../code-g-core/trunk</module>
         <module>../../code-g-maven-plugin/trunk</module>
-        <module>../../code-g-examples/trunk</module>
+        <module>../../code-g-example/trunk</module>
     </modules>
 </project>

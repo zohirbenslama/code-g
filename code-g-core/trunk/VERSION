@@ -11,7 +11,7 @@
     - improved generic support
     - enhanced annotation support in code generator plugins
     - added required filed validation to builder
-    - add skipIsPresentMethod configuration parameter to skip method generation by builder plugin
+    - add skipIsPresentMethod handlerConfiguration parameter to skip method generation by builder plugin
     - renamed has<Filed> to is<Field>Present method to builder
     - extended method argument matching by adding Object[] for any type arguments.
     - minor bug fixes

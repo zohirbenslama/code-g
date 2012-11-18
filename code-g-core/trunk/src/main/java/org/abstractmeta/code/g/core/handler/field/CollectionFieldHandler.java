@@ -68,7 +68,7 @@ import java.util.Collection;
  *
  * @author Adrian Witas
  */
-public class    CollectionFieldHandler implements JavaFieldHandler {
+public class CollectionFieldHandler implements JavaFieldHandler {
 
     private final JavaTypeBuilder ownerTypeBuilder;
     private final Descriptor descriptor;

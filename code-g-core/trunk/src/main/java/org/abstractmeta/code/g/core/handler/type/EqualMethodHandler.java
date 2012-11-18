@@ -5,6 +5,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.handler.JavaTypeHandler;
 
@@ -32,8 +33,7 @@ public class EqualMethodHandler implements JavaTypeHandler {
 
 
     protected boolean generateHashCode() {
-        String skipHashMethod = descriptor.getOptions().get(GENERATE_HASH_CODE);
-        return ("true".equalsIgnoreCase(skipHashMethod));
+        return DescriptorUtil.is(this. descriptor, GENERATE_HASH_CODE);
     }
 
 

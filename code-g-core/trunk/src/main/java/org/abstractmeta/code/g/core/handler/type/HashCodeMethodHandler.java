@@ -6,12 +6,12 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.handler.JavaTypeHandler;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 
 /**
  * Represents  HashCodeMethodHandler.
@@ -38,8 +38,7 @@ public class HashCodeMethodHandler implements JavaTypeHandler {
 
 
     protected boolean generateHashCode() {
-        String skipHashMethod = descriptor.getOptions().get(GENERATE_HASH_CODE);
-        return ("true".equalsIgnoreCase(skipHashMethod));
+        return DescriptorUtil.is(descriptor, GENERATE_HASH_CODE);
     }
 
 
@@ -50,12 +49,11 @@ public class HashCodeMethodHandler implements JavaTypeHandler {
         JavaMethodBuilder resultBuilder = new JavaMethodBuilder();
         resultBuilder.setName("hashCode").addModifier("public").setResultType(int.class);
         resultBuilder.addBody("int result = 0;");
-        String hashAnnotation = descriptor.getOptions().get("generateHashCodeMethod.hashFieldAnnotation");
-
+        String hashAnnotation = DescriptorUtil.get(descriptor, "generateHashCodeMethod.hashFieldAnnotation");
         for (JavaField field : ownerTypeBuilder.getFields()) {
             if (field.getModifiers().contains("transient")) continue;
             if (hashAnnotation != null) {
-                if (!JavaTypeUtil.contains(field.getAnnotations(), hashAnnotation)) {
+                if (!JavaTypeUtil.containsAnnotation(field.getAnnotations(), hashAnnotation)) {
                     continue;
                 }
             }

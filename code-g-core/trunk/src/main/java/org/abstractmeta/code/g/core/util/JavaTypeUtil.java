@@ -15,12 +15,16 @@
  */
 package org.abstractmeta.code.g.core.util;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.abstractmeta.code.g.code.JavaConstructor;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
+import org.abstractmeta.code.g.core.collection.predicates.ConstructorArgumentPredicate;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import com.google.common.collect.Multimap;
@@ -208,11 +212,11 @@ public class JavaTypeUtil {
     }
 
 
-    public static boolean contains(Collection<Annotation> annotations, String annotationName) {
-        if(annotations == null) return false;
-        for(Annotation annotation: annotations) {
+    public static boolean containsAnnotation(Collection<Annotation> annotations, String annotationName) {
+        if (annotations == null || annotationName == null) return false;
+        for (Annotation annotation : annotations) {
             String candidateAnnotationName = annotation.annotationType().getName();
-            if(candidateAnnotationName.equals(annotationName)) {
+            if (candidateAnnotationName.equals(annotationName)) {
                 return true;
             }
 
@@ -221,4 +225,71 @@ public class JavaTypeUtil {
         return false;
     }
 
+
+    public static JavaConstructor buildDefaultConstructor(JavaType sourceType, Map<String, String> fieldArgumentMap) {
+        JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
+        addSuperCall(sourceType, constructorBuilder, fieldArgumentMap);
+        addConstructorParameters(sourceType, constructorBuilder, fieldArgumentMap);
+        constructorBuilder.setName(sourceType.getSimpleName());
+        constructorBuilder.addModifier("public");
+        return constructorBuilder.build();
+    }
+
+
+    protected static void addConstructorParameters(JavaType sourceType, JavaConstructor javaConstructor, Map<String, String> fieldArgumentMap) {
+        Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
+        for (JavaField field : immutableJavaFields) {
+            String fieldName = field.getName();
+            javaConstructor.getParameterNames().add(field.getName());
+            javaConstructor.getParameterTypes().add(field.getType());
+            String argumentName = fieldArgumentMap.get(fieldName);
+            javaConstructor.getBody().add(String.format("this.%s = %s;", fieldName, argumentName));
+        }
+    }
+
+
+    protected static void addSuperCall(JavaType superType, JavaConstructorBuilder constructorBuilder, Map<String, String> fieldArgumentMap) {
+        JavaConstructor superConstructor = getMinConstructor(superType);
+        StringBuilder result = new StringBuilder();
+        if (superConstructor != null) {
+            List<JavaField> javaFields = superType.getFields();
+            int i = 0;
+            for (Type parameterType : superConstructor.getParameterTypes()) {
+                JavaField javaField = javaFields.get(i++);
+                Class parameterRawClass = ReflectUtil.getRawClass(parameterType);
+                if (result.length() > 0) {
+                    result.append(", ");
+                }
+                if (parameterRawClass.isPrimitive()) {
+                    result.append(fieldArgumentMap.containsKey(javaField.getName()) ? fieldArgumentMap.get(javaField.getName()) : "0");
+                } else {
+                    result.append(fieldArgumentMap.containsKey(javaField.getName()) ? fieldArgumentMap.get(javaField.getName()) : "null");
+                }
+            }
+        }
+        constructorBuilder.addBody("super(" + result.toString() + ");");
+    }
+
+
+    /**
+     * Selects constructor with min number of arguments
+     *
+     * @param sourceType source type
+     * @return constructor
+     */
+    public static JavaConstructor getMinConstructor(JavaType sourceType) {
+        JavaConstructor result = null;
+        int lastConstructorSize = Integer.MAX_VALUE;
+        for (JavaConstructor constructor : sourceType.getConstructors()) {
+            if (constructor.getParameterNames().size() == 0) {
+                return constructor;
+            }
+            if (lastConstructorSize > constructor.getParameterNames().size()) {
+                result = constructor;
+                lastConstructorSize = result.getParameterNames().size();
+            }
+        }
+        return result;
+
+    }
 }

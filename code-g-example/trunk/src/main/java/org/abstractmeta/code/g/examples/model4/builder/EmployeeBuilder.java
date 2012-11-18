@@ -8,16 +8,16 @@ import org.abstractmeta.code.g.examples.model4.impl.EmployeeImpl;
 
 public class EmployeeBuilder {
     private String name;
-    private boolean _namePresent;
+    private transient boolean namePresent;
     private int id;
-    private boolean _idPresent;
+    private transient boolean idPresent;
     private String group;
-    private boolean _groupPresent;
+    private transient boolean groupPresent;
 
 
     public EmployeeBuilder setName(String name) {
         this.name = name;
-        this._namePresent = true;
+        this.namePresent = true;
         return this;
     }
 
@@ -25,13 +25,18 @@ public class EmployeeBuilder {
         return this.name;
     }
 
+    public EmployeeBuilder setNamePresent(boolean namePresent) {
+        this.namePresent = namePresent;
+        return this;
+    }
+
     public boolean isNamePresent() {
-        return this._namePresent;
+        return this.namePresent;
     }
 
     public EmployeeBuilder setId(int id) {
         this.id = id;
-        this._idPresent = true;
+        this.idPresent = true;
         return this;
     }
 
@@ -39,13 +44,18 @@ public class EmployeeBuilder {
         return this.id;
     }
 
+    public EmployeeBuilder setIdPresent(boolean idPresent) {
+        this.idPresent = idPresent;
+        return this;
+    }
+
     public boolean isIdPresent() {
-        return this._idPresent;
+        return this.idPresent;
     }
 
     public EmployeeBuilder setGroup(String group) {
         this.group = group;
-        this._groupPresent = true;
+        this.groupPresent = true;
         return this;
     }
 
@@ -53,8 +63,13 @@ public class EmployeeBuilder {
         return this.group;
     }
 
+    public EmployeeBuilder setGroupPresent(boolean groupPresent) {
+        this.groupPresent = groupPresent;
+        return this;
+    }
+
     public boolean isGroupPresent() {
-        return this._groupPresent;
+        return this.groupPresent;
     }
 
     public Employee build() {
@@ -64,11 +79,11 @@ public class EmployeeBuilder {
 
     public EmployeeBuilder merge(Employee instance) {
         if(instance.getName() != null) {
-            this.setName(getName());
+            this.setName(instance.getName());
         }
         this.setId(instance.getId());
         if(instance.getGroup() != null) {
-            this.setGroup(getGroup());
+            this.setGroup(instance.getGroup());
         }
         return this;
     }

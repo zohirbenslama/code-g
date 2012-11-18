@@ -98,6 +98,7 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         }
     }
 
+
     protected void generateBuildMethod(JavaTypeBuilder typeBuilder, JavaType sourceType) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName("build");
@@ -114,9 +115,6 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         StringBuilder simpleValidationBuilder = new StringBuilder();
         for (JavaField field : sourceType.getFields()) {
                
-            if(! isPrimitiveType(field) && isRequired(field)) {
-                simpleValidationBuilder.append(String.format("if(%s == null) throw new %s(\"%s was null\");\n", field.getName(), NullPointerException.class.getSimpleName(), field.getName()));
-            }
             String fieldName = field.getName();
             Class fieldRawType = ReflectUtil.getRawClass(field.getType());
             if (field.isImmutable()) {
@@ -160,25 +158,6 @@ public class BuilderTypeHandler implements JavaTypeHandler {
         methodBuilder.addBody("return result;");
         typeBuilder.addMethod(methodBuilder.build());
         typeBuilder.addImportType(NullPointerException.class);
-    }
-
-    protected boolean isPrimitiveType(JavaField field) {
-        if(! (field.getType() instanceof Class)) return false;
-        return ReflectUtil.getRawClass(field.getType()).isPrimitive();
-    }
-
-
-    @Nonnull
-    protected boolean isRequired(JavaField field) {
-        if(field.getAnnotations() == null) return false;
-        for(Annotation annotation: field.getAnnotations()) {
-            String annotationName = annotation.annotationType().getName();
-            String simpleName = StringUtil.substringAfterLastIndexOf(annotationName, ".");
-             if(simpleName.equalsIgnoreCase("nonnull") || simpleName.equalsIgnoreCase("notnull") 
-                    || simpleName.equalsIgnoreCase("required")) return true;
-
-        }
-        return false;
     }
 
     protected void setDefaultValue(JavaTypeBuilder typeBuilder, JavaFieldBuilder field) {

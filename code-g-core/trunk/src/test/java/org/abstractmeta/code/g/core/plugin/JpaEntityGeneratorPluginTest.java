@@ -69,14 +69,15 @@ public class JpaEntityGeneratorPluginTest {
         Properties properties = PropertiesUtil.loadFromFile(new File("src/test/code-g/jpa-unit.properties"));
         List<UnitDescriptor> unitDescriptors = decoder.decode(Maps.fromProperties(properties));
 
-
         {
-            UnitGenerator unitGenerator = new UnitGeneratorImpl(macroRegistry, new SourceCompilerHandler.Factory());
+            UnitGenerator unitGenerator = new UnitGeneratorImpl(macroRegistry, new MemCodeHandler.Factory());
             List<SourcedJavaType> generated = new ArrayList<SourcedJavaType>(unitGenerator.generate(unitDescriptors));
             Assert.assertEquals(generated.size(), 1);
+            Assert.assertEquals(generated.get(0).getSourceCode(), "");
             ClassLoader classLoader = unitDescriptors.get(0).getClassLoader();
             Class dynamicEntityClass = classLoader.loadClass(generated.get(0).getType().getName());
-            Assert.assertEquals(dynamicEntityClass.getName(), "org.abstracmeta.code.g.test.jpa.UsersEntity");
+            Assert.assertEquals(dynamicEntityClass.getName(), "org.abstractmeta.code.g.test.jpa.UsersEntity");
+
         }
 
     }
@@ -92,7 +93,6 @@ public class JpaEntityGeneratorPluginTest {
         final Connection connection = DriverManager.getConnection(dbName, "sa", "");
         connection.createStatement().execute("CREATE TABLE USERS (id INT PRIMARY KEY, username VARCHAR(64), create_time TIMESTAMP);");
         connectionProvider = new Provider<Connection>() {
-            @Override
             public Connection get() {
                 return connection;
             }

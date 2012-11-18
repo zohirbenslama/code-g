@@ -63,7 +63,7 @@ public class DescriptorImpl implements Descriptor {
         this.compilationSources = compilationSources;
         this.options = options;
         this.immutableImplementation = immutableImplementation;
-        typeLoaderClassName = typeLoaderClassName;
+        this.typeLoaderClassName = typeLoaderClassName;
     }
 
     public void setSourceClass(String sourceClass) {

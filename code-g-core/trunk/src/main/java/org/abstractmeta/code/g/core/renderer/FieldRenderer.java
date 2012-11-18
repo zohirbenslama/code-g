@@ -39,7 +39,7 @@ public class FieldRenderer extends AbstractRenderer<JavaField> implements JavaFi
     }
 
     @Override
-    void setParameters(JavaField instance, JavaTypeImporter importer, Template template, int indentSize) {
+    void setParameters(JavaField instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize) {
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(IMMUTABLE_PARAMETER, instance.isImmutable() ? "final ": "");
         template.set(ANNOTATIONS_PARAMETER, getAnnotations(importer, instance.getAnnotations()));

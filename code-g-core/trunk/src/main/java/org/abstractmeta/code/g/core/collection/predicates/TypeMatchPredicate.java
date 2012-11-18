@@ -32,6 +32,7 @@ import java.lang.reflect.Type;
  * <p>See more at {@link org.abstractmeta.code.g.expression.MethodPattern}.
  * </p>
  */
+@SuppressWarnings("unchecked")
 public class TypeMatchPredicate implements Predicate<Type> {
 
     private final Class baseType;

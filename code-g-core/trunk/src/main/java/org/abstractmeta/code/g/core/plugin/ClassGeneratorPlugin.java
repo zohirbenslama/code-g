@@ -59,6 +59,7 @@ import java.util.Collections;
 public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
 
 
+
     public ClassGeneratorPlugin() {
         super(Arrays.asList(new RegistryFieldExtractor(), new AccessorFieldExtractor()), Collections.<MethodExtractor>emptyList());
     }

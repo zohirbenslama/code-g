@@ -39,7 +39,7 @@ public class ConstructorRenderer extends AbstractRenderer<JavaConstructor> imple
     }
 
     @Override
-    void setParameters(JavaConstructor instance, JavaTypeImporter importer, Template template, int indentSize) {
+    void setParameters(JavaConstructor instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize) {
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(NAME_PARAMETER, instance.getName());

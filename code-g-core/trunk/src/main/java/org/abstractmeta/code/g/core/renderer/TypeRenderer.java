@@ -36,7 +36,7 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
     public static final String KIND_PARAMETER = "kind";
 
 
-    public static String TEMPLATE = String.format("${%s}\n" +
+    public static String TEMPLATE = String.format("${%s}" +
             "${%s}${%s}${%s}\n" +
             "${%s}${%s} ${%s}${%s}${%s} {\n" +
             "${%s}" +
@@ -66,8 +66,8 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
     }
 
     @Override
-    void setParameters(JavaType instance, JavaTypeImporter importer, Template template, int indentSize) {
-        template.set(PACKAGE_PARAMETER, instance.isNested() ? "" : mergeFragment("package ", instance.getPackageName(), ";\n"));
+    void setParameters(JavaType instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize) {
+        template.set(PACKAGE_PARAMETER, instance.isNested() ? "" : mergeFragment("package ", instance.getPackageName(), ";\n\n"));
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(KIND_PARAMETER, getValue(instance.getKind(), "class"));
@@ -92,8 +92,8 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         String fieldsFragment = buildFieldsFragment(importer, instance.getFields(), indentSize);
         String constructorFragment = buildConstructorsFragment(importer, instance.getConstructors(), indentSize);
         String methodsFragment = buildMethodsFragment(importer, instance.getMethods(), indentSize);
-        String javaInnerTypes = getJavaTypes(this, importer, instance.getNestedJavaTypes());
-        return String.format("%s\n%s\n%s%s", fieldsFragment, constructorFragment, methodsFragment, javaInnerTypes);
+        String javaInnerTypes = getJavaTypes(this, importer, instance.getNestedJavaTypes(), 4);
+        return String.format("%s\n%s\n%s%s", fieldsFragment, constructorFragment, methodsFragment, ! javaInnerTypes.isEmpty() ? javaInnerTypes + "\n" :"" );
     }
 
 

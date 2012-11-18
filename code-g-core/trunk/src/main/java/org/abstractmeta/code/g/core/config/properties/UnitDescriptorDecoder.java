@@ -32,7 +32,7 @@ public class UnitDescriptorDecoder {
         resultBuilder.setSourcePackage(properties.get("sourcePackage"));
         resultBuilder.setSourceDirectory(properties.get("sourceDirectory"));
         resultBuilder.setTargetDirectory(properties.get("targetDirectory"));
-        resultBuilder.addClassPathEntries(DecoderUtil.readAsStringList(properties, " classPathEntries"));
+        resultBuilder.addClassPathEntries(DecoderUtil.readStringList(properties, " classPathEntries"));
         Map<String, String> postDescriptor = DecoderUtil.matchWithPrefix(properties, "postDescriptor");
         if (postDescriptor.size() > 0) {
             resultBuilder.setPostDescriptor(descriptorDecoder.decode(postDescriptor));

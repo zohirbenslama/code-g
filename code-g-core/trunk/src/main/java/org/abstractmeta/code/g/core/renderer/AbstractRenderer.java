@@ -17,7 +17,6 @@ package org.abstractmeta.code.g.core.renderer;
 
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.core.util.TemplateUtil;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import com.google.common.base.Joiner;
@@ -25,9 +24,7 @@ import com.google.common.base.Joiner;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public abstract class AbstractRenderer<T> {
@@ -40,57 +37,61 @@ public abstract class AbstractRenderer<T> {
     public static final String ANNOTATIONS_PARAMETER = "annotation";
     public static final String ARGUMENTS_PARAMETER = "arguments";
     public static final String EXCEPTION_PARAMETER = "exceptions";
-    public static final String BODY_PARAMETER = "body";
+    public static final String BODY_PARAMETER = "plugin";
 
 
-    private final String template;
+    private final String formattedTemplate;
     private final int templateIndent;
-    private List<String> argumentNames;
+    private List<String> templateArgumentNames;
 
 
-    protected AbstractRenderer(String template, int templateIndent) {
+    protected AbstractRenderer(String formattedTemplate, int templateIndent) {
         this.templateIndent = templateIndent;
-        this.argumentNames = new ArrayList<String>();
-        this.template = TemplateUtil.tokenizeExpressions(template.replace("%s", "%%s"), '$', '{', '}', "%s", argumentNames);
+        this.templateArgumentNames = new ArrayList<String>();
+        this.formattedTemplate = TemplateUtil.tokenizeExpressions(formattedTemplate.replace("%s", "%%s"), '$', '{', '}', "%s", templateArgumentNames);
     }
 
 
     public String render(T instance, JavaTypeImporter importer, int indentSize) {
-        Template template = get();
+        SimpleTemplate template = get();
         setParameters(instance, importer, template, indentSize);
         return template.build(indentSize + templateIndent);
     }
 
-        protected String getModifiers(List<String> modifiers) {
-         String result = Joiner.on(" ").join(modifiers);
-        if(result.length() > 0) {
+    protected String getModifiers(List<String> modifiers) {
+        String result = Joiner.on(" ").join(modifiers);
+        if (result.length() > 0) {
             return result + " ";
         }
         return result;
     }
 
+
     protected String getJavaTypes(JavaTypeRenderer javaTypeRenderer, JavaTypeImporter importer, List<JavaType> javaTypes) {
+        return getJavaTypes(javaTypeRenderer, importer, javaTypes, 4);
+    }
+
+    protected String getJavaTypes(JavaTypeRenderer javaTypeRenderer, JavaTypeImporter importer, List<JavaType> javaTypes, int indent) {
         StringBuilder result = new StringBuilder();
-        for(JavaType javaType: javaTypes) {
-            result.append(javaTypeRenderer.render(javaType, importer, 4));
+        for (JavaType javaType : javaTypes) {
+            result.append(javaTypeRenderer.render(javaType, importer, indent));
         }
         return result.toString();
     }
-    
 
-    
-    abstract void setParameters(T instance, JavaTypeImporter importer, Template template, int indentSize);
+
+    abstract void setParameters(T instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize);
 
 
     protected String getAnnotations(JavaTypeImporter importer, List<Annotation> annotations) {
         StringBuilder result = new StringBuilder();
-        for(Annotation annotation: annotations) {
-            if(result.length() > 0) {
+        for (Annotation annotation : annotations) {
+            if (result.length() > 0) {
                 result.append("\n");
             }
             result.append(importer.getAnnotation(annotation));
         }
-        if(result.length() > 0) {
+        if (result.length() > 0) {
             result.append("\n");
         }
         return result.toString();
@@ -101,12 +102,13 @@ public abstract class AbstractRenderer<T> {
         StringBuilder result = new StringBuilder();
         if (argumentNames.size() == 0) {
             for (int i = 0; i < argumentTypes.size(); i++) {
-                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), String.format("argument%s",i));
+                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), String.format("argument%s", i));
             }
 
         } else {
             for (int i = 0; i < argumentTypes.size(); i++) {
-                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), argumentNames.get(i));
+                String modifiers = i < argumentModifiers.size() ? argumentModifiers.get(i) : "";
+                addMethodArgument(result, importer, modifiers, argumentTypes.get(i), argumentNames.get(i));
             }
         }
         return result.toString();
@@ -114,11 +116,11 @@ public abstract class AbstractRenderer<T> {
 
     protected String getMethodExceptions(JavaTypeImporter importer, List<Type> exceptionTypes) {
         StringBuilder result = new StringBuilder();
-        for (Type exceptionType: exceptionTypes) {
-            if(result.length() > 0) result.append(", ");
-            result.append(importer.getSimpleTypeName(exceptionType));              
+        for (Type exceptionType : exceptionTypes) {
+            if (result.length() > 0) result.append(", ");
+            result.append(importer.getSimpleTypeName(exceptionType));
         }
-        if(result.length() > 0) {
+        if (result.length() > 0) {
             return "throws " + result.toString();
         }
         return "";
@@ -127,8 +129,8 @@ public abstract class AbstractRenderer<T> {
 
     protected String getTypes(JavaTypeImporter importer, List<Type> argumentTypes) {
         StringBuilder result = new StringBuilder();
-        for(Type type: argumentTypes) {
-            if(result.length() > 0) {
+        for (Type type : argumentTypes) {
+            if (result.length() > 0) {
                 result.append(", ");
             }
             result.append(importer.getSimpleTypeName(type));
@@ -141,10 +143,10 @@ public abstract class AbstractRenderer<T> {
         if (result.length() > 0) {
             result.append(", ");
         }
-        if(! modifier.isEmpty()) {
+        if (!modifier.isEmpty()) {
             modifier = modifier + " ";
         }
-        result.append(String.format("%s%s %s", modifier,  importer.getSimpleTypeName(type), name));
+        result.append(String.format("%s%s %s", modifier, importer.getSimpleTypeName(type), name));
     }
 
     protected String getDocumentation(List<String> documentation) {
@@ -172,39 +174,20 @@ public abstract class AbstractRenderer<T> {
         return text;
     }
 
-    
+
     protected String mergeFragment(String prefix, String fragment, String postfix) {
-        if(fragment == null || fragment.isEmpty()) {
+        if (fragment == null || fragment.isEmpty()) {
             return "";
         }
         return String.format("%s%s%s", prefix, fragment, postfix);
     }
-    
-    public class Template {
 
-        private Map<String, Object> values = new HashMap<String, Object>();
-
-        public Template set(String name, Object value) {
-            values.put(name, value);
-            return this;
-        }
-
-
-        public String build(int indentSize) {
-            Object[] templateValues = new Object[argumentNames.size()];
-            for (int i = 0; i < argumentNames.size(); i++) {
-                String argumentName = argumentNames.get(i);
-                templateValues[i] = values.containsKey(argumentName) ? values.get(argumentName) : "";
-            }
-            return StringUtil.indent(format(templateValues), indentSize);
-        }
-
-        protected String format(Object... arguments) {
-            return String.format(template, arguments);
-        }
+    public String getTemplate() {
+        return formattedTemplate;
     }
 
-    public Template get() {
-        return new Template();
+
+    public SimpleTemplate get() {
+        return new SimpleTemplate(templateArgumentNames, formattedTemplate);
     }
 }

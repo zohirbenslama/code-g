@@ -69,7 +69,6 @@ public class CodeGeneratorImpl implements CodeGenerator {
     }
 
 
-    @Override
     public Collection<SourcedJavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler, @Nullable ClassLoader classLoader) {
         Collection<SourcedJavaType> result = new ArrayList<SourcedJavaType>();
         if (classLoader == null) {
@@ -99,7 +98,7 @@ public class CodeGeneratorImpl implements CodeGenerator {
         try {
             return (JavaTypeLoader) Class.forName(descriptor.getTypeLoaderClassName()).newInstance();
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to create instance of " + descriptor.getTypeLoaderClassName(), e);
+            throw new IllegalStateException("Failed to createCommandInnerClass instance of " + descriptor.getTypeLoaderClassName(), e);
         }
     }
 
@@ -133,7 +132,6 @@ public class CodeGeneratorImpl implements CodeGenerator {
         return descriptorBuilder.build();
     }
 
-    @Override
     public Collection<SourcedJavaType> generate(Iterable<Descriptor> descriptors, CodeHandler handler) {
         return generate(descriptors, handler, null);
     }

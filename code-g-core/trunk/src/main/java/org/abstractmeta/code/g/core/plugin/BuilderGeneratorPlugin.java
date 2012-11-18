@@ -22,6 +22,7 @@ import org.abstractmeta.code.g.core.builder.BuilderClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
@@ -66,7 +67,7 @@ import java.util.Map;
  */
 public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
 
-    public static final String SKIP_PRESENT_METHOD = "skipIsPresentMethod";
+    public static final String ADD_PRESENT_METHOD = "addPresentMethod";
 
     @Override
     protected boolean isApplicable(JavaType sourceType) {
@@ -79,11 +80,6 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
 
     @Override
     protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
-        Map<String, String> options = getOptions();
-        if (options == null) options = Collections.emptyMap();
-        String skipIsPresentMethod = options.get(SKIP_PRESENT_METHOD);
-        if (skipIsPresentMethod == null) skipIsPresentMethod = "false";
-        boolean buildIsPresentMethod = ("false".equalsIgnoreCase(skipIsPresentMethod));
         BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType,  descriptor);
         builderClassBuilder.setSourceType(sourceType);
         builderClassBuilder.addModifier("public").setTypeName(targetTypeName);
@@ -94,7 +90,7 @@ public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements C
             fieldBuilder.setType(field.getType());
             fieldBuilder.setName(field.getName());
             builderClassBuilder.addField(fieldBuilder.build());
-            if (buildIsPresentMethod) {
+            if (DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
                 JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
                 trackerFieldBuilder.addModifier("private").addModifier("transient");
                 trackerFieldBuilder.setType(boolean.class);

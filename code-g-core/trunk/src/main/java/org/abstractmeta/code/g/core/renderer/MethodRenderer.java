@@ -26,31 +26,29 @@ import com.google.common.base.Joiner;
 public class MethodRenderer extends AbstractRenderer<JavaMethod> implements JavaMethodRenderer {
 
     public static final String TEMPLATE = String.format("${%s}${%s}${%s}${%s} ${%s}(${%s}) ${%s}{\n" +
-        "${%s}\n}\n\n",
-        DOCUMENTATION_PARAMETER,
-        ANNOTATIONS_PARAMETER,
-        MODIFIER_PARAMETER,
-        TYPE_PARAMETER,
-        NAME_PARAMETER,
-        ARGUMENTS_PARAMETER,
-        EXCEPTION_PARAMETER,
-        BODY_PARAMETER
+            "${%s}\n}\n\n",
+            DOCUMENTATION_PARAMETER,
+            ANNOTATIONS_PARAMETER,
+            MODIFIER_PARAMETER,
+            TYPE_PARAMETER,
+            NAME_PARAMETER,
+            ARGUMENTS_PARAMETER,
+            EXCEPTION_PARAMETER,
+            BODY_PARAMETER
     );
 
     private final JavaTypeRenderer javaTypeRenderer;
 
-    
+
     public MethodRenderer(JavaTypeRenderer javaTypeRenderer) {
         super(TEMPLATE, 4);
         this.javaTypeRenderer = javaTypeRenderer;
     }
-    
-
 
 
     @Override
-    void setParameters(JavaMethod instance, JavaTypeImporter importer, Template template, int indentSize) {
-        if(instance.getResultType() == null) {
+    void setParameters(JavaMethod instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize) {
+        if (instance.getResultType() == null) {
             throw new IllegalStateException("result type was null for method " + instance.getName() + instance);
         }
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
@@ -60,12 +58,13 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
         template.set(NAME_PARAMETER, instance.getName());
         template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameterModifiers(), instance.getParameterTypes(), instance.getParameterNames()));
         template.set(EXCEPTION_PARAMETER, getMethodExceptions(importer, instance.getExceptionTypes()));
-        String javaInlineTypes = getJavaTypes(javaTypeRenderer, importer, instance.getNestedJavaTypes());
+        String javaInlineTypes = getJavaTypes(javaTypeRenderer, importer, instance.getNestedJavaTypes(), 0);
+        if (javaInlineTypes != null && !javaInlineTypes.isEmpty()) {
+            javaInlineTypes = javaInlineTypes + "\n";
+        }
         String body = Joiner.on("\n").join(instance.getBody());
         template.set(BODY_PARAMETER, StringUtil.indent(String.format("%s%s", javaInlineTypes, body), indentSize + 4));
     }
-
-   
 
 
 }

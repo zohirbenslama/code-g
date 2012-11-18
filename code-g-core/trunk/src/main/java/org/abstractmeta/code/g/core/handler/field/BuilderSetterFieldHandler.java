@@ -72,7 +72,7 @@ public class BuilderSetterFieldHandler implements JavaFieldHandler {
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addModifier("public");
             methodBuilder.addBody(String.format("this.%s = %s;", fieldName, fieldName));
-            if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD) && ! fieldName.endsWith("Present")) {
+            if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD) && ! fieldName.endsWith("Present")) {
                 methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");

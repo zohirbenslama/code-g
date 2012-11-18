@@ -18,11 +18,12 @@ package org.abstractmeta.code.g.core.handler.field;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.core.builder.SimpleClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.util.DescriptorUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
-import org.abstractmeta.code.g.handler.JavaBodyHandler;
+import org.abstractmeta.code.g.handler.JavaPluginHandler;
 import org.abstractmeta.code.g.handler.JavaFieldHandler;
 import com.google.common.base.CaseFormat;
 
@@ -44,12 +45,18 @@ import java.util.List;
  * }</pre></li>
  * <p/>
  * </p>
+ * </ul>
+ *
+ * <h2>Advanced setting</h2>
+ * <ul>
+ *     <li>onBeforeFieldAssignmentHandler - class name which implements JavaPluginHandler</li>
+ * </ul>
+ *
  *
  * @author Adrian Witas
  */
 public class SetterFieldHandler implements JavaFieldHandler {
 
-    public static final String ON_BEFORE_FIELD_ASSIGNMENT_HANDLER = "onBeforeFieldAssignmentHandler";
     private final JavaTypeBuilder ownerTypeBuilder;
     private final Descriptor descriptor;
 
@@ -70,20 +77,24 @@ public class SetterFieldHandler implements JavaFieldHandler {
                 methodBuilder.setResultType(void.class);
                 methodBuilder.addParameter("final", fieldName, javaField.getType());
                 methodBuilder.addModifier("public");
-                methodBuilder.addBody(initBody(descriptor, sourceType, javaField, fieldName));
+                onAssignment(descriptor, methodBuilder, sourceType, javaField);
                 methodBuilder.addBody(generateBody(fieldName, fieldName));
                 ownerTypeBuilder.addMethod(methodBuilder.build());
             }
         }
     }
 
-    protected Collection<String> initBody(Descriptor descriptor, JavaType sourceType, JavaField javaField, String argument) {
-        JavaBodyHandler javaBodyHandler = DescriptorUtil.getInstance(descriptor, JavaBodyHandler.class, ON_BEFORE_FIELD_ASSIGNMENT_HANDLER);
-        List<String> result = new ArrayList<String>();
-        if(javaBodyHandler != null) {
-            javaBodyHandler.handle(descriptor, sourceType, javaField, result, argument);
+    protected void onAssignment(Descriptor descriptor, JavaMethodBuilder methodBuilder, JavaType sourceType, JavaField javaField) {
+        JavaPluginHandler javaPluginHandler = DescriptorUtil.loadInstance(descriptor, JavaPluginHandler.class, SimpleClassBuilder.CHANGE_HANDLER);
+        List<JavaType> javaTypes = new ArrayList<JavaType>();
+        List<String> javaBody = new ArrayList<String>();
+        if(javaPluginHandler != null) {
+            javaPluginHandler.handle(descriptor, ownerTypeBuilder, javaField, methodBuilder);
         }
-        return result;
+        methodBuilder.addNestedJavaTypes(javaTypes);
+        if(! javaBody.isEmpty()) {
+            methodBuilder.addBody(javaBody);
+        }
    }
 
     protected Collection<String> generateBody(String thisFieldName, String argumentFieldName) {

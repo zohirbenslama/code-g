@@ -16,6 +16,9 @@
 package org.abstractmeta.code.g.core.util;
 
 
+import org.abstractmeta.code.g.core.renderer.SimpleTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,6 +77,13 @@ public class TemplateUtil {
             }
         }
         return resultBuilder.toString();
+    }
+
+
+    public static SimpleTemplate compile(String template) {
+        List<String> argumentNames = new ArrayList<String>();
+        String formattedTemplate = TemplateUtil.tokenizeExpressions(template.replace("%s", "%%s"), '$', '{', '}', "%s", argumentNames);
+        return new SimpleTemplate(argumentNames, formattedTemplate);
     }
 
 }

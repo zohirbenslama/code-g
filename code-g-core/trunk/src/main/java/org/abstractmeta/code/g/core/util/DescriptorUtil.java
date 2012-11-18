@@ -11,27 +11,27 @@ public class DescriptorUtil {
 
     public static boolean is(Descriptor descriptor, String optionName) {
         if(descriptor.getOptions() == null) return false;
-        String option = descriptor.getOptions().get(optionName);
+        Object option = descriptor.getOptions().get(optionName);
         if(option == null) return false;
-        return ("true".equalsIgnoreCase(option));
+        return ("true".equalsIgnoreCase("" + option));
     }
 
 
     public static String get(Descriptor descriptor, String optionName) {
         if(descriptor.getOptions() == null) return null;
-        String option = descriptor.getOptions().get(optionName);
+        Object option = descriptor.getOptions().get(optionName);
         if(option == null) return null;
-        return option;
+        return (String)option;
     }
 
-    public static <T> T getInstance(Descriptor descriptor, Class<T> type, String optionName) {
+    public static <T> T loadInstance(Descriptor descriptor, Class<T> type, String optionName) {
         if(descriptor.getOptions() == null) return null;
-        String option = descriptor.getOptions().get(optionName);
+        Object option = descriptor.getOptions().get(optionName);
         if(option == null) return null;
         try {
-            return type.cast(Class.forName(option).newInstance());
+            return type.cast(Class.forName("" + option).newInstance());
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to create instance of "+ option, e);
+            throw new IllegalStateException("Failed to createCommandInnerClass instance of "+ option, e);
         }
     }
 

@@ -50,6 +50,7 @@ public class AbstractionMatchImpl implements AbstractionMatch {
         return getMatch(operationName, superParameterTypes) != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public MethodMatch getMatch(String operationName, Class... superParameterTypes) {
         for (MethodMatch match : matches) {

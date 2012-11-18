@@ -107,7 +107,7 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, fieldType);
         methodBuilder.addBody(String.format("this.%s.addAll(%s);", fieldName, fieldName));
-        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD) ) {
+        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD) ) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
@@ -125,7 +125,7 @@ public class BuilderCollectionFieldHandler implements JavaFieldHandler {
         methodBuilder.addParameter("..." + fieldName, componentType);
         ownerTypeBuilder.addImportType(Collections.class);
         methodBuilder.addBody(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));
-        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");

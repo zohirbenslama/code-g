@@ -113,7 +113,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("int i = this.%s.length;", fieldName));
         methodBuilder.addBody(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
@@ -132,7 +132,7 @@ public class BuilderArrayFieldHandler implements JavaFieldHandler {
         methodBuilder.addBody(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
         methodBuilder.addBody(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
         methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");

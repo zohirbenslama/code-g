@@ -55,10 +55,10 @@ public class ConstructorArgumentPredicate implements Predicate<JavaField> {
         Class rawClass = ReflectUtil.getRawClass(javaField.getType());
         if (Collection.class.isAssignableFrom(rawClass) || rawClass.isArray()) {
             String upperCamelFieldName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, javaField.getName());
-            if (!sourceIndexedMethods.containsKey("set" + upperCamelFieldName)) {
+            if (! sourceIndexedMethods.containsKey("set" + upperCamelFieldName)) {
                 return true;
             }
-        }
+        };
         return false;
     }
 }

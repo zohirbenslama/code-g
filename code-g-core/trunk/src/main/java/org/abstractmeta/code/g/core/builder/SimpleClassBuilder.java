@@ -33,6 +33,9 @@ import org.abstractmeta.code.g.core.handler.type.SimpleTypeHandler;
  */
 public class SimpleClassBuilder extends JavaTypeBuilder {
 
+    public static final String CHANGE_HANDLER = "commandHandler";
+
+
     public SimpleClassBuilder(JavaType sourceType, Descriptor descriptor) {
         super();
         setSourceType(sourceType);

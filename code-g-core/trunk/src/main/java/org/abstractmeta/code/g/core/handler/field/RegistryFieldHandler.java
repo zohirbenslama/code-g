@@ -54,7 +54,6 @@ import java.util.Map;
  */
 public class RegistryFieldHandler implements JavaFieldHandler {
 
-    public static final String ON_FIELD_CHANGE_INIT_BODY_HANDLER = "onFieldChangeInitBodyHandler";
     public  final static String CREATE_MAP_METHOD = "createMap";
 
     private final JavaTypeBuilder ownerTypeBuilder;

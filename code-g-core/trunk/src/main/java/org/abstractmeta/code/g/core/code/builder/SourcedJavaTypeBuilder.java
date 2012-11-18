@@ -8,6 +8,8 @@ import java.io.File;
 
 /**
  * Represents  SourcedJavaTypeBuilder.
+ *
+ * @author Adrian Witas
  */
 public class SourcedJavaTypeBuilder {
     

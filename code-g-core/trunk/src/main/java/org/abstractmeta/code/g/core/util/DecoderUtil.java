@@ -1,5 +1,6 @@
 package org.abstractmeta.code.g.core.util;
 
+
 import java.util.*;
 
 /**
@@ -39,17 +40,17 @@ public class DecoderUtil {
         return result;
     }
 
-    public static List<String> readAsStringList(Map<String, String> properties, String key) {
-        return readAsStringCollection(properties, key, new ArrayList<String>());
+    public static List<String> readStringList(Map<String, String> properties, String key) {
+        return readStringCollection(properties, key, new ArrayList<String>());
     }
 
 
-    public static Set<String> readAsStringSet(Map<String, String> properties, String key) {
-        return readAsStringCollection(properties, key, new HashSet<String>());
+    public static Set<String> readStringSet(Map<String, String> properties, String key) {
+        return readStringCollection(properties, key, new HashSet<String>());
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Collection> T readAsStringCollection(Map<String, String> properties, String key, T result) {
+    public static <T extends Collection> T readStringCollection(Map<String, String> properties, String key, T result) {
         if (!properties.containsKey(key)) {
             return result;
         }
@@ -66,7 +67,7 @@ public class DecoderUtil {
     }
 
 
-    public static String readAsStringRequired(String name, Map<String, String> properties) {
+    public static String readStringRequired(Map<String, String> properties, String name) {
         String result = properties.get(name);
         if (result == null) {
             throw new IllegalStateException("property " + name + " is required");
@@ -75,7 +76,7 @@ public class DecoderUtil {
     }
 
 
-    public static Class readAsClassRequired(String name, Map<String, String> properties) {
+    public static Class readClassRequired(Map<String, String> properties, String name) {
         String result = properties.get(name);
         if (result == null) {
             throw new IllegalStateException("property " + name + " is required");
@@ -87,4 +88,20 @@ public class DecoderUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends Enum> T readEnum(Map<String, String> options, Class<T> implementationKindClass, String name, String defaultValue) {
+        String result = options.get(name);
+        if (result == null) {
+            result = defaultValue;
+        }
+        return implementationKindClass.cast(Enum.valueOf(implementationKindClass, result.toUpperCase()));
+    }
+
+    public static String readString(Map<String, String> options, String name, String defaultValue) {
+        String result = options.get(name);
+        if (result == null) {
+            return defaultValue;
+        }
+        return result;
+    }
 }

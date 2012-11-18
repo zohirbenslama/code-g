@@ -94,7 +94,7 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
             methodBuilder.setName(methodName);
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addBody(String.format("this.%s.putAll(%s);", fieldName, fieldName));
-            if (! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+            if (DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
                 methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
             }
             methodBuilder.addBody("return this;");
@@ -116,7 +116,7 @@ public class BuilderMapFieldHandler implements JavaFieldHandler {
         methodBuilder.addParameter("key", keyType);
         methodBuilder.addParameter("value", valueType);
         methodBuilder.addBody(String.format("this.%s.put(key, value);", fieldName));
-        if (! DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.SKIP_PRESENT_METHOD)) {
+        if (DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
             methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
         }
         methodBuilder.addBody("return this;");
