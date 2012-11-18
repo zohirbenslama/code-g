@@ -117,7 +117,7 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
         File configurationFile = new File(this.configurationFile);
         if (configurationFile.exists()) {
             Properties properties = PropertiesUtil.loadFromFile(configurationFile);
-            return new UnitDescriptorsDecoder().decode(properties);
+            return new UnitDescriptorsDecoder(template).decode(properties);
 
         } else {
             if (units == null) {

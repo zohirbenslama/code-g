@@ -20,7 +20,7 @@ public class UnitDescriptorDecoderTest {
 
 
     public void testDecode() {
-        UnitDescriptorsDecoder decoder = new UnitDescriptorsDecoder();
+        UnitDescriptorsDecoder decoder = new UnitDescriptorsDecoder(template);
         Properties properties = PropertiesUtil.loadFromFile(new File("src/main/code-g/unit.properties"));
         List<UnitDescriptor> unitDescriptors = decoder.decode(Maps.fromProperties(properties));
         UnitDescriptor unitDescriptor = unitDescriptors.get(0);

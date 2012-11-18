@@ -2,6 +2,8 @@ package org.abstractmeta.code.g.core.util;
 
 import org.abstractmeta.code.g.config.Descriptor;
 
+import java.util.Map;
+
 /**
  * Represents  DescriptorUtil.
  *
@@ -33,6 +35,19 @@ public class DescriptorUtil {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to createCommandInnerClass instance of "+ option, e);
         }
+    }
+
+
+    public static Map<String, String> applyTemplate( Map<String, String> map,  Map<String, Map<String, String>> template) {
+        String templateName = map.get("templateName");
+        if(StringUtil.isNotEmpty(templateName))  {
+            Map<String, String> templateForThisName = template.get(templateName);
+            if(templateForThisName == null) {
+                throw new IllegalStateException("Unknown template " + templateName);
+            }
+            map.putAll(templateForThisName);
+        }
+        return map;
     }
 
 }

@@ -16,16 +16,12 @@
 package org.abstractmeta.code.g.core.plugin;
 
 import com.google.common.collect.Maps;
-import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.UnitGenerator;
 import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.UnitDescriptor;
-import org.abstractmeta.code.g.core.CodeGeneratorImpl;
 import org.abstractmeta.code.g.core.UnitGeneratorImpl;
 import org.abstractmeta.code.g.core.config.properties.UnitDescriptorsDecoder;
 import org.abstractmeta.code.g.core.handler.MemCodeHandler;
-import org.abstractmeta.code.g.core.handler.PersistenceCodeHandler;
-import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
 import org.abstractmeta.code.g.core.macro.MacroRegistryImpl;
 import org.abstractmeta.code.g.core.util.PropertiesUtil;
 import org.abstractmeta.code.g.macros.MacroRegistry;
@@ -40,7 +36,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,7 +51,7 @@ public class JpaEntityGeneratorPluginTest {
 
     public JpaEntityGeneratorPluginTest() {
         this.macroRegistry = new MacroRegistryImpl();
-        this.decoder = new UnitDescriptorsDecoder();
+        this.decoder = new UnitDescriptorsDecoder(template);
 
         File baseDirectory = new File(".").getAbsoluteFile();
         this.macroRegistry.register("${basedir}", baseDirectory.getAbsolutePath());

@@ -3,6 +3,7 @@ package org.abstractmeta.code.g.core.config.properties;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.util.DecoderUtil;
+import org.abstractmeta.code.g.core.util.DescriptorUtil;
 
 import java.util.Map;
 
@@ -13,10 +14,16 @@ import java.util.Map;
  */
 public class DescriptorDecoder {
 
+    private final Map<String, Map<String, String>> template;
+
+    public DescriptorDecoder(Map<String, Map<String, String>> template) {
+        this.template = template;
+    }
 
     @SuppressWarnings("unchecked")
     public Descriptor decode(Map<String, String> properties) {
         DescriptorBuilder resultBuilder = new DescriptorBuilder();
+        DescriptorUtil.applyTemplate(properties, template);
         resultBuilder.setPlugin(properties.get("plugin"));
         resultBuilder.setCompilationSources(DecoderUtil.readStringList(properties, "compilationSources"));
         resultBuilder.setExclusions(DecoderUtil.readStringSet(properties, "exclusion"));

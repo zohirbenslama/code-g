@@ -4,7 +4,7 @@ import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.util.DecoderUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,29 +17,37 @@ public class UnitDescriptorsDecoder {
 
 
     public static String UNIT_DESCRIPTOR_KEY = "unit";
-    private final UnitDescriptorDecoder unitDescriptorDecoder;
+    public static String TEMPLATE_DESCRIPTOR_KEY = "template";
 
-    public UnitDescriptorsDecoder() {
-        this(new UnitDescriptorDecoder());
-    }
-
-    public UnitDescriptorsDecoder(UnitDescriptorDecoder unitDescriptorDecoder) {
-        this.unitDescriptorDecoder = unitDescriptorDecoder;
-    }
 
     @SuppressWarnings("unchecked")
     public List<UnitDescriptor> decode(Map properties) {
+        UnitDescriptorDecoder unitDescriptorDecoder = new UnitDescriptorDecoder(extractTemplates(properties));
+
         List<UnitDescriptor> result = new ArrayList<UnitDescriptor>();
-        for(int i =0;;i++) {
+        for (int i = 0; ; i++) {
             Map<String, String> unitDescriptorProperties = DecoderUtil.matchWithPrefix(properties, UNIT_DESCRIPTOR_KEY + "_" + i);
-            if(unitDescriptorProperties.isEmpty()) {
-                if(i > 1) break;
+            if (unitDescriptorProperties.isEmpty()) {
+                if (i > 1) break;
                 continue;
             }
             UnitDescriptor unitDescriptor = unitDescriptorDecoder.decode(unitDescriptorProperties);
             result.add(unitDescriptor);
         }
 
+        return result;
+    }
+
+    private Map<String, Map<String, String>> extractTemplates(Map<String, String> properties) {
+        Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+        for (int i = 0; ; i++) {
+            Map<String, String> template = DecoderUtil.matchWithPrefix(properties, TEMPLATE_DESCRIPTOR_KEY + "_" + i);
+            if (template.isEmpty()) {
+                if (i > 1) break;
+                continue;
+            }
+            result.put(template.get("name"), template);
+        }
         return result;
     }
 
