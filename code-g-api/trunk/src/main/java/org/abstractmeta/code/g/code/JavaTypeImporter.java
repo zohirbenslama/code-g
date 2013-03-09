@@ -42,6 +42,8 @@ public interface JavaTypeImporter {
 
     String getSimpleTypeName(Type type);
 
+    String getTypeName(Type type);
+
     String getTypeName(Type type, Collection<Type> genericArgumentTypes);
 
     Map<String, Type> getGenericTypeVariables();

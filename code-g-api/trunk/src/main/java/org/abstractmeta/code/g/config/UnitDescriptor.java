@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.config;
 
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,25 +27,23 @@ import java.util.List;
  */
 public interface UnitDescriptor {
 
-    String getSourcePackage();
+    Collection<String> getDependencyPackages();
 
-    String getTargetDirectory();
+    String getTargetSourceDirectory();
+
+    String getTargetCompilationDirectory();
 
     String getSourceDirectory();
 
     List<String> getClassPathEntries();
 
-    List<? extends Descriptor> getDescriptors();
+    List<Descriptor> getDescriptors();
 
     /**
-     * If specified this descriptor would execute after all unit descriptor are processed
-     * with all java types generated
+     * If specified this descriptor would execute after generation code for all unit descriptors.
      *
      * @return post descriptor
      */
     Descriptor getPostDescriptor();
 
-    void setClassLoader(ClassLoader classLoader);
-
-    ClassLoader getClassLoader();
 }

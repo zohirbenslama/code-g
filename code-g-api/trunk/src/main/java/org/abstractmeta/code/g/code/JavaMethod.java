@@ -32,19 +32,15 @@ public interface JavaMethod  {
 
     List<Annotation> getAnnotations();
 
-    List<String> getModifiers();
+    List<JavaModifier> getModifiers();
 
     Type getResultType();
 
-    List<String> getParameterModifiers();
-
-    List<Type> getParameterTypes();
-
-    List<String> getParameterNames();
+    List<JavaParameter> getParameters();
 
     List<Type> getExceptionTypes();
 
-    List<String> getBody();
+    List<String> getBodyLines();
     
     List<JavaType> getNestedJavaTypes();
     

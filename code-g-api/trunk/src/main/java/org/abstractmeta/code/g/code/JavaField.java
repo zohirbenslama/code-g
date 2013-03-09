@@ -32,7 +32,7 @@ public interface JavaField  {
 
     List<Annotation> getAnnotations();
 
-    List<String> getModifiers();
+    List<JavaModifier> getModifiers();
 
     String getInitBody();
     

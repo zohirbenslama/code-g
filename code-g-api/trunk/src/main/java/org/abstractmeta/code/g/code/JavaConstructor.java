@@ -32,16 +32,11 @@ public interface JavaConstructor  {
 
     List<Annotation> getAnnotations();
 
-    List<String> getModifiers();
+    List<JavaModifier> getModifiers();
 
-    List<String> getParameterModifiers();
-
-    List<Type> getParameterTypes();
-
-    List<String> getParameterNames();
+    List<JavaParameter> getParameters();
 
     List<Type> getExceptionTypes();
 
-    
     List<String> getBody();
 }

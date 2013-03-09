@@ -18,7 +18,7 @@ package org.abstractmeta.code.g.code;
 import java.io.File;
 
 /**
- * Represents  JavaType with generated source and optional file path.
+ * Represents JavaType with generated source and optional file path.
  *
  * @author Adrian Witas
  */
@@ -27,8 +27,6 @@ public interface SourcedJavaType {
     JavaType getType();
 
     CharSequence getSourceCode();
-
-    File getFile();
 
 }
 

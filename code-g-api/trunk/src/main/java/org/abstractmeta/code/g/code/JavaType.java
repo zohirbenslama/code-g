@@ -40,7 +40,7 @@ public interface JavaType  {
 
     List<Annotation> getAnnotations();
 
-    List<String> getModifiers();
+    List<JavaModifier> getModifiers();
 
     String getPackageName();
 
@@ -54,14 +54,14 @@ public interface JavaType  {
 
     List<JavaConstructor> getConstructors();
 
-    List<String> getBody();
+    List<String> getBodyLines();
 
     List<JavaMethod> getMethods();
 
     List<JavaType> getNestedJavaTypes();
 
     boolean isNested();
-    
-    String getKind();
+
+    JavaKind getKind();
 
 }

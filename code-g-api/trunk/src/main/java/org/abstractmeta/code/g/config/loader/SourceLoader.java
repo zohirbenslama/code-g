@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.handler;
+package org.abstractmeta.code.g.config.loader;
 
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.code.JavaTypeRegistry;
+import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.config.SourceFilter;
+import org.abstractmeta.code.g.generator.Context;
+
+import java.util.Collection;
 
 /**
- * Represents method handler, which is notified when a new type is being built
- * with every single method defined on this type.
+ *
+ * Java type loader.
  *
  * @author Adrian Witas
  */
-public interface JavaMethodHandler {
+public interface SourceLoader {
 
     /**
-     * Handles a new method for a type to be built.
-     *
-     * @param sourceType source plugin type
-     * @param javaMethod java method
+     * Loads java types into registry for a given descriptor.
+     * @return collection of loaded java type names
      */
-    void handle(JavaType sourceType, JavaMethod javaMethod);
-
-
+    Collection<String> load(SourceFilter sourceFilter, Context context);
 }
