@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.code.builder;
 
 
+import com.google.common.base.Preconditions;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.ConstructorHandler;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
@@ -23,7 +24,7 @@ import org.abstractmeta.code.g.code.handler.MethodHandler;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.code.JavaTypeImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
-import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
+import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.annotation.Annotation;
@@ -90,19 +91,31 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
 
     private JavaTypeImporter javaTypeImporter;
 
-    private Context context;
+    private final Context context;
+
 
     public JavaTypeBuilderImpl(String typeName) {
-        this(JavaKind.CLASS, typeName);
+        this(typeName, new ContextImpl());
     }
 
+    public JavaTypeBuilderImpl(String typeName, Context context) {
+        this(JavaKind.CLASS, typeName, context);
+    }
 
     public JavaTypeBuilderImpl(JavaKind javaKind, String typeName) {
-        this(javaKind, typeName, null);
+        this(javaKind, typeName, new ContextImpl());
     }
 
-    public JavaTypeBuilderImpl(JavaKind javaKind, String typeName, JavaType sourceType) {
+    public JavaTypeBuilderImpl(JavaKind javaKind, String typeName, Context context) {
+        this(javaKind, typeName, null, context);
+    }
+
+    public JavaTypeBuilderImpl(JavaKind javaKind, String typeName, JavaType sourceType, Context context) {
+        Preconditions.checkNotNull(javaKind, "javaKind was null");
+        Preconditions.checkNotNull(typeName, "typeName was null");
+        Preconditions.checkNotNull(context, "context was null");
         this.sourceType = sourceType;
+        this.context = context;
         this.packageName = extractPackageName(typeName);
         this.kind = javaKind;
         this.name = typeName;
@@ -504,12 +517,6 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     @Override
     public JavaTypeBuilder addGenericTypeVariable(String key, Type value) {
         this.genericTypeVariables.put(key, value);
-        return this;
-    }
-
-    @Override
-    public JavaTypeBuilder setContext(Context context) {
-        this.context = context;
         return this;
     }
 

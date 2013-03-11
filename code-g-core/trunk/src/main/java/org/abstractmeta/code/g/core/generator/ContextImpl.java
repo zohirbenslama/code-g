@@ -50,7 +50,7 @@ public class ContextImpl implements Context {
     public <T> void replace(Class<T> key, T value) {
         context.put(key, value);
         putInterfaceKey(key.getInterfaces(), value);
-        if(! Object.class.equals(key.getSuperclass())) {
+        if(key.getSuperclass() != null && ! Object.class.equals(key.getSuperclass())) {
             putInterfaceKey(key.getSuperclass().getInterfaces(), value);
         }
     }
@@ -73,7 +73,7 @@ public class ContextImpl implements Context {
     public boolean remove(Class key) {
         context.remove(key);
         removeInterfaceKey(key.getInterfaces());
-        if(! Object.class.equals(key.getSuperclass())) {
+        if(key.getSuperclass() != null && ! Object.class.equals(key.getSuperclass())) {
            removeInterfaceKey(key.getSuperclass().getInterfaces());
         }
         return true;

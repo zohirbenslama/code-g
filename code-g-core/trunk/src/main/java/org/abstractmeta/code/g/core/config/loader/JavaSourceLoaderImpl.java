@@ -22,12 +22,11 @@ import com.google.common.io.Files;
 import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.SourceFilter;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
-import org.abstractmeta.code.g.core.code.SourcedJavaTypeImpl;
+import org.abstractmeta.code.g.core.config.loader.predicate.SourceFilterPredicate;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -79,7 +78,13 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         Collection<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
         for(Map.Entry<String, String> entry: javaSources.entrySet()) {
             JavaType javaType = registry.get(entry.getKey());
-            result.add(new CompiledJavaTypeImpl(javaType, entry.getValue(), classLoader));
+            Class compiledType = null;
+            try {
+                compiledType = classLoader.loadClass(javaType.getName());
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Missing compiled type " + javaType.getName() + " please check package name", e);
+            }
+            result.add(new CompiledJavaTypeImpl(javaType, entry.getValue(), classLoader, compiledType));
         }
         return result;
     }

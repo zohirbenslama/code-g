@@ -1,11 +1,11 @@
-package org.abstractmeta.code.g.core.property;
+package org.abstractmeta.code.g.core.config.provider;
 
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
 import org.abstractmeta.code.g.core.config.NamingConventionImpl;
 import org.abstractmeta.code.g.core.config.UnitDescriptorImpl;
-import org.abstractmeta.code.g.core.provider.ObjectProvider;
+import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
 import org.abstractmeta.code.g.core.util.PropertiesUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;

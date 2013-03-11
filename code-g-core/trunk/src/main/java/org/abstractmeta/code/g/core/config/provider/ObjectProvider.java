@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.provider;
+package org.abstractmeta.code.g.core.config.provider;
 
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 

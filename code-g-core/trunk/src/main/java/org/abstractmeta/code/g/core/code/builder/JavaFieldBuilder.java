@@ -115,8 +115,8 @@ public class JavaFieldBuilder implements JavaField {
         return this;
     }
 
-    public JavaFieldBuilder addAnnotation(Annotation annotation) {
-        this.annotations.add(annotation);
+    public JavaFieldBuilder addAnnotations(Annotation ... annotations) {
+        Collections.addAll(this.annotations, annotations);
         return this;
     }
 
@@ -124,6 +124,7 @@ public class JavaFieldBuilder implements JavaField {
         this.annotations.addAll(annotations);
         return this;
     }
+
 
     public List<String> getDocumentation() {
         return this.documentation;

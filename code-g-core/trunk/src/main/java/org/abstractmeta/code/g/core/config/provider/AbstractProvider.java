@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.provider;
+package org.abstractmeta.code.g.core.config.provider;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;

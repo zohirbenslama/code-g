@@ -10,7 +10,7 @@ import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.config.SourceFilterImpl;
-import org.abstractmeta.code.g.core.provider.ObjectProvider;
+import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
 import org.abstractmeta.code.g.generator.Context;
@@ -80,7 +80,13 @@ public abstract class AbstractGenerator<T> {
         try {
             ClassLoader compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
             for (SourcedJavaType sourcedType : sourceTypes) {
-                result.add(new CompiledJavaTypeImpl(sourcedType.getType(), sourcedType.getSourceCode(), compilationClassLoader));
+                Class compiledType = null;
+                try {
+                    compiledType = compilationClassLoader.loadClass(sourcedType.getType().getName());
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("Missing compiled type " + sourcedType.getType().getName() + " please check package name", e);
+                }
+                result.add(new CompiledJavaTypeImpl(sourcedType.getType(), sourcedType.getSourceCode(), compilationClassLoader, compiledType));
             }
 
         } catch (RuntimeException e) {

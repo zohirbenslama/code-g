@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.provider;
+package org.abstractmeta.code.g.core.config.provider;
 /* 
  * Boolean Provider
  * @author Adrian Witas

@@ -17,7 +17,6 @@ package org.abstractmeta.code.g.core.config;
 
 
 import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.config.Implementation;
 import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.config.SourceFilter;
 
@@ -32,7 +31,6 @@ import java.util.Properties;
 public class DescriptorImpl implements Descriptor {
 
     private SourceFilter sourceFilter;
-    private Implementation implementation;
     private NamingConvention namingConvention;
     private String generatorClass;
     private Properties properties;
@@ -43,14 +41,6 @@ public class DescriptorImpl implements Descriptor {
 
     public void setSourceFilter(SourceFilter sourceFilter) {
         this.sourceFilter = sourceFilter;
-    }
-
-    public Implementation getImplementation() {
-        return implementation;
-    }
-
-    public void setImplementation(Implementation implementation) {
-        this.implementation = implementation;
     }
 
     public NamingConvention getNamingConvention() {

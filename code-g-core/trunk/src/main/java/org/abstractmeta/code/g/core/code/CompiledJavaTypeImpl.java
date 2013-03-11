@@ -11,14 +11,20 @@ import org.abstractmeta.code.g.code.JavaType;
 public class CompiledJavaTypeImpl extends SourcedJavaTypeImpl implements CompiledJavaType {
 
     private final ClassLoader classLoader;
+    private final Class compiledType;
 
-    public CompiledJavaTypeImpl(JavaType type, CharSequence sourceCode, ClassLoader classLoader) {
+    public CompiledJavaTypeImpl(JavaType type, CharSequence sourceCode, ClassLoader classLoader, Class compiledType) {
         super(type, sourceCode);
         this.classLoader = classLoader;
+        this.compiledType = compiledType;
     }
 
     @Override
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public Class getCompiledType() {
+        return compiledType;
     }
 }

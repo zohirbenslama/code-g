@@ -40,7 +40,7 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
     @Override
     protected Collection<SourcedJavaType> generate(JavaType sourceType, Context context) {
         String targetName = formatTargetClassName(context, sourceType);
-        SimpleClassBuilder simpleClassBuilder = new SimpleClassBuilder(targetName, sourceType);
+        SimpleClassBuilder simpleClassBuilder = new SimpleClassBuilder(targetName, sourceType, context);
         addExtractableFields(simpleClassBuilder, sourceType, context);
         addExtractableMethods(simpleClassBuilder, sourceType, context);
         SourcedJavaType result = renderCode(simpleClassBuilder);

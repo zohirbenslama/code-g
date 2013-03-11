@@ -8,6 +8,7 @@ import org.abstractmeta.code.g.core.code.handler.field.SetterFieldHandler;
 import org.abstractmeta.code.g.core.code.handler.type.ClassHandler;
 import org.abstractmeta.code.g.core.code.handler.type.EqualMethodHandler;
 import org.abstractmeta.code.g.core.code.handler.type.HashCodeMethodHandler;
+import org.abstractmeta.code.g.generator.Context;
 
 /**
  * SimpleClassBuilder
@@ -33,8 +34,8 @@ import org.abstractmeta.code.g.core.code.handler.type.HashCodeMethodHandler;
  */
 public class SimpleClassBuilder extends JavaTypeBuilderImpl {
 
-    public SimpleClassBuilder(String typeName, JavaType sourceType) {
-        super(JavaKind.CLASS, typeName, sourceType);
+    public SimpleClassBuilder(String typeName, JavaType sourceType, Context context) {
+        super(JavaKind.CLASS, typeName, sourceType, context);
         addFieldHandlers(
                 new SetterFieldHandler(),
                 new GetterFieldHandler()

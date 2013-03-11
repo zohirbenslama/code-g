@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.provider;
+package org.abstractmeta.code.g.core.config.provider;
 /* 
  * Long Provider
  * @author Adrian Witas
@@ -7,18 +7,17 @@ package org.abstractmeta.code.g.core.provider;
 import javax.inject.Provider;
 import java.util.Properties;
 
-public class LongProvider extends AbstractProvider<Long> implements Provider<Long>  {
+public class IntegerProvider extends AbstractProvider<Long> implements Provider<Integer>  {
 
-
-    public LongProvider(Properties properties, String[] pathFragments) {
+     public IntegerProvider(Properties properties, String[] pathFragments) {
         super(Long.class, properties, pathFragments);
     }
 
     @Override
-    public Long get() {
+    public Integer get() {
         String stringValue =  getValue();
         try {
-            return Long.parseLong(stringValue);
+            return Integer.parseInt(stringValue);
         } catch(NumberFormatException ex) {
             throw new IllegalStateException("Could not cast "  + getPath() + " => " + stringValue + " into " + getType(), ex);
         }

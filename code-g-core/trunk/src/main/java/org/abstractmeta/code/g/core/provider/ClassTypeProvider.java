@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 
 import javax.inject.Provider;

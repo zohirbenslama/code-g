@@ -43,7 +43,6 @@ public class GetterFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        if (target.isImmutable()) return;
         String methodName = StringUtil.getGetterName(target.getName());
         if (owner.containsMethod(methodName)) return;
         JavaMethod getterMethod = buildGetterMethod(target, methodName);
