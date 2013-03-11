@@ -137,8 +137,6 @@ public interface JavaTypeBuilder extends JavaType {
 
     JavaTypeBuilder addGenericTypeVariable(String key, Type value);
 
-    JavaTypeBuilder setContext(Context context);
-
     Context getContext();
     /**
      * Create a new instance for all defined parameters, all specified type handlers are called.

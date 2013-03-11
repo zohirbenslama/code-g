@@ -31,12 +31,6 @@ public interface Descriptor {
     SourceFilter getSourceFilter();
 
     /**
-     * Implementation details.
-     * @return
-     */
-    Implementation getImplementation();
-
-    /**
      * Returns naming convention
      * This is to replace class generator convention
      * @return
