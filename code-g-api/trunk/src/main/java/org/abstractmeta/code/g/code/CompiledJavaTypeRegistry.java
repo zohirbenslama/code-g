@@ -3,12 +3,12 @@ package org.abstractmeta.code.g.code;
 import java.util.Collection;
 
 /**
- * Represents SourcedJavaTypeRegistry
+ * Represents CompiledJavaTypeRegistry
  * @author Adrian Witas
  */
-public interface SourcedJavaTypeRegistry {
+public interface CompiledJavaTypeRegistry {
 
-    void register(SourcedJavaType type);
+    void register(CompiledJavaType type);
 
     JavaType get(String typeName);
 
@@ -16,6 +16,6 @@ public interface SourcedJavaTypeRegistry {
 
     void unregister(String typeName);
 
-    Collection<SourcedJavaType> get();
+    Collection<CompiledJavaType> get();
 
 }

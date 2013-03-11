@@ -1,6 +1,6 @@
 package org.abstractmeta.code.g.generator;
 
-import org.abstractmeta.code.g.code.SourcedJavaTypeRegistry;
+import org.abstractmeta.code.g.code.CompiledJavaTypeRegistry;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 
 /**
@@ -12,7 +12,7 @@ public interface GeneratedCode {
 
     ClassLoader getClassLoader();
 
-    SourcedJavaTypeRegistry getRegistry();
+    CompiledJavaTypeRegistry getRegistry();
 
     UnitDescriptor getUnitDescriptor();
 

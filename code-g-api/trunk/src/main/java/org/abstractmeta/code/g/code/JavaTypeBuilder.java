@@ -5,6 +5,7 @@ import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.code.handler.MethodHandler;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -27,7 +28,7 @@ import java.util.Map;
  *    javaTypeBuilder.addFields(javaField); //generates also getter and setter for this field
  *    // and for each setter method command for a field change
  *
- *
+ *    javaTypeBuilder.setContext(context);// building context
  *    JavaType javaType = javaTypeBuilder.build();
  *
  *
@@ -42,10 +43,6 @@ import java.util.Map;
 public interface JavaTypeBuilder extends JavaType {
 
     JavaType getSourceType();
-
-    Descriptor getDescriptor();
-
-    JavaTypeRegistry getTypeRegistry();
 
     JavaTypeImporter getImporter();
 
@@ -140,7 +137,9 @@ public interface JavaTypeBuilder extends JavaType {
 
     JavaTypeBuilder addGenericTypeVariable(String key, Type value);
 
+    JavaTypeBuilder setContext(Context context);
 
+    Context getContext();
     /**
      * Create a new instance for all defined parameters, all specified type handlers are called.
      * @return java builder

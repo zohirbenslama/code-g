@@ -8,9 +8,13 @@ public interface Context {
 
     <T> T getOptional(Class<T> key);
 
+    <T> T getOptional(Class<T> key, T defaultValue);
+
     <T> T get(Class<T> key);
 
     <T> void put(Class<T> key, T value);
+
+    <T> void replace(Class<T> key, T value);
 
     boolean contains(Class key);
 

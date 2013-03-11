@@ -38,7 +38,7 @@ public interface Descriptor {
 
     /**
      * Returns naming convention
-     * This is to override class generator convention
+     * This is to replace class generator convention
      * @return
      */
     NamingConvention getNamingConvention();

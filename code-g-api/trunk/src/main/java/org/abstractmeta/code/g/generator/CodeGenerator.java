@@ -1,7 +1,9 @@
 package org.abstractmeta.code.g.generator;
 
+import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.NamingConvention;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 
 import java.util.Collection;
 
@@ -10,10 +12,10 @@ import java.util.Collection;
  *
  * @author Adrian Witas
  */
-public interface CodeGenerator {
+public interface CodeGenerator<T> {
 
-    Collection<SourcedJavaType> generate(Context context);
 
+    Collection<CompiledJavaType> generate(Context context);
     /**
      * Naming convention
      * @return
@@ -22,8 +24,11 @@ public interface CodeGenerator {
 
     /**
      * Setting class created from {@link org.abstractmeta.code.g.config.Descriptor#getProperties()}
+     * Note <b>Only a class is supported not an interface</b>
      * @return
      */
-    Class getSettingClass();
+    Class<T> getSettingClass();
+
+    PropertyRegistry getPropertyRegistry();
 
 }

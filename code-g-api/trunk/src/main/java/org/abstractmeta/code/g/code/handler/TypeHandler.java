@@ -1,6 +1,7 @@
 package org.abstractmeta.code.g.code.handler;
 
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
+import org.abstractmeta.code.g.generator.Context;
 
 /**
  * Represents method handler, which is notified when a new type about to be created.
@@ -10,6 +11,6 @@ import org.abstractmeta.code.g.code.JavaTypeBuilder;
  */
 public interface TypeHandler {
 
-    void handle(JavaTypeBuilder owner);
+    void handle(JavaTypeBuilder owner, Context context);
 
 }

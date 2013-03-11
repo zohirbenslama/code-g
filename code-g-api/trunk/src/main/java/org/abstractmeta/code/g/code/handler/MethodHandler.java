@@ -3,6 +3,7 @@ package org.abstractmeta.code.g.code.handler;
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
+import org.abstractmeta.code.g.generator.Context;
 
 /**
  * Represents MethodHandler
@@ -12,6 +13,6 @@ import org.abstractmeta.code.g.code.JavaTypeBuilder;
  */
 public interface MethodHandler {
 
-    void handle(JavaTypeBuilder owner, JavaMethod target);
+    void handle(JavaTypeBuilder owner, JavaMethod target, Context context);
 
 }

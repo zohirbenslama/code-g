@@ -1,5 +1,6 @@
 package org.abstractmeta.code.g.config.loader;
 
+import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.SourcedJavaType;
 
@@ -16,8 +17,6 @@ public interface LoadedSource {
 
     Collection<JavaType> getJavaTypes();
 
-    Collection<SourcedJavaType> getSourcedJavaTypes();
-
-
+    Collection<CompiledJavaType> getCompiledJavaTypes();
 
 }
