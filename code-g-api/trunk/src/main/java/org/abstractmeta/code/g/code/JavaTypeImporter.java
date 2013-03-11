@@ -38,10 +38,6 @@ public interface JavaTypeImporter {
 
     List<String> getTypeNames();
 
-    String getSimpleTypeName(String typeName);
-
-    String getSimpleTypeName(Type type);
-
     String getTypeName(Type type);
 
     String getTypeName(Type type, Collection<Type> genericArgumentTypes);
@@ -54,5 +50,10 @@ public interface JavaTypeImporter {
     
     Type getType(String typeName);
 
-    
+    String getSimpleTypeName(String typeName);
+
+    String getSimpleTypeName(Type type);
+
+
+
 }

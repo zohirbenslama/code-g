@@ -26,7 +26,7 @@ import java.util.Set;
  *
  * @author Adrian Witas
  */
-public interface JavaType  {
+public interface JavaType {
 
     String getName();
     

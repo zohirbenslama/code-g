@@ -15,6 +15,8 @@
  */
 package org.abstractmeta.code.g.expression;
 
+import org.abstractmeta.code.g.code.JavaModifier;
+
 import java.util.List;
 
 /**
@@ -47,7 +49,7 @@ public interface MethodPattern {
 
     boolean isSingularNameMatching();
 
-    List<String> getModifiers();
+    List<JavaModifier> getModifiers();
 
     List<Class> getBaseParameterTypes();
 

@@ -13,9 +13,9 @@ import java.util.Collection;
 public interface CodeUnitGenerator {
 
     /**
-     * Generates code for a unit descriptor
-     * @param descriptor
-     * @return
+     * Generates code for a given unit descriptor
+     * @param descriptor unit descriptor
+     * @return generated code
      */
    GeneratedCode generate(UnitDescriptor descriptor);
 

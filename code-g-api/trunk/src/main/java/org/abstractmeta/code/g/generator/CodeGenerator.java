@@ -20,5 +20,10 @@ public interface CodeGenerator {
      */
     NamingConvention getNamingConvention();
 
+    /**
+     * Setting class created from {@link org.abstractmeta.code.g.config.Descriptor#getProperties()}
+     * @return
+     */
+    Class getSettingClass();
 
 }

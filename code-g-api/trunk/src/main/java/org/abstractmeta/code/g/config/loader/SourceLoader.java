@@ -31,8 +31,9 @@ import java.util.Collection;
 public interface SourceLoader {
 
     /**
-     * Loads java types into registry for a given descriptor.
-     * @return collection of loaded java type names
+     * Loads java types for a given source filter.
+     *
+     * @return loaded source
      */
-    Collection<String> load(SourceFilter sourceFilter, Context context);
+    LoadedSource load(SourceFilter sourceFilter, JavaTypeRegistry registry, ClassLoader classLoader);
 }

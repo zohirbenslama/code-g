@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.macros;
+package org.abstractmeta.code.g.property;
 
 import java.util.Map;
 
 /**
- * Represents MacroRegistry
+ * Represents PropertyRegistry
+ * All used in descriptor properties will be expanded with registered values.
  *
  * @author Adrian Witas
  */
-public interface MacroRegistry {
+public interface PropertyRegistry {
 
     /**
      * Registers a macro
@@ -33,7 +34,7 @@ public interface MacroRegistry {
     void register(String name, String value);
 
     /**
-     * Returns true if a given macros is registered
+     * Returns true if a given property is registered
      * @param name
      * @return
      */
@@ -48,7 +49,7 @@ public interface MacroRegistry {
 
 
     /**
-     * Some suggested macros, used by maven
+     * Some suggested property, used by maven
      * <ul>
      * <li> ${basedir} represents the directory containing project root </li>
      * <li> ${project.build.directory} results in the path to your "target" dir </li>
