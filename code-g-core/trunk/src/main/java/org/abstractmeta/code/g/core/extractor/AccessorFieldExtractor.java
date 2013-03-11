@@ -18,6 +18,7 @@ package org.abstractmeta.code.g.core.extractor;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
@@ -98,7 +99,7 @@ public class AccessorFieldExtractor implements FieldExtractor {
             }
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.setName(filedName);
-            fieldBuilder.addModifier("private");
+            fieldBuilder.addModifier(JavaModifier.PRIVATE);
             fieldBuilder.setImmutable(!(match.containsMatch("set", Object.class) || match.containsMatch("add", Object.class)));
             fieldBuilder.setType(fieldType);
             fieldBuilder.addAnnotations(matchedMethod.getAnnotations());

@@ -15,16 +15,8 @@
  */
 package org.abstractmeta.code.g.core.handler.field;
 
-import com.google.common.base.CaseFormat;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.util.StringUtil;
-import org.abstractmeta.code.g.handler.JavaFieldHandler;
-
 /**
- * This handler creates is[field name]Present method for any field prefixed with '_'.
+ * This handle creates is[field name]Present method for any field prefixed with '_'.
  * This method only returns true if original
  * field was mutated.
  * <p>
@@ -38,36 +30,36 @@ import org.abstractmeta.code.g.handler.JavaFieldHandler;
  *
  * @author Adrian Witas
  */
-public class IsFieldPresentHandler implements JavaFieldHandler {
+public class IsFieldPresentHandler  {
 
-    private final JavaTypeBuilder ownerTypeBuilder;
-    private final boolean generatePresentCheck;
-
-    public IsFieldPresentHandler(JavaTypeBuilder ownerTypeBuilder, boolean generatePresentCheck) {
-        this.ownerTypeBuilder = ownerTypeBuilder;
-        this.generatePresentCheck = generatePresentCheck;
-    }
-
-
-    @Override
-    public void handle(JavaType sourceType, JavaField javaField) {
-        if (!(javaField.getName().endsWith("Present")  && javaField.getType().equals(boolean.class))) {
-            return;
-        }
-        if (!generatePresentCheck) {
-            return;
-        }
-        String fieldName = javaField.getName();
-        String methodPrefix = "is";
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName + "Present", CaseFormat.LOWER_CAMEL);
-        if (! ownerTypeBuilder.containsMethod(methodName)) {
-            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.setName(methodName);
-            methodBuilder.setResultType(boolean.class);
-            methodBuilder.addModifier("public");
-            methodBuilder.addBody(String.format("return this.%s;", fieldName));
-            ownerTypeBuilder.addMethod(methodBuilder.build());
-
-        }
-    }
+//    private final JavaTypeBuilderImpl ownerTypeBuilder;
+//    private final boolean generatePresentCheck;
+//
+//    public IsFieldPresentHandler(JavaTypeBuilderImpl ownerTypeBuilder, boolean generatePresentCheck) {
+//        this.ownerTypeBuilder = ownerTypeBuilder;
+//        this.generatePresentCheck = generatePresentCheck;
+//    }
+//
+//
+//    @Override
+//    public void handle(JavaType sourceType, JavaField javaField) {
+//        if (!(javaField.getName().endsWith("Present")  && javaField.getType().equals(boolean.class))) {
+//            return;
+//        }
+//        if (!generatePresentCheck) {
+//            return;
+//        }
+//        String fieldName = javaField.getName();
+//        String methodPrefix = "is";
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, methodPrefix, fieldName + "Present", CaseFormat.LOWER_CAMEL);
+//        if (! ownerTypeBuilder.containsMethod(methodName)) {
+//            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+//            methodBuilder.setName(methodName);
+//            methodBuilder.setResultType(boolean.class);
+//            methodBuilder.addModifier("public");
+//            methodBuilder.addBodyLines(String.format("return this.%s;", fieldName));
+//            ownerTypeBuilder.addMethod(methodBuilder.build());
+//
+//        }
+//    }
 }

@@ -15,17 +15,13 @@
  */
 package org.abstractmeta.code.g.core.provider;
 
-import org.abstractmeta.code.g.code.JavaConstructor;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.util.ReflectUtil;
 import com.google.common.base.Splitter;
+import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
+import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-
+import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
@@ -38,7 +34,7 @@ import java.util.List;
 
 /**
  * Provides a java type for a given java class or interface.
- * 
+ *
  * @author Adrian Witas
  */
 public class ClassTypeProvider implements Provider<JavaType> {
@@ -46,7 +42,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
     private final Class sourceType;
 
     public ClassTypeProvider(Class sourceType) {
-        if(sourceType == null) {
+        if (sourceType == null) {
             throw new IllegalArgumentException("sourceType was null");
         }
         this.sourceType = sourceType;
@@ -54,16 +50,17 @@ public class ClassTypeProvider implements Provider<JavaType> {
 
     @Override
     public JavaType get() {
-        JavaTypeBuilder resultBuilder = new JavaTypeBuilder();
-        
-        resultBuilder.setTypeName(sourceType.getName());
+        JavaKind javaKind;
         if (sourceType.isInterface()) {
-            resultBuilder.setKind("interface");
+            javaKind = JavaKind.INTERFACE;
         } else if (sourceType.isEnum()) {
-            resultBuilder.setKind("enum");
+            javaKind = JavaKind.ENUM;
+        } else if (sourceType.isAnnotation()) {
+            javaKind = JavaKind.ANNOTATION;
         } else {
-            resultBuilder.setKind("class");
+            javaKind = JavaKind.CLASS;
         }
+        JavaTypeBuilderImpl resultBuilder = new JavaTypeBuilderImpl(javaKind, sourceType.getName());
         resultBuilder.addGenericTypeArguments(sourceType.getTypeParameters());
         resultBuilder.addSuperInterfaces(Arrays.asList(sourceType.getGenericInterfaces()));
         resultBuilder.setSuperType(sourceType.getGenericSuperclass());
@@ -82,7 +79,8 @@ public class ClassTypeProvider implements Provider<JavaType> {
                     .setType(field.getGenericType())
                     .setImmutable(Modifier.isFinal(field.getModifiers()));
             for (String modifier : Splitter.on(" ").split(Modifier.toString(field.getModifiers()))) {
-                fieldBuilder.addModifier(modifier);
+                if(modifier.isEmpty())  continue;
+                fieldBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
             }
             fieldBuilder.addAnnotations(Arrays.asList(field.getAnnotations()));
             result.add(fieldBuilder.build());
@@ -98,19 +96,20 @@ public class ClassTypeProvider implements Provider<JavaType> {
                     .setName(method.getName())
                     .setResultType(method.getGenericReturnType());
 
-            if(method.getExceptionTypes() != null) {
-                for(Type exceptionType: method.getExceptionTypes()) {
+            if (method.getExceptionTypes() != null) {
+                for (Type exceptionType : method.getExceptionTypes()) {
                     methodBuilder.addExceptionTypes(exceptionType);
                 }
             }
             for (String modifier : Splitter.on(" ").split(Modifier.toString(method.getModifiers()))) {
-                methodBuilder.addModifier(modifier);
+                if (modifier.isEmpty()) continue;
+                methodBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
             }
             List<Annotation> annotations = new ArrayList<Annotation>();
             Collections.addAll(annotations, method.getAnnotations());
             methodBuilder.addAnnotations(annotations);
             if (sourceType.isInterface() && methodBuilder.getModifiers().size() == 0) {
-                methodBuilder.addModifier("public");
+                methodBuilder.addModifier(JavaModifier.PUBLIC);
             }
             addMethodParameters(method, methodBuilder);
             result.add(methodBuilder.build());
@@ -127,18 +126,17 @@ public class ClassTypeProvider implements Provider<JavaType> {
         }
     }
 
-    protected List<JavaConstructor> readConstructors(JavaTypeBuilder resultBuilder) {
+    protected List<JavaConstructor> readConstructors(JavaTypeBuilderImpl resultBuilder) {
         List<JavaConstructor> result = new ArrayList<JavaConstructor>();
         if (!sourceType.isInterface()) {
-
             for (Constructor constructor : sourceType.getConstructors()) {
                 JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
                 for (String modifier : Splitter.on(" ").split(Modifier.toString(constructor.getModifiers()))) {
-                    constructorBuilder.addModifier(modifier);
+                    if(modifier.isEmpty()) continue;
+                    constructorBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
                 }
-
-                if(constructor.getExceptionTypes() != null) {
-                    for(Type exceptionType: constructor.getExceptionTypes()) {
+                if (constructor.getExceptionTypes() != null) {
+                    for (Type exceptionType : constructor.getExceptionTypes()) {
                         constructorBuilder.addExceptionTypes(exceptionType);
                     }
                 }
@@ -152,14 +150,16 @@ public class ClassTypeProvider implements Provider<JavaType> {
         return result;
     }
 
-    protected void addConstructorParameters(Constructor constructor, JavaConstructorBuilder constructorBuilder, JavaTypeBuilder resultBuilder) {
+    protected void addConstructorParameters(Constructor constructor, JavaConstructorBuilder constructorBuilder, JavaTypeBuilderImpl resultBuilder) {
 
         if (constructor.getParameterTypes() == null) return;
         int i = 0;
         Class[] parameterTypes = constructor.getParameterTypes();
         if (isConstructorParametersMatchFieldTypes(parameterTypes, resultBuilder.getFields())) {
+            int argumentCount = constructor.getParameterTypes().length;
             for (JavaField field : resultBuilder.getFields()) {
                 constructorBuilder.addParameter(field.getName(), field.getType());
+                if (++i >= argumentCount) break;
             }
 
         } else {
@@ -172,19 +172,17 @@ public class ClassTypeProvider implements Provider<JavaType> {
 
     /**
      * TODO add more robust implementation to actually check with reflection which arguments sets which field.
-     *
+     * <p/>
      * Returns true if constructor parameters match field types.
+     *
      * @param parameterTypes
      * @param fields
      * @return
      */
     protected boolean isConstructorParametersMatchFieldTypes(Class[] parameterTypes, List<JavaField> fields) {
-        if(parameterTypes.length != fields.size())  {
-            return false;
-        }
-        for(int i = 0; i <parameterTypes.length; i++) {
+        for (int i = 0; i < parameterTypes.length; i++) {
             Class fieldType = ReflectUtil.getRawClass(fields.get(i).getType());
-            if(! parameterTypes[i].equals(fieldType)) {
+            if (!parameterTypes[i].equals(fieldType)) {
                 return false;
             }
         }

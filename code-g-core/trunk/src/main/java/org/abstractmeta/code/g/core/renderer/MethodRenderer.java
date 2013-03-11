@@ -56,13 +56,13 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(TYPE_PARAMETER, importer.getSimpleTypeName(instance.getResultType()));
         template.set(NAME_PARAMETER, instance.getName());
-        template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameterModifiers(), instance.getParameterTypes(), instance.getParameterNames()));
+        template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameters()));
         template.set(EXCEPTION_PARAMETER, getMethodExceptions(importer, instance.getExceptionTypes()));
         String javaInlineTypes = getJavaTypes(javaTypeRenderer, importer, instance.getNestedJavaTypes(), 0);
         if (javaInlineTypes != null && !javaInlineTypes.isEmpty()) {
             javaInlineTypes = javaInlineTypes + "\n";
         }
-        String body = Joiner.on("\n").join(instance.getBody());
+        String body = Joiner.on("\n").join(instance.getBodyLines());
         template.set(BODY_PARAMETER, StringUtil.indent(String.format("%s%s", javaInlineTypes, body), indentSize + 4));
     }
 

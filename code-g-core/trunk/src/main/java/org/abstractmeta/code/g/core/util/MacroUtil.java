@@ -1,6 +1,6 @@
 package org.abstractmeta.code.g.core.util;
 
-import org.abstractmeta.code.g.macros.MacroRegistry;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class MacroUtil {
 
-    public static  <T extends Collection<String>>  T substitute(MacroRegistry registry, T collection, T newCollection) {
+    public static  <T extends Collection<String>>  T substitute(PropertyRegistry registry, T collection, T newCollection) {
         if (collection == null) return newCollection;
         for (String item : collection) {
             newCollection.add(substitute(registry, item));
@@ -22,7 +22,7 @@ public class MacroUtil {
     }
 
 
-    public static Map<String, String> substitute(MacroRegistry registry, Map<String, String> map) {
+    public static Map<String, String> substitute(PropertyRegistry registry, Map<String, String> map) {
         Map<String, String> result = new HashMap<String, String>();
         if(map == null) return result;
         for(String key: map.keySet()) {
@@ -33,7 +33,7 @@ public class MacroUtil {
     }
 
 
-    public static String substitute(MacroRegistry registry, String fragment) {
+    public static String substitute(PropertyRegistry registry, String fragment) {
         if (fragment == null) return null;
         for (String key : registry.getRegistry().keySet()) {
             if (fragment.contains(key)) {

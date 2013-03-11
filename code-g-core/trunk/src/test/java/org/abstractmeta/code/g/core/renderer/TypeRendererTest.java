@@ -20,9 +20,8 @@ import org.abstractmeta.code.g.code.JavaTypeImporter;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
-import org.abstractmeta.code.g.core.renderer.TypeRenderer;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -34,8 +33,7 @@ import java.util.Map;
 public class TypeRendererTest {
 
     public void testRender() {
-        JavaTypeBuilder typeBuilder = new JavaTypeBuilder();
-        typeBuilder.setTypeName("com.foo.Test");
+        JavaTypeBuilderImpl typeBuilder = new JavaTypeBuilderImpl("con.foo.Test");
         typeBuilder.addField(new JavaFieldBuilder().setName("field1").setType(int.class).setImmutable(true).build());
         typeBuilder.addField((new JavaFieldBuilder().setName("field2").setType(String.class).build()));
         typeBuilder.addMethod(new JavaMethodBuilder().setName("test").setResultType(void.class)

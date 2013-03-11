@@ -16,6 +16,8 @@
 package org.abstractmeta.code.g.core.code.builder;
 
 import org.abstractmeta.code.g.code.JavaMethod;
+import org.abstractmeta.code.g.code.JavaModifier;
+import org.abstractmeta.code.g.code.JavaParameter;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.JavaMethodImpl;
 
@@ -34,23 +36,19 @@ import java.util.List;
 public class JavaMethodBuilder implements JavaMethod {
 
 
-    private List<String> parameterModifiers = new ArrayList<String>();
-
-    private List<Type> parameterTypes = new ArrayList<Type>();
-
-    private List<String> parameterNames = new ArrayList<String>();
+    private List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
     private List<Type> exceptionTypes = new ArrayList<Type>();
             
-    private List<String> body = new ArrayList<String>();
+    private List<String> bodyLines = new ArrayList<String>();
 
     private Type resultType;
 
     private List<JavaType> javaTypes = new ArrayList<JavaType>();
 
-    private List<JavaTypeBuilder> nestedTypeBuilders = new ArrayList<JavaTypeBuilder>();
+    private List<JavaTypeBuilderImpl> nestedTypeBuilders = new ArrayList<JavaTypeBuilderImpl>();
 
-    private List<String> modifiers = new ArrayList<String>();
+    private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
 
     private String name;
 
@@ -58,17 +56,8 @@ public class JavaMethodBuilder implements JavaMethod {
 
     private List<String> documentation = new ArrayList<String>();
 
-    public List<String> getParameterModifiers() {
-        return parameterModifiers;
-    }
-
-    public List<Type> getParameterTypes() {
-        return this.parameterTypes;
-    }
-
-    @Override
-    public List<String> getParameterNames() {
-        return parameterNames;
+    public List<JavaParameter> getParameters() {
+        return parameters;
     }
 
     @Override
@@ -76,48 +65,32 @@ public class JavaMethodBuilder implements JavaMethod {
         return exceptionTypes;
     }
 
-    public JavaMethodBuilder setParameterTypes(List<Type> parameterTypes) {
-        this.parameterTypes = parameterTypes;
-        return this;
-    }
-
-    public JavaMethodBuilder addParameterModifiers(Collection<String> parameterModifiers) {
-        this.parameterModifiers.addAll(parameterModifiers);
-        return this;
-    }
-    
-
-    public JavaMethodBuilder addParameterTypes(Collection<Type> argumentTypes) {
-        this.parameterTypes.addAll(argumentTypes);
-        return this;
-    }
-
-
-    public JavaMethodBuilder addParameter(boolean finalModifier, String name, Type type) {
-        return addParameter(finalModifier ? "final" : "", name, type);
-    }
-
      public JavaMethodBuilder addParameter(String name, Type type) {
-           return addParameter("", name, type);
+           return addParameter(null, name, type);
      }
 
-    public JavaMethodBuilder addParameter(String modifier, String name, Type type) {
-        this.parameterModifiers.add(modifier);
-        this.parameterNames.add(name);
-        this.parameterTypes.add(type);
+    public JavaMethodBuilder addParameter(JavaModifier modifier, String name, Type type) {
+        JavaParameterBuilder parameterBuilder = new JavaParameterBuilder();
+        parameterBuilder.setName(name);
+        parameterBuilder.setType(type);
+        if(modifier != null) {
+            parameterBuilder.addModifiers(modifier);
+        }
+        this.parameters.add(parameterBuilder.build());
         return this;
     }
 
-    
-    public JavaMethodBuilder setParameterNames(List<String> parameterNames) {
-        this.parameterNames = parameterNames;
+    public  JavaMethodBuilder addParameters(JavaParameter ... parameters) {
+        Collections.addAll(this.parameters, parameters);
         return this;
     }
 
-    public JavaMethodBuilder addParameterNames(Collection<String> parameterNames) {
-        this.parameterNames.addAll(parameterNames);
+
+    public  JavaMethodBuilder addParameters(Collection<JavaParameter> parameters) {
+        this.parameters.addAll(parameters);
         return this;
     }
+
 
     public JavaMethodBuilder setExceptionTypes(List<Type> exceptionTypes) {
         this.exceptionTypes = exceptionTypes;
@@ -134,22 +107,22 @@ public class JavaMethodBuilder implements JavaMethod {
         return this;
     }
 
-    public List<String> getBody() {
-        return this.body;
+    public List<String> getBodyLines() {
+        return this.bodyLines;
     }
 
-    public JavaMethodBuilder setBody(List<String> body) {
-        this.body = body;
+    public JavaMethodBuilder setBodyLines(List<String> bodyLines) {
+        this.bodyLines = bodyLines;
         return this;
     }
 
-    public JavaMethodBuilder addBody(String body) {
-        this.body.add(body);
+    public JavaMethodBuilder addBodyLines(String ...bodyLines) {
+        Collections.addAll(this.bodyLines, bodyLines);
         return this;
     }
 
     public JavaMethodBuilder addBody(Collection<String> body) {
-        this.body.addAll(body);
+        this.bodyLines.addAll(body);
         return this;
     }
 
@@ -171,13 +144,6 @@ public class JavaMethodBuilder implements JavaMethod {
         return this;
     }
 
-    public JavaTypeBuilder addNestedJavaType() {
-        JavaTypeBuilder builder = new JavaTypeBuilder();
-        nestedTypeBuilders.add(builder);
-        builder.setNested(true);
-        return builder;
-    }
-
     public JavaMethodBuilder addNestedJavaType(JavaType javaType) {
         this.javaTypes.add(javaType);
         return this;
@@ -188,21 +154,21 @@ public class JavaMethodBuilder implements JavaMethod {
         return this;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 
-    public JavaMethodBuilder setModifiers(List<String> modifiers) {
+    public JavaMethodBuilder setModifiers(List<JavaModifier> modifiers) {
         this.modifiers = modifiers;
         return this;
     }
 
-    public JavaMethodBuilder addModifier(String modifier) {
+    public JavaMethodBuilder addModifier(JavaModifier modifier) {
         this.modifiers.add(modifier);
         return this;
     }
 
-    public JavaMethodBuilder addModifiers(Collection<String> modifiers) {
+    public JavaMethodBuilder addModifiers(Collection<JavaModifier> modifiers) {
         this.modifiers.addAll(modifiers);
         return this;
     }
@@ -255,29 +221,24 @@ public class JavaMethodBuilder implements JavaMethod {
     }
 
     public JavaMethod build() {
-        for (JavaTypeBuilder builder : nestedTypeBuilders) {
+        for (JavaTypeBuilderImpl builder : nestedTypeBuilders) {
             javaTypes.add(builder.build());
         }
         nestedTypeBuilders.clear();
-        JavaMethod result = new JavaMethodImpl(parameterModifiers, parameterTypes, parameterNames, exceptionTypes, body, resultType, javaTypes, modifiers, name, annotations, documentation);
+        JavaMethod result = new JavaMethodImpl(parameters, exceptionTypes, bodyLines, resultType, javaTypes, modifiers, name, annotations, documentation);
         return result;
     }
 
     public void merge(JavaMethod instance) {
-        if (instance.getParameterModifiers() != null) {
-            addParameterModifiers(instance.getParameterModifiers());
-        }
-        if (instance.getParameterTypes() != null) {
-            addParameterTypes(instance.getParameterTypes());
-        }
-        if(instance.getParameterNames() != null){
-            addParameterNames(instance.getParameterNames());
+
+        if(instance.getParameters() != null){
+            addParameters(instance.getParameters());
         }
         if(instance.getExceptionTypes() != null){
             addExceptionTypes(instance.getExceptionTypes());
         }
-        if (instance.getBody() != null) {
-            addBody(instance.getBody());
+        if (instance.getBodyLines() != null) {
+            addBody(instance.getBodyLines());
         }
         if (instance.getResultType() != null) {
             setResultType(instance.getResultType());

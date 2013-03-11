@@ -15,20 +15,22 @@
  */
 package org.abstractmeta.code.g.core.util;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import org.abstractmeta.code.g.code.JavaConstructor;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaType;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
+import org.abstractmeta.code.g.core.code.builder.JavaParameterBuilder;
+import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.collection.function.JavaParameterClassFunction;
+import org.abstractmeta.code.g.core.collection.function.JavaParameterName;
+import org.abstractmeta.code.g.core.collection.function.JavaParameterType;
 import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
 import org.abstractmeta.code.g.core.collection.predicates.ConstructorArgumentPredicate;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -37,7 +39,7 @@ import java.util.*;
 
 
 /**
- * Java Type utility.
+ * Java InvocationType utility.
  *
  * @author Adrian Witas
  */
@@ -54,7 +56,7 @@ public class JavaTypeUtil {
         put(float[].class, "float []");
     }};
 
-    public static boolean isMethodCompatible(JavaType sourceType, JavaTypeBuilder targetBuilder) {
+    public static boolean isMethodCompatible(JavaType sourceType, JavaTypeBuilderImpl targetBuilder) {
         return isMethodCompatible(sourceType.getMethods(), targetBuilder.getMethods());
     }
 
@@ -226,13 +228,27 @@ public class JavaTypeUtil {
     }
 
 
-    public static JavaConstructor buildDefaultConstructor(JavaType sourceType, Map<String, String> fieldArgumentMap) {
+    public static JavaConstructor buildDefaultConstructor(JavaType sourceType, JavaType superType, Map<String, String> fieldArgumentMap) {
         JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
-        addSuperCall(sourceType, constructorBuilder, fieldArgumentMap);
+        addSuperCall(superType, constructorBuilder, fieldArgumentMap);
+        addConstructorSuperParameters(superType, constructorBuilder);
         addConstructorParameters(sourceType, constructorBuilder, fieldArgumentMap);
         constructorBuilder.setName(sourceType.getSimpleName());
-        constructorBuilder.addModifier("public");
+        constructorBuilder.addModifier(JavaModifier.PUBLIC);
         return constructorBuilder.build();
+    }
+
+    protected static void addConstructorSuperParameters(JavaType sourceType, JavaConstructorBuilder constructorBuilder) {
+        Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
+        for (JavaField field : immutableJavaFields) {
+            if(! field.isImmutable()) continue;
+            constructorBuilder.addParameters(
+                    new JavaParameterBuilder()
+                            .setName(field.getName())
+                            .setType(field.getType())
+                            .build()
+            );
+        }
     }
 
 
@@ -240,8 +256,10 @@ public class JavaTypeUtil {
         Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
         for (JavaField field : immutableJavaFields) {
             String fieldName = field.getName();
-            javaConstructor.getParameterNames().add(field.getName());
-            javaConstructor.getParameterTypes().add(field.getType());
+            javaConstructor.getParameters().add(  new JavaParameterBuilder()
+                    .setName(field.getName())
+                    .setType(field.getType())
+                    .build());
             String argumentName = fieldArgumentMap.get(fieldName);
             javaConstructor.getBody().add(String.format("this.%s = %s;", fieldName, argumentName));
         }
@@ -250,11 +268,13 @@ public class JavaTypeUtil {
 
     protected static void addSuperCall(JavaType superType, JavaConstructorBuilder constructorBuilder, Map<String, String> fieldArgumentMap) {
         JavaConstructor superConstructor = getMinConstructor(superType);
+
         StringBuilder result = new StringBuilder();
         if (superConstructor != null) {
             List<JavaField> javaFields = superType.getFields();
             int i = 0;
-            for (Type parameterType : superConstructor.getParameterTypes()) {
+            for (JavaParameter parameter : superConstructor.getParameters()) {
+                Type parameterType = parameter.getType();
                 JavaField javaField = javaFields.get(i++);
                 Class parameterRawClass = ReflectUtil.getRawClass(parameterType);
                 if (result.length() > 0) {
@@ -271,6 +291,8 @@ public class JavaTypeUtil {
     }
 
 
+
+
     /**
      * Selects constructor with min number of arguments
      *
@@ -281,15 +303,60 @@ public class JavaTypeUtil {
         JavaConstructor result = null;
         int lastConstructorSize = Integer.MAX_VALUE;
         for (JavaConstructor constructor : sourceType.getConstructors()) {
-            if (constructor.getParameterNames().size() == 0) {
+            if (constructor.getParameters().size() == 0) {
                 return constructor;
             }
-            if (lastConstructorSize > constructor.getParameterNames().size()) {
+            if (lastConstructorSize > constructor.getParameters().size()) {
                 result = constructor;
-                lastConstructorSize = result.getParameterNames().size();
+                lastConstructorSize = result.getParameters().size();
             }
         }
         return result;
 
     }
+
+
+    public static int getArgumentTypesHashCode(List<JavaParameter> javaParameters) {
+        int constructorHashCode = 0;
+        JavaTypeImporter javaTypeImporter = new JavaTypeImporterImpl("");
+        StringBuilder constructorTypeNames = new StringBuilder();
+        for (Type constructorType : JavaTypeUtil.getParameterTypes(javaParameters)) {
+            constructorTypeNames.append(javaTypeImporter.getSimpleTypeName(constructorType));
+        }
+        if (constructorTypeNames.length() > 0) {
+            constructorHashCode = constructorTypeNames.toString().hashCode();
+        }
+        return constructorHashCode;
+    }
+
+    public static List<Type> getParameterTypes(Collection<JavaParameter> parameters) {
+        return new ArrayList<Type>(Collections2.transform(parameters, new JavaParameterType()));
+    }
+
+    public static List<Class> getParameterClasses(Collection<JavaParameter> parameters) {
+        return new ArrayList<Class>(Collections2.transform(parameters, new JavaParameterClassFunction()));
+    }
+
+
+    public static List<String> getParameterNames(Collection<JavaParameter> parameters) {
+        return new ArrayList<String>(Collections2.transform(parameters, new JavaParameterName()));
+    }
+
+    /**
+     * Returns method signature.
+     */
+    public static String getMethodSignature(JavaMethod javaMethod) {
+        return ReflectUtil.getMethodSignature(javaMethod.getName(), getParameterClasses(javaMethod.getParameters()).toArray(new Class[]{}));
+    }
+
+    public static Type getSuperTypeIfDefined(JavaType javaType) {
+        if(javaType.getKind() != null && javaType.getKind().equals(JavaKind.INTERFACE))  {
+            return new TypeNameWrapper(javaType.getName());
+        }
+        if(javaType.getSuperType() != null && ! Object.class.equals(javaType.getSuperType())) {
+            return javaType.getSuperType();
+        }
+        return new TypeNameWrapper(javaType.getName());
+    }
+
 }

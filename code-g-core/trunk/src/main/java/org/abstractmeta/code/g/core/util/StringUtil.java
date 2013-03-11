@@ -17,29 +17,20 @@ package org.abstractmeta.code.g.core.util;
 
 import com.google.common.base.CaseFormat;
 
+import java.util.Map;
+
 /**
- *
  * @author Adrian Witas
  */
 public class StringUtil {
 
-
-    public static String getSingular(String pluralFragment) {
-        if (pluralFragment.endsWith("ies")) {
-            return String.format("%sy", pluralFragment.substring(0, pluralFragment.length() - 3));
-        } else if (pluralFragment.endsWith("s")) {
-            return pluralFragment.substring(0, pluralFragment.length() - 1);
-        }
-        return pluralFragment;
+    public static String getSetterName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
-    public static String getPlural(String sigularFragment) {
-        if (sigularFragment.endsWith("y")) {
-            return sigularFragment + "ies";
-        }
-        return sigularFragment + "s";
+    public static String getGetterName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, "get", fieldName, CaseFormat.LOWER_CAMEL);
     }
-
 
     public static String format(CaseFormat resultCaseFormat, String prefix, String fragment, CaseFormat sourceCaseFormat) {
         String upperUnderscoreFragment = sourceCaseFormat.to(CaseFormat.UPPER_UNDERSCORE, fragment);
@@ -77,45 +68,35 @@ public class StringUtil {
     }
 
 
-    public static String substringAfterLastIndexOf(String fragment, String token) {
-        int lastTokenPosition = fragment.lastIndexOf(token);
-        if (lastTokenPosition != -1) {
-            return fragment.substring(lastTokenPosition + 1);
-        }
-        return fragment;
-    }
 
-    public static String substringBeforeLastIndexOf(String fragment, String token) {
-        int lastTokenPosition = fragment.lastIndexOf(token);
-        if (lastTokenPosition != -1) {
-            return fragment.substring(0, lastTokenPosition);
-        }
-        return fragment;
-
-    }
-
-      public static String join(Iterable<String> items, String itemPrefix, String itemSeparator, boolean appendSeparatorAfterLastItem) {
+    public static String join(Iterable<String> items, String itemPrefix, String itemSeparator, boolean appendSeparatorAfterLastItem) {
         StringBuilder result = new StringBuilder();
-        for(String item: items) {
-            if(result.length() > 0) {
+        for (String item : items) {
+            if (result.length() > 0) {
                 result.append(itemSeparator);
             }
             result.append(itemPrefix);
             result.append(item);
         }
-        if(result.length() > 0 && appendSeparatorAfterLastItem) {
+        if (result.length() > 0 && appendSeparatorAfterLastItem) {
             result.append(itemSeparator);
         }
         return result.toString();
     }
 
-    public static String isPresentFieldName(String fieldName) {
-        return   fieldName + "Present";
-    }
-
     public static boolean isNotEmpty(String fragment) {
-        return fragment != null  && ! fragment.isEmpty();
+        return fragment != null && !fragment.isEmpty();
 
     }
+
+
+
+    public static String getPlural(String sigularFragment) {
+        if (sigularFragment.endsWith("y")) {
+            return sigularFragment + "ies";
+        }
+        return sigularFragment + "s";
+    }
+
 
 }

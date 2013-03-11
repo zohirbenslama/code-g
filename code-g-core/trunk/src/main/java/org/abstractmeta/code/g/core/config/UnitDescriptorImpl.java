@@ -18,6 +18,7 @@ package org.abstractmeta.code.g.core.config;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,89 +27,70 @@ import java.util.List;
  * @author Adrian Witas
  */
 public class UnitDescriptorImpl implements UnitDescriptor {
-    
-    private String sourcePackage;
+
+
+    private Collection<String> dependencyPackages;
+    private String targetSourceDirectory;
+    private String targetCompilationDirectory;
     private String sourceDirectory;
-    private String targetDirectory;
     private List<String> classPathEntries;
     private List<Descriptor> descriptors;
     private Descriptor postDescriptor;
-    private ClassLoader classLoader;
 
-    public UnitDescriptorImpl() {
+
+    public Collection<String> getDependencyPackages() {
+        return dependencyPackages;
     }
 
-    public UnitDescriptorImpl(String sourcePackage, String sourceDirectory, String targetDirectory, List<String> classPathEntries, List<Descriptor> descriptors, Descriptor postDescriptor) {
-        this.sourcePackage = sourcePackage;
-        this.sourceDirectory = sourceDirectory;
-        this.targetDirectory = targetDirectory;
-        this.classPathEntries = classPathEntries;
-        this.descriptors = descriptors;
-        this.postDescriptor = postDescriptor;
+    public void setDependencyPackages(Collection<String> dependencyPackages) {
+        this.dependencyPackages = dependencyPackages;
     }
 
-    public void setSourcePackage(String sourcePackage) {
-        this.sourcePackage = sourcePackage;
+    public String getTargetSourceDirectory() {
+        return targetSourceDirectory;
     }
 
-    public void setSourceDirectory(String sourceDirectory) {
-        this.sourceDirectory = sourceDirectory;
+    public void setTargetSourceDirectory(String targetSourceDirectory) {
+        this.targetSourceDirectory = targetSourceDirectory;
     }
 
-    public void setTargetDirectory(String targetDirectory) {
-        this.targetDirectory = targetDirectory;
+    public String getTargetCompilationDirectory() {
+        return targetCompilationDirectory;
     }
 
-    public void setClassPathEntries(List<String> classPathEntries) {
-        this.classPathEntries = classPathEntries;
-    }
-
-    public void setDescriptors(List<Descriptor> descriptors) {
-        this.descriptors = descriptors;
-    }
-
-    public String getSourcePackage() {
-        return sourcePackage;
+    public void setTargetCompilationDirectory(String targetCompilationDirectory) {
+        this.targetCompilationDirectory = targetCompilationDirectory;
     }
 
     public String getSourceDirectory() {
         return sourceDirectory;
     }
 
-    public String getTargetDirectory() {
-        return targetDirectory;
+    public void setSourceDirectory(String sourceDirectory) {
+        this.sourceDirectory = sourceDirectory;
     }
 
     public List<String> getClassPathEntries() {
         return classPathEntries;
     }
 
-    public List<? extends Descriptor> getDescriptors() {
+    public void setClassPathEntries(List<String> classPathEntries) {
+        this.classPathEntries = classPathEntries;
+    }
+
+    public List<Descriptor> getDescriptors() {
         return descriptors;
     }
 
-    @Override
+    public void setDescriptors(List<Descriptor> descriptors) {
+        this.descriptors = descriptors;
+    }
+
     public Descriptor getPostDescriptor() {
         return postDescriptor;
     }
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    @Override
-    public String toString() {
-        return "UnitDescriptorImpl{" +
-                "sourcePackage='" + sourcePackage + '\'' +
-                ", sourceDirectory='" + sourceDirectory + '\'' +
-                ", targetDirectory='" + targetDirectory + '\'' +
-                ", classPathEntries=" + classPathEntries +
-                ", descriptors=" + descriptors +
-                ", postDescriptor=" + postDescriptor +
-                '}';
+    public void setPostDescriptor(Descriptor postDescriptor) {
+        this.postDescriptor = postDescriptor;
     }
 }

@@ -15,21 +15,27 @@
  */
 package org.abstractmeta.code.g.core.util;
 
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
+import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
+import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
 /**
- *
  * @author Adrian Witas
  */
 public class ReflectUtil {
 
 
+    /**
+     * Returns raw type for a given type, Object.class if type is has no raw class
+     *
+     * @param type raw class type
+     * @return raw class
+     */
     public static Class getRawClass(Type type) {
         if (type instanceof Class) {
             return Class.class.cast(type);
@@ -44,10 +50,22 @@ public class ReflectUtil {
             }
         } else if (type instanceof TypeVariable) {
             return Object.class;
+        } else if (type instanceof TypeNameWrapper) {
+            try {
+                return loadClass(((TypeNameWrapper) type).getTypeName(), null);
+            } catch (ClassNotFoundException e) {
+                return Object.class;
+            }
         }
         return Object.class;
     }
 
+    /**
+     * Return object non primitive type for a supplied type i.e. for int.class it returns Integer.class.
+     *
+     * @param type type
+     * @return non primitive type.
+     */
     public static Type getObjectType(Type type) {
         Class rawResultType = ReflectUtil.getRawClass(type);
         if (rawResultType.isPrimitive()) {
@@ -56,7 +74,12 @@ public class ReflectUtil {
         return type;
     }
 
-
+    /**
+     * Returns generic actual type argument for a given type
+     *
+     * @param type source type
+     * @return generic actual argument types
+     */
     public static Type[] getGenericActualTypeArguments(Type type) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
@@ -88,6 +111,12 @@ public class ReflectUtil {
     }
 
 
+    /**
+     * Return set of type variables for a given type
+     *
+     * @param type source type
+     * @return variable types.
+     */
     public static Set<Type> getTypeVariables(Type type) {
         HashSet<Type> result = new HashSet<Type>();
         if (type instanceof ParameterizedType) {
@@ -124,70 +153,76 @@ public class ReflectUtil {
         return result;
     }
 
-    public static String extractFieldNameFromMethodName(String methodName) {
-        int methodNameLength = methodName.length();
-        if ((methodName.startsWith("set") || methodName.startsWith("get")) && methodNameLength > 3) {
-            String upperCaseMethodName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
-            String fieldName = upperCaseMethodName.substring(4, upperCaseMethodName.length());
-            return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, fieldName);
-        } else if (methodName.startsWith("is") && methodNameLength > 2) {
-            String upperCaseMethodName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
-            String fieldName = upperCaseMethodName.substring(3, upperCaseMethodName.length());
-            return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, fieldName);
-        }
-        return null;
-    }
 
+    /**
+     * Returns all methods declared by a given type of interface.
+     *
+     * @param type class type
+     * @return list of methods
+     */
     public static List<Method> getMethods(Class type) {
         List<Method> result = new ArrayList<Method>();
-        Set<String> uniqueMethodSignatures = new HashSet<String>();
-        updateMethods(type, result, uniqueMethodSignatures);
+        Set<String> methodSignatures = new HashSet<String>();
+        getMethods(type, result, methodSignatures);
         return result;
     }
 
-    protected static boolean isMethodUnique(Method method, Set<String> uniqueMethodSignatures) {
-        String methodSignature = method.getName() + Joiner.on(",").join(getClassNames(method.getParameterTypes()));
-        if (uniqueMethodSignatures.contains(methodSignature)) {
-            return false;
-        }
-        uniqueMethodSignatures.add(methodSignature);
-        return true;
+    /**
+     * Returns a given method signature.
+     *
+     * @param method java methods
+     * @return method signature
+     */
+    public static String getMethodSignature(Method method) {
+        return getMethodSignature(method.getName(), method.getParameterTypes());
     }
 
-    protected static void updateMethods(Class type, List<Method> result, Set<String> uniqueMethodSignatures) {
+
+    /**
+     * Returns method signature.
+     */
+    public static String getMethodSignature(String methodName, Class ... parameterTypes) {
+        return methodName + ":" + Joiner.on(",").join(getClassNames(parameterTypes));
+    }
+
+
+
+    protected static void getMethods(Class type, List<Method> result, Set<String> methodSignatures) {
         Method[] methods = type.getDeclaredMethods();
         for (Method method : methods) {
-            if (isMethodUnique(method, uniqueMethodSignatures)) {
+            String signature = getMethodSignature(method);
+            if (!methodSignatures.contains(signature)) {
                 result.add(method);
+                methodSignatures.add(signature);
             }
         }
         if (type.getSuperclass() != null && type.getSuperclass() != Class.class && type.getSuperclass() != Object.class) {
-            updateMethods(type.getSuperclass(), result, uniqueMethodSignatures);
+            getMethods(type.getSuperclass(), result, methodSignatures);
         }
         if (type.getInterfaces() != null) {
             for (Class iFace : type.getInterfaces()) {
-                updateMethods(iFace, result, uniqueMethodSignatures);
+                getMethods(iFace, result, methodSignatures);
             }
         }
     }
 
     public static List<Field> getFields(Class type) {
         List<Field> result = new ArrayList<Field>();
-        updateFields(type, result);
+        getFields(type, result);
         return result;
     }
 
-    private static void updateFields(Class type, List<Field> result) {
+    private static void getFields(Class type, List<Field> result) {
         Field[] fields = type.getDeclaredFields();
         for (Field field : fields) {
             result.add(field);
         }
         if (type.getSuperclass() != null && type.getSuperclass() != Class.class && type.getSuperclass() != Object.class) {
-            updateFields(type.getSuperclass(), result);
+            getFields(type.getSuperclass(), result);
         }
     }
 
-    public static Map<String, Object> indexAnnotation(Annotation annotation) {
+    public static Map<String, Object> annotationToMap(Annotation annotation) {
         Class type = annotation.annotationType();
         Map<String, Object> result = new HashMap<String, Object>();
         for (Method method : type.getMethods()) {
@@ -268,23 +303,23 @@ public class ReflectUtil {
         return null;
     }
 
-    public static Class getGenericArgument(Type type, int argumentIndex, Class defaultType) {
-        if (type instanceof ParameterizedType) {
-            Type[] types = ParameterizedType.class.cast(type).getActualTypeArguments();
-            if (argumentIndex < types.length) {
-                return ReflectUtil.getRawClass(types[argumentIndex]);
-            }
-        }
-        return defaultType;
-    }
-
-
-    public static Class getGenericArgument(Type[] types, int argumentIndex, Class defaultType) {
-        if (argumentIndex < types.length) {
-            return ReflectUtil.getRawClass(types[argumentIndex]);
-        }
-        return defaultType;
-    }
+//    public static Class getGenericArgument(Type type, int argumentIndex, Class defaultType) {
+//        if (type instanceof ParameterizedType) {
+//            Type[] types = ParameterizedType.class.cast(type).getActualTypeArguments();
+//            if (argumentIndex < types.length) {
+//                return ReflectUtil.getRawClass(types[argumentIndex]);
+//            }
+//        }
+//        return defaultType;
+//    }
+//
+//
+//    public static Class getGenericArgument(Type[] types, int argumentIndex, Class defaultType) {
+//        if (argumentIndex < types.length) {
+//            return ReflectUtil.getRawClass(types[argumentIndex]);
+//        }
+//        return defaultType;
+//    }
 
     public static Collection<String> getClassNames(Class... classes) {
         List<String> result = new ArrayList<String>();
@@ -292,30 +327,6 @@ public class ReflectUtil {
             result.add(clazz.getName());
         }
         return result;
-    }
-
-
-    public static <T> T loadInstance(Class<T> type, String className, ClassLoader classLoader) {
-        Class clazz = null;
-        try {
-            clazz = loadClass(className, classLoader);
-            return type.cast(clazz.newInstance());
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Failed to cast " + clazz + " " + type.getName());
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to loadColumnFieldMap class " + className, e);
-        }
-    }
-
-    public static Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
-        if (classLoader == null) {
-            classLoader = ReflectUtil.class.getClassLoader();
-        }
-        return classLoader.loadClass(className);
-    }
-
-    public static <T> T loadInstance(Class<T> type, String className) {
-        return loadInstance(type, className, type.getClassLoader());
     }
 
 
@@ -337,6 +348,121 @@ public class ReflectUtil {
         }
         Class rawClass = getRawClass(type);
         return rawClass.isArray();
+    }
+
+
+    public static <T> T newInstance(Class<T> type, String className, ClassLoader classLoader) {
+        Class clazz = null;
+        if(type.isInterface()) {
+            throw new IllegalStateException("Can not instantiate interface " + type);
+        }
+        try {
+            clazz = loadClass(className, classLoader);
+            return type.cast(clazz.newInstance());
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Failed to cast " + clazz + " " + type.getName());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to create a new instance of class " + className, e);
+        }
+    }
+
+    public static <T> T newInstance(Class<T> type, String className) {
+        return newInstance(type, className, type.getClassLoader());
+    }
+
+    public static <T> T newInstance(Class<T> type) {
+        return newInstance(type, type.getName());
+    }
+
+
+    public static Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+        if (classLoader == null) {
+            classLoader = ReflectUtil.class.getClassLoader();
+        }
+        return classLoader.loadClass(className);
+    }
+
+
+
+    public static Object invokeMethod(Object instance, String methodName, Class[] argumentTypes, Object... arguments) {
+        try {
+            Method method = instance.getClass().getMethod(methodName, argumentTypes);
+            return method.invoke(instance, arguments);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to invoke method " + methodName, e);
+        }
+
+    }
+
+    public static void setFieldValue(Object instance, String fieldName, Object value) {
+        try {
+            Field field = instance.getClass().getDeclaredField(fieldName);
+            setFieldValue(instance, field, value);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("Failed to lookup field " + instance.getClass().getName() + "." + fieldName, e);
+        }
+    }
+
+    public static void setFieldValue(Object instance, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to set field " + instance.getClass().getName() + "." + field.getName(), e);
+        }
+
+    }
+
+    public static <T> T getFieldValue(Class<T> fieldType, Object instance, String fieldName) {
+        try {
+            Field field = instance.getClass().getDeclaredField(fieldName);
+            return getFieldValue(fieldType, instance, field);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("Failed to lookup field " + instance.getClass().getName() + "." + fieldName, e);
+        }
+    }
+
+
+    public static <T> T getFieldValue(Class<T> fieldType, Object instance, Field field) {
+        try {
+            if(! field.isAccessible()) field.setAccessible(true);
+            Object result = field.get(instance);
+            if (result == null) return null;
+            return fieldType.cast(result);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read value from field " + instance.getClass().getName() + "." + field.getName(), e);
+        }
+
+    }
+
+    public static Class compileSource(String className, String sourceCode) {
+        JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
+        JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
+        compilationUnit.addJavaSource(className, sourceCode);
+        ClassLoader classLoader = javaSourceCompiler.compile(compilationUnit);
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Failed to load class " + className, e);
+        }
+    }
+
+    public static <T> T getInstance(Class<T> owner) {
+        try {
+            return (T) owner.newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to instantiate " + owner, e);
+        }
+    }
+
+
+    public static <T> T getInstance(Class<T> owner, Class[] argumentTypes, Object[] arguments) {
+        try {
+            Constructor<T> constructor = owner.getConstructor(argumentTypes);
+            return owner.cast(constructor.newInstance(arguments));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to instantiate " + owner, e);
+        }
     }
 
 }

@@ -17,6 +17,9 @@ package org.abstractmeta.code.g.core.code;
 
 
 import org.abstractmeta.code.g.code.JavaConstructor;
+import org.abstractmeta.code.g.code.JavaModifier;
+import org.abstractmeta.code.g.code.JavaParameter;
+import org.abstractmeta.code.g.code.JavaType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -30,17 +33,14 @@ import java.util.List;
 public class JavaConstructorImpl implements JavaConstructor {
 
 
-    private final List<String> parameterModifiers;
 
-    private final List<Type> parameterTypes;
-
-    private final List<String> parameterNames;
+    private final List<JavaParameter> parameters;
 
     private final List<Type> exceptionTypes;
 
     private final List<String> body;
 
-    private final List<String> modifiers;
+    private final List<JavaModifier> modifiers;
 
     private final String name;
 
@@ -48,10 +48,8 @@ public class JavaConstructorImpl implements JavaConstructor {
 
     private final List<String> documentation;
 
-    public JavaConstructorImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<Type> exceptionTypes, List<String> body, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
-        this.parameterModifiers = parameterModifiers;
-        this.parameterTypes = parameterTypes;
-        this.parameterNames = parameterNames;
+    public JavaConstructorImpl(List<JavaParameter> parameters, List<Type> exceptionTypes, List<String> body, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+        this.parameters = parameters;
         this.exceptionTypes = exceptionTypes;
         this.body = body;
         this.modifiers = modifiers;
@@ -60,13 +58,11 @@ public class JavaConstructorImpl implements JavaConstructor {
         this.documentation = documentation;
     }
 
-    public List<Type> getParameterTypes() {
-        return this.parameterTypes;
-    }
+
 
     @Override
-    public List<String> getParameterNames() {
-        return this.parameterNames;
+    public List<JavaParameter> getParameters() {
+        return this.parameters;
     }
 
     @Override
@@ -78,13 +74,8 @@ public class JavaConstructorImpl implements JavaConstructor {
         return this.body;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
-    }
-
-    @Override
-    public List<String> getParameterModifiers() {
-        return parameterModifiers;
     }
 
     public String getName() {

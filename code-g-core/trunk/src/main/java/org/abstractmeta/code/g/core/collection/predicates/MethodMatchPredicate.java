@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.core.collection.predicates;
 
 
 import org.abstractmeta.code.g.code.JavaMethod;
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.expression.MethodPattern;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -52,7 +53,7 @@ public class MethodMatchPredicate implements Predicate<JavaMethod> {
     }
 
     protected boolean matchesParameterTypes(JavaMethod candidate) {
-        if(pattern.getBaseParameterTypes().size() != candidate.getParameterTypes().size())  {
+        if(pattern.getBaseParameterTypes().size() != candidate.getParameters().size())  {
             if(pattern.getBaseParameterTypes().size() == 1 && Object[].class.equals(pattern.getBaseParameterTypes().get(0))) {
                 return true;
             }
@@ -60,7 +61,7 @@ public class MethodMatchPredicate implements Predicate<JavaMethod> {
         }
         for (int i = 0; i < pattern.getBaseParameterTypes().size(); i++) {
             Predicate<Type> argumentPredicate = new TypeMatchPredicate(pattern.getBaseParameterTypes().get(i));
-            if (!argumentPredicate.apply(candidate.getParameterTypes().get(i))) {
+            if (!argumentPredicate.apply(candidate.getParameters().get(i).getType())) {
                 return false;
             }
         }
@@ -70,7 +71,7 @@ public class MethodMatchPredicate implements Predicate<JavaMethod> {
 
     protected boolean matchesModifiers(JavaMethod candidate) {
         if (pattern.getModifiers().size() > 0) {
-            for (String modifier : pattern.getModifiers()) {
+            for (JavaModifier modifier : pattern.getModifiers()) {
                 if (!candidate.getModifiers().contains(modifier)) {
                     return false;
                 }

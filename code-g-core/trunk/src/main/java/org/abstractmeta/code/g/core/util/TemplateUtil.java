@@ -45,7 +45,6 @@ public class TemplateUtil {
             if (c == '\\' && i + 1 < chars.length && chars[i + 1] == expressionStartChar) {
                 continue;
             }
-
             if (!expressionParsing && ((i == 0 || (i > 0 && chars[i - 1] != '\\')) && c == expressionStartChar)) {
                 expressionParsing = true;
 

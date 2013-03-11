@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.core.code.builder;
 
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.core.code.JavaFieldImpl;
 
 
@@ -39,7 +40,7 @@ public class JavaFieldBuilder implements JavaField {
 
     private String initBody;
 
-    private List<String> modifiers = new ArrayList<String>();
+    private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
 
     private String name;
 
@@ -72,26 +73,26 @@ public class JavaFieldBuilder implements JavaField {
         return this;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 
-    public JavaFieldBuilder setModifiers(List<String> modifiers) {
+    public JavaFieldBuilder setModifiers(List<JavaModifier> modifiers) {
         this.modifiers = modifiers;
         return this;
     }
 
-    public JavaFieldBuilder addModifier(String modifier) {
+    public JavaFieldBuilder addModifier(JavaModifier modifier) {
         this.modifiers.add(modifier);
         return this;
     }
 
-    public JavaFieldBuilder addModifiers(Collection<String> modifiers) {
+    public JavaFieldBuilder addModifiers(Collection<JavaModifier> modifiers) {
         this.modifiers.addAll(modifiers);
         return this;
     }
 
-    public JavaFieldBuilder addModifiers(String ... modifiers) {
+    public JavaFieldBuilder addModifiers(JavaModifier ... modifiers) {
         Collections.addAll(this.modifiers, modifiers);
         return this;
     }

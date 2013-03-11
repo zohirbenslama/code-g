@@ -15,6 +15,7 @@
  */
 package org.abstractmeta.code.g.core.expression;
 
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.expression.AbstractionPattern;
 import org.abstractmeta.code.g.expression.MethodPattern;
@@ -43,13 +44,13 @@ public class MethodPatternImpl implements MethodPattern {
 
     private final List<String> operationNames;
     private final List<Class> baseParameterTypes;
-    private final List<String> modifiers;
+    private final List<JavaModifier> modifiers;
     private final Class baseResultType;
     private final boolean singularNameMatching;
     private final Map<Integer, AbstractionPattern> parametersAbstractionPattern;
     private final AbstractionMatch resultAbstractionPattern;
 
-    public MethodPatternImpl(List<String> operationNames, List<Class> baseParameterTypes, List<String> modifiers, Class baseResultType, boolean singularNameMatching, Map<Integer, AbstractionPattern> parametersAbstractionPattern, AbstractionMatch resultAbstractionPattern) {
+    public MethodPatternImpl(List<String> operationNames, List<Class> baseParameterTypes, List<JavaModifier> modifiers, Class baseResultType, boolean singularNameMatching, Map<Integer, AbstractionPattern> parametersAbstractionPattern, AbstractionMatch resultAbstractionPattern) {
         this.operationNames = operationNames;
         this.baseParameterTypes = baseParameterTypes;
         this.modifiers = modifiers;
@@ -67,7 +68,7 @@ public class MethodPatternImpl implements MethodPattern {
         return baseParameterTypes;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return modifiers;
     }
 

@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.code;
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.code.JavaModifier;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -33,7 +34,7 @@ public class JavaFieldImpl implements JavaField {
 
     private final String initBody;
 
-    private final List<String> modifiers;
+    private final List<JavaModifier> modifiers;
 
     private final String name;
 
@@ -43,7 +44,7 @@ public class JavaFieldImpl implements JavaField {
     
     private final boolean immutable;
 
-    public JavaFieldImpl(Type type, String initBody, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation, boolean immutable) {
+    public JavaFieldImpl(Type type, String initBody, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation, boolean immutable) {
         this.type = type;
         this.initBody = initBody;
         this.modifiers = modifiers;
@@ -66,7 +67,7 @@ public class JavaFieldImpl implements JavaField {
         return this.initBody;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 

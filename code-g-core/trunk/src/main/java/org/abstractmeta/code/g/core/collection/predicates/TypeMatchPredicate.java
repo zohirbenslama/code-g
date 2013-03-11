@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 
 
 /**
- * Type match predicate.
+ * InvocationType match predicate.
  * MethodPattern defines superType of the type to be match with method candidate
  * to be eligible.
  * Object.class is used to match ayn type including primitives.

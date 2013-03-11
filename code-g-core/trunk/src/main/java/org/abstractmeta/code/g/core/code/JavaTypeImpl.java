@@ -15,11 +15,8 @@
  */
 package org.abstractmeta.code.g.core.code;
 
-import org.abstractmeta.code.g.code.JavaConstructor;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaMethod;
+import org.abstractmeta.code.g.code.*;
 import com.google.common.base.Preconditions;
-import org.abstractmeta.code.g.code.JavaType;
 
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
@@ -45,15 +42,15 @@ public class JavaTypeImpl implements JavaType {
 
     private final String packageName;
 
-    private final String kind;
+    private final JavaKind kind;
 
     private final List<String> body;
 
     private final Type superType;
 
-    private final List<JavaType> classTypes;
+    private final List<JavaType> nestedJavaTypes;
 
-    private final List<String> modifiers;
+    private final List<JavaModifier> modifiers;
 
     private final String name;
     
@@ -70,7 +67,7 @@ public class JavaTypeImpl implements JavaType {
     private final Map<String, Type> genericTypeVariables;
 
     
-    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull String kind, List<String> body, Type superType, List<JavaType> classTypes, List<String> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments, Map<String, Type> genericTypeVariables) {
+    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull JavaKind kind, List<String> body, Type superType, List<JavaType> nestedJavaTypes, List<JavaModifier> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments, Map<String, Type> genericTypeVariables) {
         this.fields = fields;
         this.methods = methods;
         this.constructors = constructors;
@@ -80,7 +77,7 @@ public class JavaTypeImpl implements JavaType {
         this.kind = kind;
         this.body = body;
         this.superType = superType;
-        this.classTypes = classTypes;
+        this.nestedJavaTypes = nestedJavaTypes;
         this.modifiers = modifiers;
         this.genericTypeArguments = genericTypeArguments;
         this.genericTypeVariables = genericTypeVariables;
@@ -118,11 +115,11 @@ public class JavaTypeImpl implements JavaType {
         return importTypes;
     }
 
-    public String getKind() {
+    public JavaKind getKind() {
         return this.kind;
     }
 
-    public List<String> getBody() {
+    public List<String> getBodyLines() {
         return this.body;
     }
 
@@ -132,10 +129,10 @@ public class JavaTypeImpl implements JavaType {
     }
 
     public List<JavaType> getNestedJavaTypes() {
-        return this.classTypes;
+        return this.nestedJavaTypes;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 

@@ -74,6 +74,9 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
             if (dollarPosition != -1) {
                 typeName = typeName.substring(0, dollarPosition);
             }
+            if (typeName.contains("<")) {
+                typeName = typeName.substring(0, typeName.indexOf('<'));
+            }
             result.add(typeName);
 
         }
@@ -122,6 +125,42 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
     }
 
     @Override
+    public String getTypeName(Type type) {
+        if (type instanceof Class) {
+            Class clazz = Class.class.cast(type);
+            if (clazz.isPrimitive()) {
+                return clazz.getName();
+            } else if (clazz.isArray()) {
+                return String.format("%s []", getTypeName(clazz.getComponentType()));
+            }
+            return clazz.getName();
+
+        } else if (type instanceof TypeNameWrapper) {
+            TypeNameWrapper typeNameWrapper = TypeNameWrapper.class.cast(type);
+            String className = typeNameWrapper.getTypeName();
+            return getSimpleTypeNameWithGenericArgumentTypes(className, typeNameWrapper.getGenericArgumentTypes());
+
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
+            String argumentTypeName = getGenericArgumentTypeName(type);
+            return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
+        } else if (type instanceof GenericArrayType) {
+            return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
+        } else if (type instanceof TypeVariable) {
+            String typeVariableName = TypeVariable.class.cast(type).getName();
+            if (genericTypeVariables.containsKey(typeVariableName)) {
+                Type result = genericTypeVariables.get(typeVariableName);
+                return getTypeName(result);
+            }
+            return typeVariableName;
+        } else if (type instanceof WildcardType) {
+            return WildcardType.class.cast(type).toString();
+        } else {
+            throw new IllegalStateException(String.format("Unsupported type: %s", type + " " + type.getClass()));
+        }
+    }
+
+    @Override
     public String getTypeName(Type type, Collection<Type> genericArgumentTypes) {
         String simpleTypeName = getSimpleTypeName(type);
         return getSimpleTypeNameWithGenericArgumentTypes(simpleTypeName, genericArgumentTypes);
@@ -134,7 +173,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
     protected String getSimpleTypeNameWithGenericArgumentTypes(String simpleTypeName, Collection<Type> genericArgumentTypes) {
         if (genericArgumentTypes != null && !genericArgumentTypes.isEmpty()) {
-            return simpleTypeName + "<" + getGenericArgumentTypeName(genericArgumentTypes)+ ">";
+            return simpleTypeName + "<" + getGenericArgumentTypeName(genericArgumentTypes) + ">";
         }
         return simpleTypeName;
     }
@@ -177,17 +216,17 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
                 result = typeVariableName;
             }
         } else if (type instanceof WildcardType) {
-            result =  WildcardType.class.cast(type).toString();
-        } else if(type instanceof TypeNameWrapper) {
+            result = WildcardType.class.cast(type).toString();
+        } else if (type instanceof TypeNameWrapper) {
             Collection<Type> actualTypeArguments = TypeNameWrapper.class.cast(type).getGenericArgumentTypes();
-            if(actualTypeArguments != null) {
-                result =  getGenericArgumentTypeName(actualTypeArguments);
+            if (actualTypeArguments != null) {
+                result = getGenericArgumentTypeName(actualTypeArguments);
             }
         }
-        if(result.isEmpty()) return "";
+        if (result.isEmpty()) return "";
         return "<" + result + ">";
     }
-    
+
     protected String getGenericArgumentTypeName(Collection<Type> arguments) {
         StringBuilder argumentBuilder = new StringBuilder();
         for (Type argument : arguments) {
@@ -207,7 +246,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         String name = annotationName.substring(index + 1, annotationName.length());
 
         name = name.replace("$", ".");
-        Map<String, Object> values = ReflectUtil.indexAnnotation(annotation);
+        Map<String, Object> values = ReflectUtil.annotationToMap(annotation);
         StringBuilder valueBuilder = new StringBuilder();
         for (String key : values.keySet()) {
             Object value = values.get(key);

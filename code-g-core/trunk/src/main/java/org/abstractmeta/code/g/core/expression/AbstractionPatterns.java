@@ -15,12 +15,13 @@
  */
 package org.abstractmeta.code.g.core.expression;
 
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.core.expression.builder.AbstractionPatternBuilder;
 import org.abstractmeta.code.g.core.expression.builder.MethodPatternBuilder;
 import org.abstractmeta.code.g.expression.AbstractionPattern;
 
 /**
- * Command method group patterns.
+ * FieldCommand method group patterns.
  *
  * @author Adrian Witas
  */
@@ -28,17 +29,18 @@ public class AbstractionPatterns {
 
     public static final AbstractionPattern ACCESSOR_MUTATOR_PATTERN = new AbstractionPatternBuilder()
             .add(new MethodPatternBuilder()
+               .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("get", "is")
-                    .addModifiers("abstract")
                     .setBaseResultType(Object.class).build())
+
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("set")
-                    .addModifiers("abstract")
                     .setBaseResultType(void.class)
                     .addBaseParameterTypes(Object.class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("add")
-                     .addModifiers("abstract")
                     .setSingularNameMatching(true)
                     .setBaseResultType(void.class)
                     .addBaseParameterTypes(Object.class).build()).build();
@@ -46,34 +48,42 @@ public class AbstractionPatterns {
 
     public static final AbstractionPattern REGISTRY_PATTERN = new AbstractionPatternBuilder()
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("register")
                     .setBaseResultType(Object.class)
                     .addBaseParameterTypes(Object[].class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("unregister")
                     .setBaseResultType(Object.class)
                     .addBaseParameterTypes(Object[].class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("isRegistered")
                     .setBaseResultType(boolean.class)
                     .addBaseParameterTypes(Object[].class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("is<groupName>Registered")
                     .setBaseResultType(boolean.class)
                     .addBaseParameterTypes(Object[].class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("get")
                     .setBaseResultType(Object.class)
                     .addBaseParameterTypes(Object[].class).build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("getAll")
                     .setBaseResultType(Iterable.class)
                     .addBaseParameterTypes().build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("unregisterAll")
                     .setBaseResultType(Object.class)
                     .build())
             .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
                     .addOperationNames("registerAll")
                     .setBaseResultType(Object.class)
                     .addBaseParameterTypes(Iterable.class).build())

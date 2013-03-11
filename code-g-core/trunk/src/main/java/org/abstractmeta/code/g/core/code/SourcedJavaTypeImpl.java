@@ -27,12 +27,10 @@ public class SourcedJavaTypeImpl implements SourcedJavaType {
 
     private final JavaType type;
     private final CharSequence sourceCode;
-    private final File file;
 
-    public SourcedJavaTypeImpl(JavaType type, CharSequence sourceCode, File file) {
+    public SourcedJavaTypeImpl(JavaType type, CharSequence sourceCode) {
         this.type = type;
         this.sourceCode = sourceCode;
-        this.file = file;
     }
 
     public JavaType getType() {
@@ -43,9 +41,6 @@ public class SourcedJavaTypeImpl implements SourcedJavaType {
         return sourceCode;
     }
 
-    public File getFile() {
-        return file;
-    }
 }
 
         

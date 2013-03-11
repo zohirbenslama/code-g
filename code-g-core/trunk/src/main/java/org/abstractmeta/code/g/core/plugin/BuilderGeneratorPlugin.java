@@ -15,24 +15,8 @@
  */
 package org.abstractmeta.code.g.core.plugin;
 
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.core.builder.BuilderClassBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.util.DescriptorUtil;
-import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
-import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
- * <p><b>Builder Generator Plugin</b></p>
+ * <p><b>Builder CodeUnitGenerator Plugin</b></p>
  * <h2>Overview</h2>
  * <p>This plugin generates code implementation for the builder. The generation process can be break down to</p>
  * <ul>
@@ -49,7 +33,7 @@ import java.util.Map;
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderCollectionFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderMapFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderArrayFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.code.handler.field.GetterFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.IsFieldPresentHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderTypeHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderMergeHandler}</li>
@@ -65,51 +49,65 @@ import java.util.Map;
  *
  * @author Adrian Witas
  */
-public class BuilderGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
-
-    public static final String ADD_PRESENT_METHOD = "addPresentMethod";
-
-    @Override
-    protected boolean isApplicable(JavaType sourceType) {
-        List<JavaField> fields = sourceType.getFields();
-        return !((sourceType.getModifiers().contains("abstract")
-                || "enum".equals(sourceType.getKind())
-                || fields.size() == 0)
-                || (fields.size() == 1 && fields.get(0).getName().equals("registry")));
-    }
-
-    @Override
-    protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
-        BuilderClassBuilder builderClassBuilder = new BuilderClassBuilder(sourceType,  descriptor);
-        builderClassBuilder.setSourceType(sourceType);
-        builderClassBuilder.addModifier("public").setTypeName(targetTypeName);
-        builderClassBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());
-        for (JavaField field : sourceType.getFields()) {
-            JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
-            fieldBuilder.addModifier("private");
-            fieldBuilder.setType(field.getType());
-            fieldBuilder.setName(field.getName());
-            builderClassBuilder.addField(fieldBuilder.build());
-            if (DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
-                JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
-                trackerFieldBuilder.addModifier("private").addModifier("transient");
-                trackerFieldBuilder.setType(boolean.class);
-                trackerFieldBuilder.setName(StringUtil.isPresentFieldName(field.getName()));
-                builderClassBuilder.addField(trackerFieldBuilder.build());
-            }
-        }
-        return builderClassBuilder;
-    }
-
-
-    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
-        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
-        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
-        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
-        return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
-    }
-
-
-
-
+public class BuilderGeneratorPlugin  {
+//
+//
+//    private static final Map<String, Descriptor> TEMPLATES = MapMaker.makeImmutable(Descriptor.class,
+//            BuilderGeneratorPlugin.class.getName(),
+//            new DescriptorBuilder().setTargetPackagePostfix("builder")
+//                    .setTargetPostfix("Builder")
+//                    .build()
+//    );
+//
+//    public static final String ADD_PRESENT_METHOD = "addPresentMethod";
+//
+//    @Override
+//    protected boolean isApplicable(JavaType sourceType) {
+//        List<JavaField> fields = sourceType.getFields();
+//        return !((sourceType.getModifiers().contains(JavaModifier.ABSTRACT)
+//                || JavaKind.ENUM.equals(sourceType.getKind())
+//                || fields.size() == 0)
+//                || (fields.size() == 1 && fields.get(0).getName().equals("registry")));
+//    }
+//
+//    @Override
+//    protected JavaTypeBuilder generate(JavaType sourceType, JavaTypeRegistry typeRegistry, String targetTypeName, Descriptor descriptor) {
+//        JavaTypeBuilder javaTypeBuilder = new JavaTypeBuilderImpl(JavaKind.CLASS, targetTypeName, sourceType, descriptor, typeRegistry);
+//        addBuilderHandlers(javaTypeBuilder);
+//        javaTypeBuilder.addModifiers(JavaModifier.PUBLIC);
+//        javaTypeBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());
+//        for (JavaField field : sourceType.getFields()) {
+//            JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
+//            fieldBuilder.addModifier(JavaModifier.PRIVATE);
+//            fieldBuilder.setType(field.getType());
+//            fieldBuilder.setName(field.getName());
+//            javaTypeBuilder.addField(fieldBuilder.build());
+//
+//            if (DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
+//                JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
+//                trackerFieldBuilder.addModifiers(JavaModifier.PRIVATE, JavaModifier.TRANSIENT);
+//                trackerFieldBuilder.setType(boolean.class);
+//                trackerFieldBuilder.setName(StringUtil.isPresentFieldName(field.getName()));
+//                javaTypeBuilder.addField(trackerFieldBuilder.build());
+//            }
+//        }
+//        return javaTypeBuilder;
+//    }
+//
+//    protected void addBuilderHandlers(JavaTypeBuilder javaTypeBuilder) {
+//
+//    }
+//
+//    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
+//        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
+//        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+//        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
+//        return getTargetTypeName(buildResultSimpleClassName, sourceType.getPackageName(),  descriptor, registry);
+//    }
+//
+//
+//    @Override
+//    public Map<String, Descriptor> getTemplates() {
+//        return TEMPLATES;
+//    }
 }

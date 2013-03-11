@@ -17,11 +17,13 @@ package org.abstractmeta.code.g.core.extractor;
 
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
 import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
@@ -77,16 +79,18 @@ public class RegistryFieldExtractor implements FieldExtractor {
             MethodMatch getMethodMatch = match.getMatch("get", Object[].class);
             MethodMatch registerMatch = match.getMatch("register", Object[].class);
             Type registryType;
-            if(registerMatch.getMethod().getParameterNames().size() > 1) {
-                registryType = buildRegistryBackingGenericMap(registerMatch.getMethod().getParameterTypes());
+            List<Type> registeredMethodParameterTypes = JavaTypeUtil.getParameterTypes(registerMatch.getMethod().getParameters());
+            if (registerMatch.getMethod().getParameters().size() > 1) {
+                registryType = buildRegistryBackingGenericMap(registeredMethodParameterTypes);
             } else {
-                Type keyType = getMethodMatch.getMethod().getParameterTypes().get(0);
-                Type valueType = registerMatch.getMethod().getParameterTypes().get(0);
-                registryType  = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType));
+                List<Type> getMethodParameterTypes = JavaTypeUtil.getParameterTypes(getMethodMatch.getMethod().getParameters());
+                Type keyType = getMethodParameterTypes.get(0);
+                Type valueType = registeredMethodParameterTypes.get(0);
+                registryType = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType));
             }
             String name = match.getName();
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
-            fieldBuilder.addModifier("private").setImmutable(true);
+            fieldBuilder.addModifier(JavaModifier.PRIVATE).setImmutable(true);
             fieldBuilder.setType(registryType);
             if (name.isEmpty()) {
                 fieldBuilder.setName("registry");
@@ -100,23 +104,22 @@ public class RegistryFieldExtractor implements FieldExtractor {
     }
 
     protected static Type buildRegistryBackingGenericMap(Collection<Type> types) {
-         return buildRegistryBackingGenericMap(types.toArray(new Type[]{}));
+        return buildRegistryBackingGenericMap(types.toArray(new Type[]{}));
     }
 
     protected static Type buildRegistryBackingGenericMap(Type[] types) {
         Type result = Map.class;
         for (int i = types.length - 2; i >= 0; i--) {
-           if(i == types.length - 2) {
+            if (i == types.length - 2) {
                 result = new ParameterizedTypeImpl(null, Map.class,
                         ReflectUtil.getObjectType(types[i]),
                         ReflectUtil.getObjectType(types[i + 1]));
-           } else {
-               result = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(types[i]), result);
-           }
+            } else {
+                result = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(types[i]), result);
+            }
         }
         return result;
     }
-    
 
 
 }

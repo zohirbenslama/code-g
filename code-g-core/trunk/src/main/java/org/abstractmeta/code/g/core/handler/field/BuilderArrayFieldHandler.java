@@ -15,25 +15,8 @@
  */
 package org.abstractmeta.code.g.core.handler.field;
 
-import com.google.common.base.CaseFormat;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
-import org.abstractmeta.code.g.core.util.DescriptorUtil;
-import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
-import org.abstractmeta.code.g.handler.JavaFieldHandler;
-
-import java.lang.reflect.Type;
-import java.util.Collection;
-
 /**
- * This handler creates 'add', 'clear' methods for any arrays type field.
+ * This handle creates 'add', 'clear' methods for any arrays type field.
  * <p>For instance for the given source type
  * <code><pre>
  * class Bar {
@@ -73,84 +56,84 @@ import java.util.Collection;
  *
  * @author Adrian Witas
  */
-public class BuilderArrayFieldHandler implements JavaFieldHandler {
+public class BuilderArrayFieldHandler  {
 
-    private final JavaTypeBuilder ownerTypeBuilder;
-    private final Descriptor descriptor;
-
-    public BuilderArrayFieldHandler(JavaTypeBuilder ownerTypeBuilder, Descriptor descriptor) {
-        this.ownerTypeBuilder = ownerTypeBuilder;
-        this.descriptor =descriptor;
-    }
-
-    //TODO add generic array type support
-    @Override
-    public void handle(JavaType sourceType, JavaField javaField) {
-        Type fieldType = javaField.getType();
-        Class rawFieldType = ReflectUtil.getRawClass(fieldType);
-        String fieldName = javaField.getName();
-        if (rawFieldType.isArray()) {
-            String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-            if (!ownerTypeBuilder.containsMethod(methodName)) {
-                addArrayAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
-                addArrayAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
-                addCollectionClearMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
-            }
-        }
-    }
-
-    protected void addArrayAddItemsMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-        Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
-        JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
-        methodBuilder.addModifier("public");
-        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-        methodBuilder.setName(methodName);
-        methodBuilder.addParameter(fieldName, new ParameterizedTypeImpl(null, Collection.class, ReflectUtil.getObjectType(componentType)));
-        methodBuilder.addBody(String.format("%s [] temp = new %s[this.%s.length + %s.size()];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
-
-        methodBuilder.addBody(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
-        methodBuilder.addBody(String.format("int i = this.%s.length;", fieldName));
-        methodBuilder.addBody(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
-        methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
-            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-        }
-        methodBuilder.addBody("return this;");
-        typeBuilder.addMethod(methodBuilder.build());
-    }
-
-    protected void addArrayAddItemMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-        Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
-        JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
-        methodBuilder.addModifier("public");
-        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-        methodBuilder.setName(methodName);
-        methodBuilder.addParameter("... " + fieldName, componentType);
-        methodBuilder.addBody(String.format("%s [] temp = new %s[this.%s.length + %s.length];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
-        methodBuilder.addBody(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
-        methodBuilder.addBody(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
-        methodBuilder.addBody(String.format("this.%s = temp;", fieldName));
-        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
-            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-        }
-        methodBuilder.addBody("return this;");
-        typeBuilder.addMethod(methodBuilder.build());
-    }
-
-    protected void addCollectionClearMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
-        if (!typeBuilder.containsMethod(methodName)) {
-            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier("public");
-            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-            methodBuilder.setName(methodName);
-            Class rawClass = ReflectUtil.getRawClass(fieldType).getComponentType();
-            methodBuilder.addBody(String.format("this.%s = new %s[]{};", fieldName, rawClass.getSimpleName()));
-            methodBuilder.addBody("return this;");
-            typeBuilder.addMethod(methodBuilder.build());
-        }
-    }
+//    private final JavaTypeBuilderImpl ownerTypeBuilder;
+//    private final Descriptor descriptor;
+//
+//    public BuilderArrayFieldHandler(JavaTypeBuilderImpl ownerTypeBuilder, Descriptor descriptor) {
+//        this.ownerTypeBuilder = ownerTypeBuilder;
+//        this.descriptor =descriptor;
+//    }
+//
+//    //TODO add generic array type support
+//    @Override
+//    public void handle(JavaType sourceType, JavaField javaField) {
+//        Type fieldType = javaField.getType();
+//        Class rawFieldType = ReflectUtil.getRawClass(fieldType);
+//        String fieldName = javaField.getName();
+//        if (rawFieldType.isArray()) {
+//            String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+//            if (!ownerTypeBuilder.containsMethod(methodName)) {
+//                addArrayAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+//                addArrayAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+//                addCollectionClearMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+//            }
+//        }
+//    }
+//
+//    protected void addArrayAddItemsMethod(JavaTypeBuilderImpl typeBuilder, String fieldName, Type fieldType) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+//        Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
+//        JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
+//        methodBuilder.addModifier("public");
+//        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//        methodBuilder.setName(methodName);
+//        methodBuilder.addParameter(fieldName, new ParameterizedTypeImpl(null, Collection.class, ReflectUtil.getObjectType(componentType)));
+//        methodBuilder.addBodyLines(String.format("%s [] temp = new %s[this.%s.length + %s.size()];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
+//
+//        methodBuilder.addBodyLines(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
+//        methodBuilder.addBodyLines(String.format("int i = this.%s.length;", fieldName));
+//        methodBuilder.addBodyLines(String.format("for(%s item: %s) temp[i++] = item;", componentType.getSimpleName(), fieldName));
+//        methodBuilder.addBodyLines(String.format("this.%s = temp;", fieldName));
+//        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
+//            methodBuilder.addBodyLines(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
+//        }
+//        methodBuilder.addBodyLines("return this;");
+//        typeBuilder.addMethod(methodBuilder.build());
+//    }
+//
+//    protected void addArrayAddItemMethod(JavaTypeBuilderImpl typeBuilder, String fieldName, Type fieldType) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+//        Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
+//        JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
+//        methodBuilder.addModifier("public");
+//        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//        methodBuilder.setName(methodName);
+//        methodBuilder.addParameter("... " + fieldName, componentType);
+//        methodBuilder.addBodyLines(String.format("%s [] temp = new %s[this.%s.length + %s.length];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
+//        methodBuilder.addBodyLines(String.format("System.arraycopy(this.%s, 0, temp, 0, this.%s.length);", fieldName, fieldName));
+//        methodBuilder.addBodyLines(String.format("System.arraycopy(%s, 0, temp, this.%s.length, %s.length);", fieldName, fieldName, fieldName));
+//        methodBuilder.addBodyLines(String.format("this.%s = temp;", fieldName));
+//        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
+//            methodBuilder.addBodyLines(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
+//        }
+//        methodBuilder.addBodyLines("return this;");
+//        typeBuilder.addMethod(methodBuilder.build());
+//    }
+//
+//    protected void addCollectionClearMethod(JavaTypeBuilderImpl typeBuilder, String fieldName, Type fieldType) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
+//        if (!typeBuilder.containsMethod(methodName)) {
+//            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+//            methodBuilder.addModifier("public");
+//            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//            methodBuilder.setName(methodName);
+//            Class rawClass = ReflectUtil.getRawClass(fieldType).getComponentType();
+//            methodBuilder.addBodyLines(String.format("this.%s = new %s[]{};", fieldName, rawClass.getSimpleName()));
+//            methodBuilder.addBodyLines("return this;");
+//            typeBuilder.addMethod(methodBuilder.build());
+//        }
+//    }
 
 }

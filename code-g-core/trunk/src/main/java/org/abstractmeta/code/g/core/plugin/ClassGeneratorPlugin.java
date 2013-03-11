@@ -15,24 +15,8 @@
  */
 package org.abstractmeta.code.g.core.plugin;
 
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.core.builder.SimpleClassBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.extractor.AccessorFieldExtractor;
-import org.abstractmeta.code.g.core.extractor.RegistryFieldExtractor;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-import org.abstractmeta.code.g.extractor.MethodExtractor;
-import org.abstractmeta.code.g.plugin.CodeGeneratorPlugin;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-
 /**
- * <p><b>Builder Generator Plugin</b></p>
+ * <p><b>Builder CodeUnitGenerator Plugin</b></p>
  * <h2>Overview</h2>
  * <p>This plugin generates code implementation for a given interface, superclass. The generation process can be break down to</p>
  * <ul>
@@ -47,7 +31,7 @@ import java.util.Collections;
  * <ul>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.RegistryFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.CollectionFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.code.handler.field.GetterFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.SimpleTypeHandler}</li>
  * </ul>
  * </li>
@@ -56,43 +40,67 @@ import java.util.Collections;
  *
  * @author Adrian Witas
  */
-public class ClassGeneratorPlugin extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
+public class ClassGeneratorPlugin  {
 
-
-
-    public ClassGeneratorPlugin() {
-        super(Arrays.asList(new RegistryFieldExtractor(), new AccessorFieldExtractor()), Collections.<MethodExtractor>emptyList());
-    }
-
-    @Override
-    protected boolean isApplicable(JavaType sourceType) {
-        return isExtractable(sourceType);
-    }
-
-    @Override
-    protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry, String targetTypeName, Descriptor descriptor) {
-        SimpleClassBuilder classBuilder = new SimpleClassBuilder(sourceType, descriptor);
-        classBuilder.setSourceType(sourceType);
-        classBuilder.addModifier("public").setTypeName(targetTypeName);
-        if (!sourceType.getGenericTypeArguments().isEmpty()) {
-            classBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());
-        }
-        if ("class".equals(sourceType.getKind())) {
-            classBuilder.setSuperType(new TypeNameWrapper(sourceType.getName(), sourceType.getGenericTypeArguments()));
-        } else {
-            classBuilder.addSuperInterface(new TypeNameWrapper(sourceType.getName(), sourceType.getGenericTypeArguments()));
-        }
-        addExtractableFields(classBuilder, sourceType);
-        return classBuilder;
-    }
-
-
-    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
-        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
-        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
-        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
-        return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
-    }
-
-
+//
+//    private static final Map<String, Descriptor> TEMPLATES = MapMaker.makeImmutable(Descriptor.class,
+//            ClassGeneratorPlugin.class.getName(),
+//            new DescriptorBuilder().setTargetPackagePostfix("impl")
+//                    .setTargetPostfix("Impl")
+//                    .build(),
+//            ClassGeneratorPlugin.class.getName() + ".complete",
+//            new DescriptorBuilder().setTargetPackagePostfix("impl")
+//                    .setTargetPostfix("Impl")
+//                    .addOptions("generateHashCodeMethod", "true")
+//                    .addOptions("generateEqualsMethod", "true")
+//                    .addOptions("generateHashCodeMethod.hashFieldAnnotation", Id.class.getName())
+//                    .build()
+//    );
+//
+//
+//    public ClassGeneratorPlugin() {
+//        super(Arrays.asList(new RegistryFieldExtractor(), new AccessorFieldExtractor()), Arrays.<MethodExtractor>asList(new SuperMethodExtractor()));
+//    }
+//
+//    @Override
+//    protected boolean isApplicable(JavaType sourceType) {
+//        return isExtractable(sourceType) || sourceType.getFields().size() > 0;
+//    }
+//
+//    @Override
+//    protected JavaTypeBuilder generate(JavaType sourceType, JavaTypeRegistry typeRegistry, String targetTypeName, Descriptor descriptor) {
+//        JavaTypeBuilder classBuilder = new JavaTypeBuilderImpl(JavaKind.CLASS, targetTypeName, sourceType, descriptor, typeRegistry);
+//        addBuilderHandlers(classBuilder);
+//        classBuilder.addModifiers(JavaModifier.PUBLIC);
+//        if (!sourceType.getGenericTypeArguments().isEmpty()) {
+//            classBuilder.addGenericTypeArguments(sourceType.getGenericTypeArguments());
+//        }
+//        if (JavaKind.CLASS.equals(sourceType.getKind())) {
+//            classBuilder.setSuperType(new TypeNameWrapper(sourceType.getName(), sourceType.getGenericTypeArguments()));
+//        } else {
+//            classBuilder.addSuperInterfaces(new TypeNameWrapper(sourceType.getName(), sourceType.getGenericTypeArguments()));
+//        }
+//        addExtractableFields(classBuilder, sourceType);
+//        addExtractableMethods(classBuilder, sourceType);
+//        return classBuilder;
+//    }
+//
+//
+//    protected void addBuilderHandlers(JavaTypeBuilder javaTypeBuilder) {
+//
+//    }
+//
+//
+//    protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
+//        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
+//        String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+//        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
+//        return getTargetTypeName(buildResultSimpleClassName,  sourceType.getPackageName(), descriptor, registry);
+//    }
+//
+//
+//    @Override
+//    public Map<String, Descriptor> getTemplates() {
+//        return TEMPLATES;
+//    }
 }

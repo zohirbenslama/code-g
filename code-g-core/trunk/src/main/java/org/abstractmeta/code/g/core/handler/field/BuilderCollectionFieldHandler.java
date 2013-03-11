@@ -15,25 +15,8 @@
  */
 package org.abstractmeta.code.g.core.handler.field;
 
-import com.google.common.base.CaseFormat;
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilder;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
-import org.abstractmeta.code.g.core.util.DescriptorUtil;
-import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
-import org.abstractmeta.code.g.handler.JavaFieldHandler;
-
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
-
 /**
- * This handler creates 'add', 'clear' methods for any collection type field.
+ * This handle creates 'add', 'clear' methods for any collection type field.
  * <p>For instance for the given source type
  * <code><pre>
  * class Bar {
@@ -73,76 +56,76 @@ import java.util.Collections;
  *
  * @author Adrian Witas
  */
-public class BuilderCollectionFieldHandler implements JavaFieldHandler {
-
-    private final JavaTypeBuilder ownerTypeBuilder;
-    private final Descriptor descriptor;
-
-    public BuilderCollectionFieldHandler(JavaTypeBuilder ownerTypeBuilder,Descriptor descriptor) {
-        this.ownerTypeBuilder = ownerTypeBuilder;
-        this.descriptor = descriptor;
-
-    }
-
-
-    @Override
-    public void handle(JavaType sourceType, JavaField javaField) {
-        Type fieldType = javaField.getType();
-        Class rawFieldType = ReflectUtil.getRawClass(fieldType);
-        String fieldName = javaField.getName();
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
-
-        if (Collection.class.isAssignableFrom(rawFieldType) && !ownerTypeBuilder.containsMethod(methodName)) {
-            addCollectionAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
-            addCollectionAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
-            addCollectionClearMethod(ownerTypeBuilder, javaField.getName());
-        }
-    }
-
-    protected void addCollectionAddItemsMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier("public");
-        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-        methodBuilder.setName(methodName);
-        methodBuilder.addParameter(fieldName, fieldType);
-        methodBuilder.addBody(String.format("this.%s.addAll(%s);", fieldName, fieldName));
-        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD) ) {
-            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-        }
-        methodBuilder.addBody("return this;");
-        typeBuilder.addMethod(methodBuilder.build());
-    }
-
-
-    protected void addCollectionAddItemMethod(JavaTypeBuilder typeBuilder, String fieldName, Type fieldType) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
-        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier("public");
-        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-        methodBuilder.setName(methodName);
-        Type componentType =  ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
-        methodBuilder.addParameter("..." + fieldName, componentType);
-        ownerTypeBuilder.addImportType(Collections.class);
-        methodBuilder.addBody(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));
-        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
-            methodBuilder.addBody(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
-        }
-        methodBuilder.addBody("return this;");
-        typeBuilder.addMethod(methodBuilder.build());
-    }
-
-    protected void addCollectionClearMethod(JavaTypeBuilder typeBuilder, String fieldName) {
-        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
-        if (!typeBuilder.containsMethod(methodName)) {
-            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier("public");
-            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
-            methodBuilder.setName(methodName);
-            methodBuilder.addBody(String.format("this.%s.clear();", fieldName));
-            methodBuilder.addBody("return this;");
-            typeBuilder.addMethod(methodBuilder.build());
-        }
-    }
+public class BuilderCollectionFieldHandler {
+//
+//    private final JavaTypeBuilderImpl ownerTypeBuilder;
+//    private final Descriptor descriptor;
+//
+//    public BuilderCollectionFieldHandler(JavaTypeBuilderImpl ownerTypeBuilder,Descriptor descriptor) {
+//        this.ownerTypeBuilder = ownerTypeBuilder;
+//        this.descriptor = descriptor;
+//
+//    }
+//
+//
+//    @Override
+//    public void handle(JavaType sourceType, JavaField javaField) {
+//        Type fieldType = javaField.getType();
+//        Class rawFieldType = ReflectUtil.getRawClass(fieldType);
+//        String fieldName = javaField.getName();
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
+//
+//        if (Collection.class.isAssignableFrom(rawFieldType) && !ownerTypeBuilder.containsMethod(methodName)) {
+//            addCollectionAddItemMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+//            addCollectionAddItemsMethod(ownerTypeBuilder, javaField.getName(), javaField.getType());
+//            addCollectionClearMethod(ownerTypeBuilder, javaField.getName());
+//        }
+//    }
+//
+//    protected void addCollectionAddItemsMethod(JavaTypeBuilderImpl typeBuilder, String fieldName, Type fieldType) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+//        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+//        methodBuilder.addModifier("public");
+//        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//        methodBuilder.setName(methodName);
+//        methodBuilder.addParameter(fieldName, fieldType);
+//        methodBuilder.addBodyLines(String.format("this.%s.addAll(%s);", fieldName, fieldName));
+//        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD) ) {
+//            methodBuilder.addBodyLines(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
+//        }
+//        methodBuilder.addBodyLines("return this;");
+//        typeBuilder.addMethod(methodBuilder.build());
+//    }
+//
+//
+//    protected void addCollectionAddItemMethod(JavaTypeBuilderImpl typeBuilder, String fieldName, Type fieldType) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+//        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+//        methodBuilder.addModifier("public");
+//        methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//        methodBuilder.setName(methodName);
+//        Type componentType =  ReflectUtil.getGenericArgument(fieldType, 0, Object.class);
+//        methodBuilder.addParameter("..." + fieldName, componentType);
+//        ownerTypeBuilder.addImportType(Collections.class);
+//        methodBuilder.addBodyLines(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));
+//        if(DescriptorUtil.is(descriptor, BuilderGeneratorPlugin.ADD_PRESENT_METHOD)) {
+//            methodBuilder.addBodyLines(String.format("this.%s = true;", StringUtil.isPresentFieldName(fieldName)));
+//        }
+//        methodBuilder.addBodyLines("return this;");
+//        typeBuilder.addMethod(methodBuilder.build());
+//    }
+//
+//    protected void addCollectionClearMethod(JavaTypeBuilderImpl typeBuilder, String fieldName) {
+//        String methodName = StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
+//        if (!typeBuilder.containsMethod(methodName)) {
+//            JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+//            methodBuilder.addModifier("public");
+//            methodBuilder.setResultType(new TypeNameWrapper(typeBuilder.getName()));
+//            methodBuilder.setName(methodName);
+//            methodBuilder.addBodyLines(String.format("this.%s.clear();", fieldName));
+//            methodBuilder.addBodyLines("return this;");
+//            typeBuilder.addMethod(methodBuilder.build());
+//        }
+//    }
 
 }

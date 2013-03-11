@@ -18,6 +18,8 @@ package org.abstractmeta.code.g.core.code;
 
 
 import org.abstractmeta.code.g.code.JavaMethod;
+import org.abstractmeta.code.g.code.JavaModifier;
+import org.abstractmeta.code.g.code.JavaParameter;
 import org.abstractmeta.code.g.code.JavaType;
 
 import java.lang.annotation.Annotation;
@@ -31,11 +33,7 @@ import java.util.List;
  */
 public class JavaMethodImpl implements JavaMethod {
 
-    private final List<String> parameterModifiers;
-
-    private final List<Type> parameterTypes;
-
-    private final List<String> parameterNames;
+    private final List<JavaParameter> parameters;
 
     private final List<Type> exceptionTypes;
 
@@ -45,7 +43,7 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<JavaType> javaTypes;
 
-    private final List<String> modifiers;
+    private final List<JavaModifier> modifiers;
 
     private final String name;
 
@@ -53,10 +51,8 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<String> documentation;
 
-    public JavaMethodImpl(List<String> parameterModifiers, List<Type> parameterTypes, List<String> parameterNames, List<Type> exceptionTypes, List<String> body, Type resultType, List<JavaType> javaTypes, List<String> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
-        this.parameterModifiers = parameterModifiers;
-        this.parameterTypes = parameterTypes;
-        this.parameterNames = parameterNames;
+    public JavaMethodImpl(List<JavaParameter> parameters, List<Type> exceptionTypes, List<String> body, Type resultType, List<JavaType> javaTypes, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+        this.parameters = parameters;
         this.exceptionTypes = exceptionTypes;
         this.body = body;
         this.resultType = resultType;
@@ -67,13 +63,10 @@ public class JavaMethodImpl implements JavaMethod {
         this.documentation = documentation;
     }
 
-    public List<Type> getParameterTypes() {
-        return this.parameterTypes;
-    }
 
     @Override
-    public List<String> getParameterNames() {
-        return parameterNames;
+    public List<JavaParameter> getParameters() {
+        return parameters;
     }
 
     @Override
@@ -81,12 +74,7 @@ public class JavaMethodImpl implements JavaMethod {
         return exceptionTypes;
     }
 
-    @Override
-    public List<String> getParameterModifiers() {
-        return parameterModifiers;
-    }
-
-    public List<String> getBody() {
+    public List<String> getBodyLines() {
         return this.body;
     }
 
@@ -98,7 +86,7 @@ public class JavaMethodImpl implements JavaMethod {
         return this.javaTypes;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 

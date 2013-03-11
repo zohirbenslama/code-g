@@ -58,7 +58,7 @@ public class ConstructorArgumentPredicate implements Predicate<JavaField> {
             if (! sourceIndexedMethods.containsKey("set" + upperCamelFieldName)) {
                 return true;
             }
-        };
+        }
         return false;
     }
 }

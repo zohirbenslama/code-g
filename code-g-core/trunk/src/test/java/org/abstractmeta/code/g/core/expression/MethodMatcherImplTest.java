@@ -48,7 +48,7 @@ public class MethodMatcherImplTest {
                 methods.add(methodMatch.getMethod());
             }
         }
-            Assert.assertTrue(matches.get(0).containsMatch("get"));
+        Assert.assertTrue(matches.get(0).containsMatch("get"));
         Assert.assertEquals(namedMatches.size(), 4);
         Assert.assertEquals(namedMatches.get("Id").size(), 2);
         Assert.assertEquals(namedMatches.get("Name").size(), 2);

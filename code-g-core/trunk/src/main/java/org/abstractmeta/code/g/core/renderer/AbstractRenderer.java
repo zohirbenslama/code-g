@@ -15,8 +15,7 @@
  */
 package org.abstractmeta.code.g.core.renderer;
 
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.JavaTypeImporter;
+import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.core.util.TemplateUtil;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import com.google.common.base.Joiner;
@@ -58,12 +57,12 @@ public abstract class AbstractRenderer<T> {
         return template.build(indentSize + templateIndent);
     }
 
-    protected String getModifiers(List<String> modifiers) {
-        String result = Joiner.on(" ").join(modifiers);
-        if (result.length() > 0) {
-            return result + " ";
+    protected String getModifiers(List<JavaModifier> modifiers) {
+        StringBuilder resultBuilder = new StringBuilder();
+        for(JavaModifier modifier: modifiers) {
+            resultBuilder.append(modifier.name().toLowerCase()).append(" ");
         }
-        return result;
+        return resultBuilder.toString();
     }
 
 
@@ -98,18 +97,10 @@ public abstract class AbstractRenderer<T> {
     }
 
 
-    protected String getMethodArguments(JavaTypeImporter importer, List<String> argumentModifiers, List<Type> argumentTypes, List<String> argumentNames) {
+    protected String getMethodArguments(JavaTypeImporter importer, List<JavaParameter> parameters) {
         StringBuilder result = new StringBuilder();
-        if (argumentNames.size() == 0) {
-            for (int i = 0; i < argumentTypes.size(); i++) {
-                addMethodArgument(result, importer, argumentModifiers.get(i), argumentTypes.get(i), String.format("argument%s", i));
-            }
-
-        } else {
-            for (int i = 0; i < argumentTypes.size(); i++) {
-                String modifiers = i < argumentModifiers.size() ? argumentModifiers.get(i) : "";
-                addMethodArgument(result, importer, modifiers, argumentTypes.get(i), argumentNames.get(i));
-            }
+        for (JavaParameter parameter : parameters) {
+            addMethodArgument(result, importer, parameter);
         }
         return result.toString();
     }
@@ -139,14 +130,13 @@ public abstract class AbstractRenderer<T> {
     }
 
 
-    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, String modifier, Type type, String name) {
+    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, JavaParameter parameter) {
         if (result.length() > 0) {
             result.append(", ");
         }
-        if (!modifier.isEmpty()) {
-            modifier = modifier + " ";
-        }
-        result.append(String.format("%s%s %s", modifier, importer.getSimpleTypeName(type), name));
+        String modifiers = getModifiers(parameter.getModifiers());
+        String annotations = getAnnotations(importer, parameter.getAnnotations());
+        result.append(String.format("%s%s%s %s", modifiers, annotations, importer.getSimpleTypeName(parameter.getType()), parameter.getName()));
     }
 
     protected String getDocumentation(List<String> documentation) {
@@ -172,6 +162,14 @@ public abstract class AbstractRenderer<T> {
             return defaultValue;
         }
         return text;
+    }
+
+    protected String getValue(JavaKind javaKind, JavaKind defaultValue) {
+        if(javaKind == null) javaKind  = defaultValue;
+        if(JavaKind.CLASS.equals(javaKind) || JavaKind.INTERFACE.equals(javaKind)) {
+            return javaKind.name().toLowerCase();
+        }
+        return "@interface";
     }
 
 

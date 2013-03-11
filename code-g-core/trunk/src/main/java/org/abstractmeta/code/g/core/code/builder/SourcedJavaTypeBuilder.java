@@ -35,18 +35,8 @@ public class SourcedJavaTypeBuilder {
         return this;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public SourcedJavaTypeBuilder setFile(File file) {
-        this.file = file;
-        return this;
-    }
-
-
     public SourcedJavaType build() {
-        return new SourcedJavaTypeImpl(type, sourceCode, file);
+        return new SourcedJavaTypeImpl(type, sourceCode);
     }
 }
 

@@ -17,6 +17,8 @@ package org.abstractmeta.code.g.core.code.builder;
 
 
 import org.abstractmeta.code.g.code.JavaConstructor;
+import org.abstractmeta.code.g.code.JavaModifier;
+import org.abstractmeta.code.g.code.JavaParameter;
 import org.abstractmeta.code.g.core.code.JavaConstructorImpl;
 
 import java.lang.annotation.Annotation;
@@ -35,17 +37,13 @@ public class JavaConstructorBuilder implements JavaConstructor {
 
 
 
-    private List<String> parameterModifiers = new ArrayList<String>();
-
-    private List<Type> parameterTypes = new ArrayList<Type>();
-
-    private List<String> parameterNames = new ArrayList<String>();
+    private List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
     private List<Type> exceptionTypes = new ArrayList<Type>();
 
     private List<String> body = new ArrayList<String>();
 
-    private List<String> modifiers = new ArrayList<String>();
+    private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
 
     private String name;
 
@@ -53,51 +51,43 @@ public class JavaConstructorBuilder implements JavaConstructor {
 
     private List<String> documentation = new ArrayList<String>();
 
-    public List<Type> getParameterTypes() {
-        return this.parameterTypes;
-    }
 
     @Override
-    public List<String> getParameterNames() {
-        return parameterNames;
+    public List<JavaParameter> getParameters() {
+        return parameters;
     }
 
     @Override
     public List<Type> getExceptionTypes() {
-        return parameterTypes;
+        return exceptionTypes;
     }
 
-    public JavaConstructorBuilder setParameterTypes(List<Type> parameterTypes) {
-        this.parameterTypes = parameterTypes;
-        return this;
-    }
-
-    public JavaConstructorBuilder addArgumentTypes(Collection<Type> argumentTypes) {
-        this.parameterTypes.addAll(argumentTypes);
-        return this;
-    }
-
-
-
-    public JavaConstructorBuilder addParameter(boolean finalModifier, String name, Type type) {
-        return addParameter(finalModifier ? "final" : "", name, type);
-    }
 
     public JavaConstructorBuilder addParameter(String name, Type type) {
-        return addParameter("", name, type);
+        return addParameter(null, name, type);
     }
 
-    public JavaConstructorBuilder addParameter(String modifier, String name, Type type) {
-        this.parameterModifiers.add(modifier);
-        this.parameterNames.add(name);
-        this.parameterTypes.add(type);
+    public JavaConstructorBuilder addParameter(JavaModifier modifier, String name, Type type) {
+        JavaParameterBuilder parameterBuilder = new JavaParameterBuilder();
+        parameterBuilder.setName(name);
+        parameterBuilder.setType(type);
+        if(modifier != null) {
+            parameterBuilder.addModifiers(modifier);
+        }
+        this.parameters.add(parameterBuilder.build());
         return this;
     }
 
-    public JavaConstructorBuilder addParameterNames(Collection<String> parameterNames) {
-        this.parameterNames.addAll(parameterNames);
-        return this;
+
+
+    public void addParameters(JavaParameter ... parameters) {
+        Collections.addAll(this.parameters, parameters);
     }
+
+    public void addParameters(List<JavaParameter> parameters) {
+      this.parameters.addAll(parameters);
+    }
+
 
     public JavaConstructorBuilder setExceptionTypes(List<Type> exceptionTypes) {
         this.exceptionTypes = exceptionTypes;
@@ -133,32 +123,23 @@ public class JavaConstructorBuilder implements JavaConstructor {
         return this;
     }
 
-    public List<String> getModifiers() {
+    public List<JavaModifier> getModifiers() {
         return this.modifiers;
     }
 
-    @Override
-    public List<String> getParameterModifiers() {
-        return parameterModifiers;
-    }
 
-    public JavaConstructorBuilder setModifiers(List<String> modifiers) {
+    public JavaConstructorBuilder setModifiers(List<JavaModifier> modifiers) {
         this.modifiers = modifiers;
         return this;
     }
 
-    public JavaConstructorBuilder addModifier(String modifier) {
+    public JavaConstructorBuilder addModifier(JavaModifier modifier) {
         this.modifiers.add(modifier);
         return this;
     }
 
 
-    public JavaConstructorBuilder addParameterModifiers(Collection<String> parameterModifiers) {
-        this.parameterModifiers.addAll(parameterModifiers);
-        return this;
-    }
-
-    public JavaConstructorBuilder addModifiers(Collection<String> modifiers) {
+    public JavaConstructorBuilder addModifiers(Collection<JavaModifier> modifiers) {
         this.modifiers.addAll(modifiers);
         return this;
     }
@@ -211,19 +192,12 @@ public class JavaConstructorBuilder implements JavaConstructor {
     }
 
     public JavaConstructor build() {
-        JavaConstructor result = new JavaConstructorImpl(parameterModifiers, parameterTypes, parameterNames, exceptionTypes, body, modifiers, name, annotations, documentation);
-        return result;
+        return new JavaConstructorImpl(parameters, exceptionTypes, body, modifiers, name, annotations, documentation);
     }
 
     public void merge(JavaConstructor instance) {
-        if (instance.getParameterModifiers() != null) {
-            addParameterModifiers(instance.getParameterModifiers());
-        }
-        if (instance.getParameterTypes() != null) {
-            addArgumentTypes(instance.getParameterTypes());
-        }
-        if (instance.getParameterNames() != null) {
-            addParameterNames(instance.getParameterNames());
+        if (instance.getParameters() != null) {
+            addParameters(instance.getParameters());
         }
         if (instance.getExceptionTypes() != null) {
             addExceptionTypes(instance.getExceptionTypes());
@@ -245,5 +219,6 @@ public class JavaConstructorBuilder implements JavaConstructor {
         }
 
     }
+
 
 }

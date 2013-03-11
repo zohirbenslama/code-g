@@ -8,13 +8,9 @@ import org.testng.annotations.Test;
 public class JavaTypeUtilTest {
 
     public void testGetSimpleClassName() {
-
         Assert.assertEquals(JavaTypeUtil.getSimpleClassName("com.foo.Bar"), "Bar");
         Assert.assertEquals(JavaTypeUtil.getSimpleClassName("com.foo.Bar$Foo"), "Bar.Foo");
         Assert.assertEquals(JavaTypeUtil.getSimpleClassName("com.foo.Bar$Foo", false), "Foo");
         Assert.assertEquals(JavaTypeUtil.getSimpleClassName("com.foo.Bar$Foo;"), "Bar.Foo[]");
-
-
-
     }
 }
