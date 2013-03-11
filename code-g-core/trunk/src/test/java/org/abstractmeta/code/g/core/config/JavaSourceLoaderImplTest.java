@@ -57,7 +57,7 @@ public class JavaSourceLoaderImplTest {
         sourceFilter.setSourceDirectory(new File("src/test/test-source").getAbsolutePath());
         LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
         Assert.assertTrue(! result.getJavaTypes().isEmpty(), "should load org.abstractmeta.code.g.core.annotation");
-        Assert.assertTrue(! result.getSourcedJavaTypes().isEmpty(), "should have source code");
+        Assert.assertTrue(! result.getCompiledJavaTypes().isEmpty(), "should have source code");
 
     }
 

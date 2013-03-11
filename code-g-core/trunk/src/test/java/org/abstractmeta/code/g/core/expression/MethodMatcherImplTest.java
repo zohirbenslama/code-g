@@ -18,7 +18,7 @@ package org.abstractmeta.code.g.core.expression;
 
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.core.generator.test.CollectionTest;
+import org.abstractmeta.code.g.core.helper.iface.MessageWithCollection;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.expression.MethodMatch;
@@ -61,7 +61,7 @@ public class MethodMatcherImplTest {
     public void testMethodMatcherWithSingularNameMatchingImpl() {
 
         MethodMatcher matcher = new MethodMatcherImpl();
-        JavaType javaType = new ClassTypeProvider(CollectionTest.class).get();
+        JavaType javaType = new ClassTypeProvider(MessageWithCollection.class).get();
         List<AbstractionMatch> matches = matcher.match(javaType.getMethods(), AbstractionPatterns.ACCESSOR_MUTATOR_PATTERN);
         Map<String, AbstractionMatch> namedMatches = new HashMap<String, AbstractionMatch>();
         for (AbstractionMatch match : matches) {

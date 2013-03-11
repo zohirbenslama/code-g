@@ -22,6 +22,7 @@ import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.generator.Context;
 
 /**
  * This handle creates set method.
@@ -48,7 +49,7 @@ import org.abstractmeta.code.g.core.util.StringUtil;
 public class SetterFieldHandler implements FieldHandler {
 
     @Override
-    public void handle(JavaTypeBuilder owner, JavaField target) {
+    public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
         if (target.isImmutable()) return;
         String methodName = StringUtil.getSetterName(target.getName());
         if (owner.containsMethod(methodName)) return;

@@ -4,6 +4,7 @@ import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
+import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
 
@@ -15,11 +16,12 @@ import java.lang.reflect.Type;
  */
 public class EqualMethodHandler implements TypeHandler {
 
-    public static final String GENERATE_HASH_CODE = "generateEqualsMethod";
     public static final String METHOD_NAME = "equals";
 
     @Override
-    public void handle(JavaTypeBuilder owner) {
+    public void handle(JavaTypeBuilder owner, Context context) {
+        Config config = context.getOptional(Config.class);
+        if(config == null || ! config.isGenerateEqualMethod()) return;
         JavaMethodBuilder resultBuilder = new JavaMethodBuilder();
         if(owner.containsMethod(METHOD_NAME)) return;
 
@@ -60,6 +62,11 @@ public class EqualMethodHandler implements TypeHandler {
             resultBuilder.addBodyLines("if(" + fieldName + "  != null &&  ! " + fieldName + ".equals(" + candidateFieldName + ")) return false;");
             resultBuilder.addBodyLines("else if(" + candidateFieldName + "  != null) return false;");
         }
+    }
+
+
+    public static interface Config {
+        boolean isGenerateEqualMethod();
     }
 
 }

@@ -39,7 +39,7 @@ public class ClassGeneratorPluginTest {
 //    public void testGenericInterfaceImplementation() throws ClassNotFoundException {
 //        DescriptorGenerator codeBuilder = new DescriptorGeneratorImpl(macroRegistry);
 //        List<Descriptor> descriptors = Arrays.asList(
-//                new DescriptorBuilder().setSourceClasses(GenericInterfaceType.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
+//                new DescriptorBuilder().setSourceClasses(GenericMessage.class.getName()).setPlugin(ClassGeneratorPlugin.class.getName()).build()
 //        );
 //
 //        {
@@ -50,7 +50,7 @@ public class ClassGeneratorPluginTest {
 //            Assert.assertTrue(generated.get(0).endsWith("GenericInterfaceTypeImpl"));
 //            ClassLoader classLoader = compilerHandler.compile();
 //            Class generatedClass = classLoader.loadClassesFromSourceDirectory(generated.get(0));
-//            Assert.assertTrue(GenericInterfaceType.class.isAssignableFrom(generatedClass));
+//            Assert.assertTrue(GenericMessage.class.isAssignableFrom(generatedClass));
 //        }
 //    }
 //

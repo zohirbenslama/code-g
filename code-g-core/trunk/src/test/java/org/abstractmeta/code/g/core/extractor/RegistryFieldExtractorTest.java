@@ -16,7 +16,9 @@
 package org.abstractmeta.code.g.core.extractor;
 
 import org.abstractmeta.code.g.code.JavaField;
+import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
+import org.abstractmeta.code.g.generator.Context;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,12 +32,14 @@ import java.util.Map;
 @Test
 public class RegistryFieldExtractorTest {
 
+    private Context context = new ContextImpl();
+
     public void testRegistryFieldExtractor() {
 
         RegistryFieldExtractor extractor = new RegistryFieldExtractor();
 
         {
-        List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry1.class).get());
+        List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry1.class).get(), context);
         JavaField field = fields.get(0);
         ParameterizedType fieldType = ParameterizedType.class.cast(field.getType());
         Assert.assertEquals(fieldType.getActualTypeArguments()[0], String.class, "invalid registry type " + field.getType());
@@ -44,7 +48,7 @@ public class RegistryFieldExtractorTest {
 
 
         {
-            List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry2.class).get());
+            List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry2.class).get(), context);
             JavaField field = fields.get(0);
             ParameterizedType fieldType = ParameterizedType.class.cast(field.getType());
             Assert.assertEquals(fieldType.getActualTypeArguments()[0], String.class, "invalid registry type " + field.getType());
@@ -52,7 +56,7 @@ public class RegistryFieldExtractorTest {
         }
 
         {
-            List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry3.class).get());
+            List<JavaField> fields= extractor.extract(new ClassTypeProvider(Registry3.class).get(), context);
             JavaField field = fields.get(0);
             ParameterizedType fieldType = ParameterizedType.class.cast(field.getType());
             Assert.assertEquals(fieldType.getActualTypeArguments()[0], String.class, "invalid registry type " + field.getType());
@@ -71,6 +75,7 @@ public class RegistryFieldExtractorTest {
         void register(String key, int subKey, Foo value);
         Foo get(String key,  int subKey);
     }
+
     public static interface Registry3 {
         void register(Foo value);
         Foo get(String key);

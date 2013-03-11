@@ -9,6 +9,15 @@ import org.abstractmeta.code.g.config.NamingConvention;
  */
 public class NamingConventionImpl implements NamingConvention {
 
+    public NamingConventionImpl() {
+    }
+
+    public NamingConventionImpl(String classPrefix, String classPostfix, String packagePostfix) {
+        this.classPrefix = classPrefix;
+        this.classPostfix = classPostfix;
+        this.packagePostfix = packagePostfix;
+    }
+
     private String classPrefix;
     private String classPostfix;
     private String packagePostfix;

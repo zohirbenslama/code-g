@@ -1,7 +1,7 @@
 package org.abstractmeta.code.g.core.config.loader;
 
+import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ public class LoadedSourceImpl implements LoadedSource {
 
     private ClassLoader classLoader;
     private Collection<JavaType> javaTypes;
-    private Collection<SourcedJavaType> sourcedJavaTypes;
+    private Collection<CompiledJavaType> compiledJavaTypes;
 
 
     public ClassLoader getClassLoader() {
@@ -36,11 +36,11 @@ public class LoadedSourceImpl implements LoadedSource {
         this.javaTypes = javaTypes;
     }
 
-    public Collection<SourcedJavaType> getSourcedJavaTypes() {
-        return sourcedJavaTypes;
+    public Collection<CompiledJavaType> getCompiledJavaTypes() {
+        return compiledJavaTypes;
     }
 
-    public void setSourcedJavaTypes(Collection<SourcedJavaType> sourcedJavaTypes) {
-        this.sourcedJavaTypes = sourcedJavaTypes;
+    public void setCompiledJavaTypes(Collection<CompiledJavaType> compiledJavaTypes) {
+        this.compiledJavaTypes = compiledJavaTypes;
     }
 }

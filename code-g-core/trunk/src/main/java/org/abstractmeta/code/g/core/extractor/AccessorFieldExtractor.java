@@ -27,6 +27,7 @@ import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.expression.MethodMatcher;
 import com.google.common.base.CaseFormat;
+import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -73,7 +74,7 @@ public class AccessorFieldExtractor implements FieldExtractor {
      * @return extracted filed list
      */
     @Override
-    public List<JavaField> extract(JavaType sourceType) {
+    public List<JavaField> extract(JavaType sourceType, Context context) {
         List<JavaField> result = new ArrayList<JavaField>();
         List<AbstractionMatch> matchedGroups = methodMatcher.match(sourceType.getMethods(), AbstractionPatterns.ACCESSOR_MUTATOR_PATTERN);
         for (AbstractionMatch match : matchedGroups) {

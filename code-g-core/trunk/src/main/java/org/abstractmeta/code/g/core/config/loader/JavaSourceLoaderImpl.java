@@ -19,12 +19,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
 import org.abstractmeta.code.g.code.SourcedJavaType;
 import org.abstractmeta.code.g.config.SourceFilter;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
+import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.code.SourcedJavaTypeImpl;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
@@ -64,8 +66,8 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         }
         Collection<JavaType> filteredTypes = applyFilter(sourceFilter, registry);
         result.setJavaTypes(filteredTypes);
-        Collection<SourcedJavaType> sourcedTypes = getSourcedJavaType(javaSources, registry);
-        result.setSourcedJavaTypes(sourcedTypes);
+        Collection<CompiledJavaType> sourcedTypes = getCompiledJavaTypes(javaSources, registry, classLoader);
+        result.setCompiledJavaTypes(sourcedTypes);
         return result;
     }
 
@@ -73,11 +75,11 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         return Collections2.filter(registry.get(), new SourceFilterPredicate(sourceFilter));
     }
 
-    protected Collection<SourcedJavaType> getSourcedJavaType(Map<String, String> javaSources, JavaTypeRegistry registry) {
-        Collection<SourcedJavaType> result = new ArrayList<SourcedJavaType>();
+    protected Collection<CompiledJavaType> getCompiledJavaTypes(Map<String, String> javaSources, JavaTypeRegistry registry, ClassLoader classLoader) {
+        Collection<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
         for(Map.Entry<String, String> entry: javaSources.entrySet()) {
             JavaType javaType = registry.get(entry.getKey());
-            result.add(new SourcedJavaTypeImpl(javaType, entry.getValue()));
+            result.add(new CompiledJavaTypeImpl(javaType, entry.getValue(), classLoader));
         }
         return result;
     }

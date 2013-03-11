@@ -40,6 +40,20 @@ public class SourceFilterPredicate implements Predicate<JavaType> {
             }
             return true;
         }
-        return true;
+        if(sourceFilter.getPackageNames() != null) {
+            for(String packageName: sourceFilter.getPackageNames())  {
+                if(javaType.getName().startsWith(packageName)) {
+                    if(sourceFilter.isIncludeSubpackages()) {
+                        return true;
+                    } else {
+                        String simpleClassName = javaType.getName().substring(0, packageName.length() + 1);
+                        if(simpleClassName.indexOf('.') == -1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

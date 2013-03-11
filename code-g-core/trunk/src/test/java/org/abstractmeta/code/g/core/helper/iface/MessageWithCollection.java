@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.generator.test;
-
-import org.abstractmeta.code.g.core.test.Bar;
-import org.abstractmeta.code.g.core.test.Foo;
+package org.abstractmeta.code.g.core.helper.iface;
 
 import java.util.List;
 
-public abstract class CollectionTest {
+public abstract class MessageWithCollection {
     
     public abstract List<Bar> getBars();
 
