@@ -19,8 +19,8 @@ import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
-import org.abstractmeta.code.g.core.code.handler.type.EqualMethodHandler;
-import org.abstractmeta.code.g.core.code.handler.type.HashCodeMethodHandler;
+import org.abstractmeta.code.g.core.builder.handler.type.EqualMethodHandler;
+import org.abstractmeta.code.g.core.builder.handler.type.HashCodeMethodHandler;
 import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.core.util.JavaTypeCompiler;
@@ -113,7 +113,6 @@ public class SimpleClassBuilderTest {
      * @throws Exception
      */
     public void testHashCodeMethodClass() throws Exception {
-
         JavaType iFoo  = new ClassTypeProvider(IFoo.class).get();
         Context context = new ContextImpl();
         HashCodeMethodHandler.Config config = new HashCodeMethodHandler.Config() {

@@ -25,6 +25,9 @@ import org.testng.annotations.Test;
 @Test
 public class RegistryTest {
 
+
+
+
 //
 //    private final PropertyRegistry macroRegistry;
 //

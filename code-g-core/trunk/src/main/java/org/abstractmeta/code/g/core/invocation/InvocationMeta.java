@@ -9,7 +9,7 @@ import java.util.List;
  * <p>Represent one of the following calls</p>
  *
  * <ul>
- *   <li><strong>Method call</strong>  i.e. <pre>[package.]aMethod(argument0, ..., argumentX) </pre></li>
+ *   <li><strong>Method call</strong>  i.e. <pre>[package.aClass]aMethod(argument0, ..., argumentX) </pre></li>
  *  <li><strong>Constructor call</strong> i.e. <pre>[package.]AConstructor&lt;GenericType0, GenericTypeX&gt;(argument0, ..., argumentX)</pre></li>
  * </ul>
  *

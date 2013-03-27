@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.code.handler.field;
+package org.abstractmeta.code.g.core.builder.handler.field;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaMethod;
@@ -25,46 +25,36 @@ import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 /**
- * This handle creates set method.
- * for any given java field.
+ * This handle creates get method for any field.
  * <p>
  * Take the following <code>field: Collection&lt;String> foos;</code> as example.
- * For this case the following method will be added to the owner type.
+ * In this case the following method is added to the owner type.
  * <ul>
- * <li> setter: <pre>
- * public void setFoos(Collection&lt;String> foos) {
- *    this.foos = foos;
+ * <li> getter: <pre>
+ * public Collection&lt;String> getFoos() {
+ *    return this.foos;
  * }</pre></li>
  * <p/>
  * </p>
- * </ul>
- * <p/>
- * <h2>Advanced setting</h2>
- * <ul>
- * <li>onBeforeFieldAssignmentHandler - class name which implements JavaPluginHandler</li>
- * </ul>
  *
  * @author Adrian Witas
  */
-public class SetterFieldHandler implements FieldHandler {
+public class GetterFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        if (target.isImmutable()) return;
-        String methodName = StringUtil.getSetterName(target.getName());
+        String methodName = StringUtil.getGetterName(target.getName());
         if (owner.containsMethod(methodName)) return;
-        JavaMethod setterMethod = buildSetterMethod(target, methodName);
-        owner.addMethod(setterMethod);
+        JavaMethod getterMethod = buildGetterMethod(target, methodName);
+        owner.addMethod(getterMethod);
     }
 
-    private JavaMethod buildSetterMethod(JavaField target, String methodName) {
+    private JavaMethod buildGetterMethod(JavaField target, String methodName) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName(methodName);
-        methodBuilder.setResultType(void.class);
-        methodBuilder.addParameter(target.getName(), target.getType());
+        methodBuilder.setResultType(target.getType());
         methodBuilder.addModifier(JavaModifier.PUBLIC);
-        methodBuilder.addBodyLines(String.format("this.%s = %s;", target.getName(), target.getName()));
+        methodBuilder.addBodyLines(String.format("return this.%s;", target.getName()));
         return methodBuilder.build();
     }
-
 }

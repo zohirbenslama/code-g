@@ -2,12 +2,15 @@ package org.abstractmeta.code.g.core.builder;
 
 import org.abstractmeta.code.g.code.JavaKind;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.core.builder.handler.field.RegistryFieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
-import org.abstractmeta.code.g.core.code.handler.field.GetterFieldHandler;
-import org.abstractmeta.code.g.core.code.handler.field.SetterFieldHandler;
-import org.abstractmeta.code.g.core.code.handler.type.ClassHandler;
-import org.abstractmeta.code.g.core.code.handler.type.EqualMethodHandler;
-import org.abstractmeta.code.g.core.code.handler.type.HashCodeMethodHandler;
+import org.abstractmeta.code.g.core.builder.handler.field.GetterFieldHandler;
+import org.abstractmeta.code.g.core.builder.handler.field.SetterFieldHandler;
+import org.abstractmeta.code.g.core.builder.handler.type.ClassHandler;
+import org.abstractmeta.code.g.core.builder.handler.type.EqualMethodHandler;
+import org.abstractmeta.code.g.core.builder.handler.type.HashCodeMethodHandler;
+import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
+import org.abstractmeta.code.g.expression.MethodMatcher;
 import org.abstractmeta.code.g.generator.Context;
 
 /**
@@ -38,7 +41,8 @@ public class SimpleClassBuilder extends JavaTypeBuilderImpl {
         super(JavaKind.CLASS, typeName, sourceType, context);
         addFieldHandlers(
                 new SetterFieldHandler(),
-                new GetterFieldHandler()
+                new GetterFieldHandler(),
+                new RegistryFieldHandler(new MethodMatcherImpl())
 
         );
         addTypeHandlers(
@@ -52,8 +56,5 @@ public class SimpleClassBuilder extends JavaTypeBuilderImpl {
         //addFieldHandlers(new RegistryFieldHandler(this));
         //addFieldHandler(new CollectionFieldHandler(this, descriptor));
         //addMethodHandler(new SupperMethodHandler(this, descriptor));
-        //addTypeHandler(new HashCodeMethodHandler(this, descriptor, javaTypeRegistry));
-        //addTypeHandler(new EqualMethodHandler(this, descriptor, javaTypeRegistry));
-        //addTypeHandler(new ClassHandler(this, descriptor, javaTypeRegistry));
     }
 }

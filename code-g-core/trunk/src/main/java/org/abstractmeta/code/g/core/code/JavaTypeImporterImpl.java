@@ -61,6 +61,13 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
     }
 
     @Override
+    public void addTypes(Type... importTypes) {
+        Collection<Type> collection = new ArrayList<Type>(importTypes.length);
+        Collections.addAll(collection, importTypes);
+        addTypes(collection);
+    }
+
+    @Override
     public List<String> getTypeNames() {
         Set<String> result = new TreeSet<String>();
         for (String typeName : typeNames) {

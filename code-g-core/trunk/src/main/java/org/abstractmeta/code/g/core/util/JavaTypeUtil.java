@@ -200,7 +200,7 @@ public class JavaTypeUtil {
     public static JavaMethod matchFirstAccessorByType(JavaType ownerType, Type matchingType) {
         for (JavaMethod method : ownerType.getMethods()) {
             if (!method.getName().startsWith("get")) continue;
-            if (method.getResultType().equals(matchingType)) {
+            if (ReflectUtil.getObjectType(method.getResultType()).equals(matchingType)) {
                 return method;
             }
         }

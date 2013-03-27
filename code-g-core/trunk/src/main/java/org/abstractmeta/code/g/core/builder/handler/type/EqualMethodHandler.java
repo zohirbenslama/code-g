@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.code.handler.type;
+package org.abstractmeta.code.g.core.builder.handler.type;
 
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
@@ -66,6 +66,10 @@ public class EqualMethodHandler implements TypeHandler {
 
 
     public static interface Config {
+        /**
+         * Flag to generate equal method
+         * @return
+         */
         boolean isGenerateEqualMethod();
     }
 

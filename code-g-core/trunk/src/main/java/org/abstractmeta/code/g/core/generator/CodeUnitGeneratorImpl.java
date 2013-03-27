@@ -9,6 +9,7 @@ import org.abstractmeta.code.g.generator.GeneratedCode;
  * @author Adrian Witas
  */
 public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
+
     @Override
     public GeneratedCode generate(UnitDescriptor descriptor) {
         throw new UnsupportedOperationException();

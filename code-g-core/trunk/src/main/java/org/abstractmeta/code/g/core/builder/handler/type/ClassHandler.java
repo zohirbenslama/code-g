@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.code.handler.type;
+package org.abstractmeta.code.g.core.builder.handler.type;
 
-import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaConstructor;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This handle creates constructor for all fields defined on the owner type.
+ * This handle creates  a constructor for all fields defined on the owner type.
  * In case where all fields are mutable the empty constructor is added.
- * If builder was not able to generated all methods from source class class is marked as abstract.
+ *
+ *
+ * If it is not possible to generated all methods from source class class is marked as abstract.
  *
  * @author Adrian Witas
  */

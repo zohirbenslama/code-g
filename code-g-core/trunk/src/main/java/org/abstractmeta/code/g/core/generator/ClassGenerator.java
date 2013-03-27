@@ -20,9 +20,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Represents ClassGenerator
- * <p>
- * </p>
+ * Represents Basic Class generator.
+ * This generator extracts fields from interface or superclass
+ * with {@link AccessorFieldExtractor}  and {@lonk RegistryFieldExtractor}
+ * and generates implementation using {@link SimpleClassBuilder}
+ * see {@link ClassGeneratorConfig} and {@link org.abstractmeta.code.g.config.Descriptor} for configuration details.
+ *
  *
  * @author Adrian Witas
  */

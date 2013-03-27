@@ -53,7 +53,7 @@ public class RegistryFieldHandler  {
 //        }
 //        String groupName;
 //        if (fieldName.equals("registry")) {
-//            groupName = AbstractionMatch.DEFAULT_GROUP_NAME;
+//            groupName = AbstractionMatch.EMPTY_GROUP_NAME;
 //        } else {
 //            //a registry filed name is generate from group name as follow xxxRegistry, where xxxx is group name
 //            String registryFiledName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, fieldName);
@@ -98,7 +98,7 @@ public class RegistryFieldHandler  {
 //
 //
 //            } else if (methodName.startsWith("is") && methodName.endsWith("Registered")) {
-//                if (AbstractionMatch.DEFAULT_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
+//                if (AbstractionMatch.EMPTY_GROUP_NAME.equals(groupName) || methodName.contains(groupName)) {
 //                    buildIsRegisteredMethod(methodBuilder, javaMethod, javaField);
 //                }
 //            }
@@ -268,11 +268,11 @@ public class RegistryFieldHandler  {
 //        if (unregisteredMethod.getParameters().size() == 1) {
 //            buildSingleArgumentUnregisteredMethod(methodBuilder, groupMatch, unregisteredMethod, javaField);
 //        } else {
-//            buildMulipleArgumentUnregisteredMethods(methodBuilder, groupMatch, unregisteredMethod, javaField);
+//            buildMultipleArgumentUnregisteredMethods(methodBuilder, groupMatch, unregisteredMethod, javaField);
 //        }
 //    }
 //
-//    private void buildMulipleArgumentUnregisteredMethods(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField) {
+//    private void buildMultipleArgumentUnregisteredMethods(JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField) {
 //        if (!(javaField.getType() instanceof ParameterizedType)) return;
 //        String mapFieldName = javaField.getName();
 //        List<String> parameterNames = JavaTypeUtil.getParameterNames(unregisteredMethod.getParameters());

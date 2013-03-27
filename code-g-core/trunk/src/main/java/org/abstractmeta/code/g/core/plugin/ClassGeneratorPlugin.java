@@ -31,7 +31,7 @@ package org.abstractmeta.code.g.core.plugin;
  * <ul>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.RegistryFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.CollectionFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.code.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.builder.handler.field.GetterFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.SimpleTypeHandler}</li>
  * </ul>
  * </li>

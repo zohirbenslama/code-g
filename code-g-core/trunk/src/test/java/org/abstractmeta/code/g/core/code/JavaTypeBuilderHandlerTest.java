@@ -4,7 +4,7 @@ import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
-import org.abstractmeta.code.g.core.code.handler.field.SetterFieldHandler;
+import org.abstractmeta.code.g.core.builder.handler.field.SetterFieldHandler;
 import org.abstractmeta.code.g.core.renderer.TypeRenderer;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;

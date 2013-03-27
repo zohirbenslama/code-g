@@ -45,6 +45,6 @@ public class OperationNameMatchFunction implements Function<String, String> {
                 return methodName.substring(operationCandidate.length());
             }
         }
-        return AbstractionMatch.DEFAULT_GROUP_NAME;
+        return AbstractionMatch.EMPTY_GROUP_NAME;
     }
 }

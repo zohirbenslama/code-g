@@ -17,7 +17,7 @@ import java.util.*;
  * List of invocation parameters is used to substitute placeholders with a given parameter.
  * <ul>
  *     <p>The following invocation calls are supported</p>
- *  <li><strong>Method call</strong>  i.e. <pre>[package.]aMethod(argument0, ..., argumentX) </pre></li>
+ *  <li><strong>Method call</strong>  i.e. <pre>[package.aClass]aMethod(argument0, ..., argumentX) </pre></li>
  *  <li><strong>Constructor call</strong> i.e. <pre>[package.]AConstructor&lt;GenericType0, GenericTypeX&gt;(argument0, ..., argumentX)</pre></li>
  * </ul>
  *

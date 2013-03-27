@@ -33,7 +33,7 @@ package org.abstractmeta.code.g.core.plugin;
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderCollectionFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderMapFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.BuilderArrayFieldHandler}</li>
- * <li>{@link org.abstractmeta.code.g.core.code.handler.field.GetterFieldHandler}</li>
+ * <li>{@link org.abstractmeta.code.g.core.builder.handler.field.GetterFieldHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.field.IsFieldPresentHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderTypeHandler}</li>
  * <li>{@link org.abstractmeta.code.g.core.handler.type.BuilderMergeHandler}</li>

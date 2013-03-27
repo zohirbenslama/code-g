@@ -13,16 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.code.handler.type;
-
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaParameter;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.JavaTypeBuilder;
-import org.abstractmeta.code.g.code.handler.TypeHandler;
-import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-
-import java.util.Set;
+package org.abstractmeta.code.g.core.builder.handler.type;
 
 /**
  * This handle a proxy to a method

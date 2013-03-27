@@ -24,6 +24,7 @@ import org.abstractmeta.code.g.code.JavaType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -43,6 +44,8 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<JavaType> javaTypes;
 
+    private final Collection<Type> genericVariables;
+
     private final List<JavaModifier> modifiers;
 
     private final String name;
@@ -51,11 +54,12 @@ public class JavaMethodImpl implements JavaMethod {
 
     private final List<String> documentation;
 
-    public JavaMethodImpl(List<JavaParameter> parameters, List<Type> exceptionTypes, List<String> body, Type resultType, List<JavaType> javaTypes, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
+    public JavaMethodImpl(List<JavaParameter> parameters, List<Type> exceptionTypes, List<String> body, Type resultType, Collection<Type> genericVariables,  List<JavaType> javaTypes, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation) {
         this.parameters = parameters;
         this.exceptionTypes = exceptionTypes;
         this.body = body;
         this.resultType = resultType;
+        this.genericVariables = genericVariables;
         this.javaTypes = javaTypes;
         this.modifiers = modifiers;
         this.name = name;
@@ -80,6 +84,11 @@ public class JavaMethodImpl implements JavaMethod {
 
     public Type getResultType() {
         return this.resultType;
+    }
+
+    @Override
+    public Collection<Type> getGenericVariables() {
+        return this.genericVariables;
     }
 
     public List<JavaType> getNestedJavaTypes() {

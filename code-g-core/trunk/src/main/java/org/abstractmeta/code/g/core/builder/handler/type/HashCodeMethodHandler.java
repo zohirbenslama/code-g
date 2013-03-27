@@ -1,4 +1,4 @@
-package org.abstractmeta.code.g.core.code.handler.type;
+package org.abstractmeta.code.g.core.builder.handler.type;
 
 
 import org.abstractmeta.code.g.code.*;
@@ -76,8 +76,16 @@ public class HashCodeMethodHandler implements TypeHandler {
 
     public static interface Config {
 
+        /**
+         * Flag to generate hash method
+         * @return
+         */
         boolean isGenerateHashMethod();
 
+        /**
+         * Hash multiplier. Default 32
+         * @return
+         */
         int getHashMultiplier();
 
         /**

@@ -1,12 +1,4 @@
-package org.abstractmeta.code.g.core.code.handler.method;
-
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaTypeBuilder;
-import org.abstractmeta.code.g.code.handler.MethodHandler;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-
-import java.util.Set;
+package org.abstractmeta.code.g.core.builder.handler.method;
 
 /**
  * Simple method proxy handler.

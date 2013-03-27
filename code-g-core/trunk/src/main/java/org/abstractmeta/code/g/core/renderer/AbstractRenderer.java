@@ -31,6 +31,7 @@ public abstract class AbstractRenderer<T> {
 
     public static final String DOCUMENTATION_PARAMETER = "documentation";
     public static final String MODIFIER_PARAMETER = "modifier";
+    public static final String GENERIC_VARIABLES = "genericVariables";
     public static final String TYPE_PARAMETER = "type";
     public static final String NAME_PARAMETER = "name";
     public static final String ANNOTATIONS_PARAMETER = "annotation";

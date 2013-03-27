@@ -35,7 +35,6 @@ import java.util.List;
  */
 public class JavaMethodBuilder implements JavaMethod {
 
-
     private List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
     private List<Type> exceptionTypes = new ArrayList<Type>();
@@ -43,6 +42,8 @@ public class JavaMethodBuilder implements JavaMethod {
     private List<String> bodyLines = new ArrayList<String>();
 
     private Type resultType;
+
+    private Collection<Type> genericVariables = new ArrayList<Type>();
 
     private List<JavaType> javaTypes = new ArrayList<JavaType>();
 
@@ -129,6 +130,22 @@ public class JavaMethodBuilder implements JavaMethod {
     public Type getResultType() {
         return this.resultType;
     }
+
+    @Override
+    public Collection<Type> getGenericVariables() {
+        return genericVariables;
+    }
+
+
+    public void addGenericVariables(Collection<Type> genericVariables) {
+        this.genericVariables.addAll(genericVariables);
+    }
+
+
+    public void addGenericVariables(Type ... genericVariables) {
+        Collections.addAll(this.genericVariables, genericVariables);
+    }
+
 
     public JavaMethodBuilder setResultType(Type resultType) {
         this.resultType = resultType;
@@ -225,7 +242,7 @@ public class JavaMethodBuilder implements JavaMethod {
             javaTypes.add(builder.build());
         }
         nestedTypeBuilders.clear();
-        JavaMethod result = new JavaMethodImpl(parameters, exceptionTypes, bodyLines, resultType, javaTypes, modifiers, name, annotations, documentation);
+        JavaMethod result = new JavaMethodImpl(parameters, exceptionTypes, bodyLines, resultType, genericVariables, javaTypes, modifiers, name, annotations, documentation);
         return result;
     }
 

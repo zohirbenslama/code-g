@@ -8,6 +8,10 @@ import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LoggingMXBean;
+
 /**
  * JavaTypeCompiler
  *
@@ -17,6 +21,7 @@ import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl
  */
 public class JavaTypeCompiler {
 
+    private static final Logger logger = Logger.getLogger(JavaTypeCompiler.class.getName());
 
     public static CompiledJavaType compile(JavaTypeBuilder javaTypeBuilder) {
         JavaTypeRenderer renderer = new JavaTypeRendererProvider().get();
@@ -32,11 +37,14 @@ public class JavaTypeCompiler {
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
         JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
         String source = "" + sourcedType.getSourceCode();
+        logger.log(Level.INFO, source);
+
         compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
         ClassLoader compilationClassLoader = javaSourceCompiler.compile(CompiledJavaType.class.getClassLoader(), compilationUnit);
 
         Class compiledType = null;
         try {
+
             compiledType = compilationClassLoader.loadClass(sourcedType.getType().getName());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Missing compiled type " + sourcedType.getType().getName() + " please check package name", e);

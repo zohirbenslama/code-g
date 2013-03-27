@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 /**
- * Represents AbstractGenerator
+ * This AbstractGenerator provides a scaffolding building target classes from defined in descriptor sources.
  *
  * @author Adrian Witas
  */

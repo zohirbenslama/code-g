@@ -32,6 +32,10 @@ public class StringUtil {
         return StringUtil.format(CaseFormat.LOWER_CAMEL, "get", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
+    public static String getClassName(String fragment, String postfix) {
+        return format(CaseFormat.UPPER_CAMEL,fragment, postfix, CaseFormat.LOWER_CAMEL);
+    }
+
     public static String format(CaseFormat resultCaseFormat, String prefix, String fragment, CaseFormat sourceCaseFormat) {
         String upperUnderscoreFragment = sourceCaseFormat.to(CaseFormat.UPPER_UNDERSCORE, fragment);
         String upperUnderscorePrefix = sourceCaseFormat.to(CaseFormat.UPPER_UNDERSCORE, prefix);
@@ -91,12 +95,23 @@ public class StringUtil {
 
 
 
-    public static String getPlural(String sigularFragment) {
-        if (sigularFragment.endsWith("y")) {
-            return sigularFragment + "ies";
+    public static String getPlural(String singular) {
+        if (singular.endsWith("y")) {
+            return singular + "ies";
         }
-        return sigularFragment + "s";
+        return singular + "s";
     }
 
+
+    /**
+     * Return value, or default value if value is null.
+     * @param value
+     * @param defaultValue
+     * @return
+     */
+    public static String getValue(String value, String defaultValue) {
+        if(value == null) return defaultValue;
+        return value;
+    }
 
 }
