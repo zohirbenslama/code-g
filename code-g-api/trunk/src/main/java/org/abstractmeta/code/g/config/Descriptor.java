@@ -45,6 +45,8 @@ public interface Descriptor {
 
     /**
      * Return configuration properties
+     * This properties will be used to instantiate a generator specific configuration class.
+     * <b>Note</b> that property names need to match field name on configuration class.
      * @return
      */
     Properties getProperties();

@@ -25,7 +25,7 @@ import java.util.List;
 public interface AbstractionMatch {
 
     public static final String GROUP_NAME_PLACEHOLDER = "<groupName>";
-    public static final String DEFAULT_GROUP_NAME = "";
+    public static final String EMPTY_GROUP_NAME = "";
     
     /**
      * Group name, usually operation postfix

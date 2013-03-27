@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.code;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,6 +36,8 @@ public interface JavaMethod  {
     List<JavaModifier> getModifiers();
 
     Type getResultType();
+
+    Collection<Type> getGenericVariables();
 
     List<JavaParameter> getParameters();
 
