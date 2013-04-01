@@ -22,8 +22,7 @@ import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
-import org.abstractmeta.code.g.core.collection.predicates.ExcludeJavaModifierPredicate;
+import org.abstractmeta.code.g.core.collection.predicate.ExcludeJavaModifierPredicate;
 import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeVariableImpl;
@@ -91,7 +90,9 @@ import java.util.Map;
  *     </pre>
 <ol>
  <li><b>Basic implementation</b>
-    Default key provider is built based on matching a key type with the first encountered value type's field type
+    Default key provider is built based on matching a key type with the first encountered value type's field type.
+    This default matching can be customized by using annotation on value's field to point a source for a key provider
+    see {@link org.abstractmeta.code.g.core.builder.handler.field.RegistryFieldHandler.Config#getRegistryKeyAnnotation()}
  <pre>
 package com.test;
 
@@ -346,6 +347,10 @@ public class SimpleRegistry implements IGroupRegistry {
  */
 public class RegistryFieldHandler implements FieldHandler {
 
+    public static final String DEFAULT_REGISTRY_FIELD = "registry";
+    public static final String DEFAULT_MAKE_MAP_METHOD = "makeMap";
+
+
     private final MethodMatcher methodMatcher;
 
     public RegistryFieldHandler(MethodMatcher methodMatcher) {
@@ -354,7 +359,8 @@ public class RegistryFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        if (!isApplicable(target, context)) return;
+        if (!isApplicable(owner, target, context)) return;
+
         JavaType source = owner.getSourceType();
         Map<String, AbstractionMatch> sourceMatches = methodMatcher.indexByName(methodMatcher.match(source.getMethods(), AbstractionPatterns.REGISTRY_PATTERN));
         String registryFieldName = getRegistryFieldName(context);
@@ -363,26 +369,27 @@ public class RegistryFieldHandler implements FieldHandler {
         buildRegistryMethods(owner, target, groupMatch, context);
     }
 
-    protected boolean isApplicable(JavaField target, Context context) {
+    protected boolean isApplicable(JavaTypeBuilder owner, JavaField target, Context context) {
         Class rawFieldType = ReflectUtil.getRawClass(target.getType());
         if (!Map.class.isAssignableFrom(rawFieldType)) return false;
-        Config config = context.getOptional(Config.class);
-        if (config == null || !config.isGenerateRegistry()) return false;
+        if(owner.getSourceType() == null) return false;
         String registryFieldName = getRegistryFieldName(context);
         return target.getName().toLowerCase().endsWith(registryFieldName);
     }
 
     protected String getRegistryFieldName(Context context) {
-        return StringUtil.getValue(context.get(Config.class).getRegistryFieldName(), "registry");
+        if(! context.contains(Config.class)) return DEFAULT_REGISTRY_FIELD;
+        return StringUtil.getValue(context.get(Config.class).getRegistryFieldName(),DEFAULT_REGISTRY_FIELD);
     }
 
     protected String getCreateMapMethodName(Context context) {
-        return StringUtil.getValue(context.get(Config.class).getRegistryCreateMapMethodName(), "makeMap");
+        if(! context.contains(Config.class)) return DEFAULT_MAKE_MAP_METHOD;
+        return StringUtil.getValue(context.get(Config.class).getRegistryCreateMapMethodName(), DEFAULT_MAKE_MAP_METHOD);
     }
 
 
     protected boolean isUseKeyProvider(Context context) {
-        return Boolean.TRUE.equals(context.get(Config.class).isRegistryUseKeyProvider());
+        return context.contains(Config.class) && Boolean.TRUE.equals(context.get(Config.class).isRegistryItemUseKeyProvider());
     }
 
 
@@ -452,25 +459,24 @@ public class RegistryFieldHandler implements FieldHandler {
     protected void buildRegisterMethod(JavaTypeBuilder owner, JavaMethodBuilder methodBuilder, AbstractionMatch groupMatch, JavaMethod registerMethod, JavaField javaField, Context context) {
         MethodMatch getMethodMatch = groupMatch.getMatch("get", Object.class);
         if (registerMethod.getParameters().size() == 1) {
-            buildSingleParameterRegisterMethod(owner, groupMatch, methodBuilder, getMethodMatch, registerMethod, javaField, context);
+            buildSingleParameterRegisterMethod(owner, methodBuilder, getMethodMatch, registerMethod, javaField, context);
         } else {
-            buildMultiParameterRegisterMethod(owner, methodBuilder, getMethodMatch, registerMethod, javaField, context);
+            buildMultiParameterRegisterMethod(owner, methodBuilder, registerMethod, javaField, context);
         }
     }
 
 
-    protected void buildSingleParameterRegisterMethod(JavaTypeBuilder owner, AbstractionMatch groupMatch, JavaMethodBuilder methodBuilder, MethodMatch getMethodMatch, JavaMethod registerMethod, JavaField javaField, Context context) {
+    protected void buildSingleParameterRegisterMethod(JavaTypeBuilder owner, JavaMethodBuilder methodBuilder, MethodMatch getMethodMatch, JavaMethod registerMethod, JavaField javaField, Context context) {
         String registerArgumentName = registerMethod.getParameters().get(0).getName();
         Type registryKeyType = getMethodMatch.getMethod().getParameters().get(0).getType();
         Type registryValueType = registerMethod.getParameters().get(0).getType();
-        JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryKeyType);
-        if(accessor == null) {
-            throw new IllegalStateException("Failed to match value type: " + registryValueType + " with the registry key type: " + registryKeyType) ;
-        }
+
+        String annotation  = context.get(Config.class).getRegistryKeyAnnotation();
+        JavaMethod accessor =  JavaTypeUtil.matchOwnerFieldWithMatchingType(registryValueType, registryKeyType, annotation);
         boolean useKeyProvider = isUseKeyProvider(context);
         if (useKeyProvider) {
-            buildKeyProviderField(owner, groupMatch, accessor, registryKeyType, registryValueType);
-            String providerFieldName = getKeyProviderFieldName(groupMatch);
+            buildKeyProviderField(owner, javaField, accessor, registryValueType);
+            String providerFieldName =  JavaTypeUtil.getKeyProviderFieldName(javaField.getName());
             methodBuilder.addBodyLines(String.format("%s.put(%s.apply(%s), %s);", javaField.getName(), providerFieldName, registerArgumentName, registerArgumentName));
 
 
@@ -481,7 +487,8 @@ public class RegistryFieldHandler implements FieldHandler {
     }
 
 
-    protected void buildMultiParameterRegisterMethod(JavaTypeBuilder owner, JavaMethodBuilder methodBuilder, MethodMatch getMethodMatch, JavaMethod registerMethod, JavaField javaField, Context context) {
+
+    protected void buildMultiParameterRegisterMethod(JavaTypeBuilder owner, JavaMethodBuilder methodBuilder,  JavaMethod registerMethod, JavaField javaField, Context context) {
         if (!(javaField.getType() instanceof ParameterizedType)) return;
         String mapFieldName = javaField.getName();
         List<String> parameterNames = JavaTypeUtil.getParameterNames(registerMethod.getParameters());
@@ -509,19 +516,10 @@ public class RegistryFieldHandler implements FieldHandler {
     }
 
 
-    protected void buildKeyProviderField(JavaTypeBuilder owner, AbstractionMatch groupMatch, JavaMethod accessor, Type registryKeyType, Type registryValueType) {
-        String providerType = StringUtil.getClassName(groupMatch.getName(), "keyProvider");
-        String providerFieldName = getKeyProviderFieldName(groupMatch);
-        JavaTypeBuilder simpleType = new JavaTypeBuilderImpl(providerType);
-        simpleType.setNested(true);
-        simpleType.addModifiers(JavaModifier.PUBLIC, JavaModifier.STATIC);
-        Type iFace = new ParameterizedTypeImpl(null, Function.class, registryValueType, registryKeyType);
-        simpleType.addSuperInterfaces(iFace);
-        simpleType.addMethod(new JavaMethodBuilder().setName("apply")
-                .addModifier(JavaModifier.PUBLIC)
-                .setResultType(registryKeyType).addParameter("value", registryValueType)
-                .addBodyLines(String.format("return value.%s();", accessor.getName()))
-                .build());
+    protected  void buildKeyProviderField(JavaTypeBuilder owner, JavaField field, JavaMethod provideMethod, Type registryValueType) {
+        String providerFieldName = JavaTypeUtil.getKeyProviderFieldName(field.getName());
+        Type iFace = new ParameterizedTypeImpl(null, Function.class, registryValueType, provideMethod.getResultType());
+        JavaTypeBuilder simpleType = JavaTypeUtil.buildKeyProviderFunction(provideMethod, field.getName(), registryValueType);
         owner.addNestedJavaTypes(simpleType);
         owner.addField(new JavaFieldBuilder()
                 .addModifier(JavaModifier.PRIVATE)
@@ -532,10 +530,7 @@ public class RegistryFieldHandler implements FieldHandler {
     }
 
 
-    protected String getKeyProviderFieldName(AbstractionMatch groupMatch) {
-        String providerType = StringUtil.getClassName(groupMatch.getName(), "keyProvider");
-        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, providerType);
-    }
+
 
     protected void buildGetAllMethod(JavaMethodBuilder methodBuilder, JavaField javaField) {
         methodBuilder.addBodyLines(String.format("return %s.values();", javaField.getName()));
@@ -551,7 +546,7 @@ public class RegistryFieldHandler implements FieldHandler {
         if (unregisteredMethod.getParameters().size() == 1) {
             buildSingleArgumentUnregisteredMethod(methodBuilder, groupMatch, unregisteredMethod, javaField, context);
         } else {
-            buildMultipleArgumentUnregisteredMethods(owner, methodBuilder, groupMatch, unregisteredMethod, javaField, context);
+            buildMultipleArgumentUnregisteredMethods(owner, methodBuilder, unregisteredMethod, javaField, context);
         }
     }
 
@@ -565,10 +560,11 @@ public class RegistryFieldHandler implements FieldHandler {
             methodBuilder.addBodyLines(String.format("%s.remove(%s);", javaField.getName(), parameterName));
 
         } else {
-            JavaMethod accessor = JavaTypeUtil.matchFirstFieldByType(registryValueType, registryKeyType);
+            String annotation = context.get(Config.class).getRegistryKeyAnnotation();
+            JavaMethod accessor =  JavaTypeUtil.matchOwnerFieldWithMatchingType(registryValueType, registryKeyType, annotation);
             boolean useKeyProvider = isUseKeyProvider(context);
             if (useKeyProvider) {
-                String providerFieldName = getKeyProviderFieldName(groupMatch);
+                String providerFieldName = JavaTypeUtil.getKeyProviderFieldName(javaField.getName());
                 methodBuilder.addBodyLines(String.format("%s.remove(%s.apply(%s));", javaField.getName(), providerFieldName, parameterName));
 
             } else {
@@ -579,7 +575,7 @@ public class RegistryFieldHandler implements FieldHandler {
     }
 
 
-    protected void buildMultipleArgumentUnregisteredMethods(JavaTypeBuilder owner, JavaMethodBuilder javaMethodBuilder, AbstractionMatch groupMatch, JavaMethod unregisteredMethod, JavaField javaField, Context context) {
+    protected void buildMultipleArgumentUnregisteredMethods(JavaTypeBuilder owner, JavaMethodBuilder javaMethodBuilder, JavaMethod unregisteredMethod, JavaField javaField, Context context) {
         if (!(javaField.getType() instanceof ParameterizedType)) return;
         String mapFieldName = javaField.getName();
         List<String> parameterNames = JavaTypeUtil.getParameterNames(unregisteredMethod.getParameters());
@@ -654,8 +650,8 @@ public class RegistryFieldHandler implements FieldHandler {
         JavaMethodBuilder resultMethod = new JavaMethodBuilder();
         resultMethod.addModifier(JavaModifier.PROTECTED);
         resultMethod.setName(createMapMethodName);
-        TypeVariable keyType = new TypeVariableImpl("K");
-        TypeVariableImpl valueType = new TypeVariableImpl("V");
+        TypeVariable keyType = new TypeVariableImpl("K", Map.class);
+        TypeVariableImpl valueType = new TypeVariableImpl("V", Map.class);
         resultMethod.addGenericVariables(keyType, valueType);
         resultMethod.setResultType(new ParameterizedTypeImpl(null, Map.class, keyType, valueType));
         resultMethod.addBodyLines("return new " + HashMap.class.getSimpleName() + "<K, V>();");
@@ -706,13 +702,6 @@ public class RegistryFieldHandler implements FieldHandler {
 
     public static interface Config {
 
-        /**
-         * Flag to generate hash method
-         *
-         * @return
-         */
-        boolean isGenerateRegistry();
-
 
         /**
          * Returns a method to create a map user be registry. Default makeMap
@@ -730,12 +719,20 @@ public class RegistryFieldHandler implements FieldHandler {
 
 
         /**
+         * Returns a field annotation name to be used as key provider discriminator.
+         *
+         * @return
+         */
+        String getRegistryKeyAnnotation();
+
+
+        /**
          * Flag to use key provider
          * It uses {@link Function} as default key provider.
          *
          * @return
          */
-        boolean isRegistryUseKeyProvider();
+        boolean isRegistryItemUseKeyProvider();
 
 
     }

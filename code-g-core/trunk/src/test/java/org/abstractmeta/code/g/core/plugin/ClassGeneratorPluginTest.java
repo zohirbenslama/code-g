@@ -81,7 +81,7 @@ public class ClassGeneratorPluginTest {
 //        CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl(macroRegistry, new SourceCompilerHandler.Factory());
 //        List<SourcedJavaType> generated = new ArrayList<SourcedJavaType>(unitGenerator.generate(unitDescriptors));
 //        Class messageImpType = unitDescriptors.get(0).getClassLoader().loadClassesFromSourceDirectory(generated.get(0).getType().getName());
-//        AMessage message = AMessage.class.cast(messageImpType.getConstructor(int.class, String.class).newInstance(1, "Test"));
+//        IMessage message = IMessage.class.cast(messageImpType.getConstructor(int.class, String.class).newInstance(1, "Test"));
 //        Assert.assertEquals(message.getId(), 1);
 //        Assert.assertEquals(message.getName(), "Test");
 //

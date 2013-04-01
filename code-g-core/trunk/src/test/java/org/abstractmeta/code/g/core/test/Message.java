@@ -1,7 +1,7 @@
 package org.abstractmeta.code.g.core.test;
 
 /**
- * Represents AMessage
+ * Represents IMessage
  *
  * @author Adrian Witas
  */

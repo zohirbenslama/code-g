@@ -36,12 +36,11 @@ import java.util.List;
 public class JavaConstructorBuilder implements JavaConstructor {
 
 
-
     private List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
     private List<Type> exceptionTypes = new ArrayList<Type>();
 
-    private List<String> body = new ArrayList<String>();
+    private List<String> bodyLines = new ArrayList<String>();
 
     private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
 
@@ -71,7 +70,7 @@ public class JavaConstructorBuilder implements JavaConstructor {
         JavaParameterBuilder parameterBuilder = new JavaParameterBuilder();
         parameterBuilder.setName(name);
         parameterBuilder.setType(type);
-        if(modifier != null) {
+        if (modifier != null) {
             parameterBuilder.addModifiers(modifier);
         }
         this.parameters.add(parameterBuilder.build());
@@ -79,13 +78,14 @@ public class JavaConstructorBuilder implements JavaConstructor {
     }
 
 
-
-    public void addParameters(JavaParameter ... parameters) {
+    public JavaConstructorBuilder addParameters(JavaParameter... parameters) {
         Collections.addAll(this.parameters, parameters);
+        return this;
     }
 
-    public void addParameters(List<JavaParameter> parameters) {
-      this.parameters.addAll(parameters);
+    public JavaConstructorBuilder addParameters(List<JavaParameter> parameters) {
+        this.parameters.addAll(parameters);
+        return this;
     }
 
 
@@ -99,27 +99,27 @@ public class JavaConstructorBuilder implements JavaConstructor {
         return this;
     }
 
-    public JavaConstructorBuilder addExceptionTypes(Type ... exceptionTypes) {
+    public JavaConstructorBuilder addExceptionTypes(Type... exceptionTypes) {
         Collections.addAll(this.exceptionTypes, exceptionTypes);
         return this;
     }
 
-    public List<String> getBody() {
-        return this.body;
+    public List<String> getBodyLines() {
+        return this.bodyLines;
     }
 
-    public JavaConstructorBuilder setBody(List<String> body) {
-        this.body = body;
+    public JavaConstructorBuilder setBodyLines(List<String> bodyLines) {
+        this.bodyLines = bodyLines;
         return this;
     }
 
-    public JavaConstructorBuilder addBody(String body) {
-        this.body.add(body);
+    public JavaConstructorBuilder addBodyLines(String body) {
+        this.bodyLines.add(body);
         return this;
     }
 
-    public JavaConstructorBuilder addBody(Collection<String> body) {
-        this.body.addAll(body);
+    public JavaConstructorBuilder addBodyLines(Collection<String> body) {
+        this.bodyLines.addAll(body);
         return this;
     }
 
@@ -192,7 +192,7 @@ public class JavaConstructorBuilder implements JavaConstructor {
     }
 
     public JavaConstructor build() {
-        return new JavaConstructorImpl(parameters, exceptionTypes, body, modifiers, name, annotations, documentation);
+        return new JavaConstructorImpl(parameters, exceptionTypes, bodyLines, modifiers, name, annotations, documentation);
     }
 
     public void merge(JavaConstructor instance) {
@@ -202,8 +202,8 @@ public class JavaConstructorBuilder implements JavaConstructor {
         if (instance.getExceptionTypes() != null) {
             addExceptionTypes(instance.getExceptionTypes());
         }
-        if (instance.getBody() != null) {
-            addBody(instance.getBody());
+        if (instance.getBodyLines() != null) {
+            addBodyLines(instance.getBodyLines());
         }
         if (instance.getModifiers() != null) {
             addModifiers(instance.getModifiers());

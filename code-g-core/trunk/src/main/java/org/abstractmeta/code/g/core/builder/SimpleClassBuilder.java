@@ -2,6 +2,7 @@ package org.abstractmeta.code.g.core.builder;
 
 import org.abstractmeta.code.g.code.JavaKind;
 import org.abstractmeta.code.g.code.JavaType;
+import org.abstractmeta.code.g.core.builder.handler.field.IndexedCollectionFieldHandler;
 import org.abstractmeta.code.g.core.builder.handler.field.RegistryFieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
 import org.abstractmeta.code.g.core.builder.handler.field.GetterFieldHandler;
@@ -20,6 +21,10 @@ import org.abstractmeta.code.g.generator.Context;
  * <ul>
  *     <li>{@link SetterFieldHandler}</li>
  *     <li>{@link GetterFieldHandler}</li>
+ *     <li>{@link RegistryFieldHandler}</li>
+ *     <li>{@link IndexedCollectionFieldHandler}</li>
+ *
+ *
  * </ul>
  * </p>
  *
@@ -42,7 +47,8 @@ public class SimpleClassBuilder extends JavaTypeBuilderImpl {
         addFieldHandlers(
                 new SetterFieldHandler(),
                 new GetterFieldHandler(),
-                new RegistryFieldHandler(new MethodMatcherImpl())
+                new RegistryFieldHandler(new MethodMatcherImpl()),
+                new IndexedCollectionFieldHandler(new MethodMatcherImpl())
 
         );
         addTypeHandlers(
@@ -50,11 +56,15 @@ public class SimpleClassBuilder extends JavaTypeBuilderImpl {
                 new EqualMethodHandler(),
                 new HashCodeMethodHandler()
         );
-
-
-
-        //addFieldHandlers(new RegistryFieldHandler(this));
-        //addFieldHandler(new CollectionFieldHandler(this, descriptor));
-        //addMethodHandler(new SupperMethodHandler(this, descriptor));
     }
+
+
+
+    public static interface Config {
+
+        boolean addBuilder();
+
+    }
+
+
 }

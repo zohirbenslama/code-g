@@ -23,9 +23,11 @@ import java.lang.reflect.TypeVariable;
 public class TypeVariableImpl implements TypeVariable {
 
     private final String name;
+    private final Class genericDeclaration;
 
-    public TypeVariableImpl(String name) {
+    public TypeVariableImpl(String name, Class genericDeclaration) {
         this.name = name;
+        this.genericDeclaration = genericDeclaration;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class TypeVariableImpl implements TypeVariable {
 
     @Override
     public GenericDeclaration getGenericDeclaration() {
-        return null;
+        return genericDeclaration;
     }
 
     @Override

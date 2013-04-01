@@ -1,7 +1,7 @@
 package org.abstractmeta.code.g.core.helper.clazz;
 
 /**
- * Represents AMessage
+ * Represents IMessage
  * <p>
  * </p>
  *

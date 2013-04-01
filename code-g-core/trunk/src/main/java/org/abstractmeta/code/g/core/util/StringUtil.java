@@ -16,7 +16,9 @@
 package org.abstractmeta.code.g.core.util;
 
 import com.google.common.base.CaseFormat;
+import org.abstractmeta.code.g.code.JavaField;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -24,13 +26,39 @@ import java.util.Map;
  */
 public class StringUtil {
 
-    public static String getSetterName(String fieldName) {
+    public static String getSetterMethodName(String fieldName) {
         return StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
-    public static String getGetterName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, "get", fieldName, CaseFormat.LOWER_CAMEL);
+
+    public static String getGetterMethodName(JavaField field) {
+        return getGetterMethodName(field.getName(), field.getType());
     }
+
+    public static String getGetterMethodName(String fieldName, Type fieldType) {
+        String prefix = boolean.class.equals(fieldType) ? "is" : "get";
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, prefix, fieldName, CaseFormat.LOWER_CAMEL);
+    }
+
+
+    public static String getPresentFieldName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, fieldName , "Present", CaseFormat.LOWER_CAMEL);
+    }
+
+
+    public static String getPresentMethodName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, "is",  fieldName + "Present", CaseFormat.LOWER_CAMEL);
+    }
+
+
+    public static String getAddMethodName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+    }
+
+    public static String getClearMethodName(String fieldName) {
+        return StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
+    }
+
 
     public static String getClassName(String fragment, String postfix) {
         return format(CaseFormat.UPPER_CAMEL,fragment, postfix, CaseFormat.LOWER_CAMEL);
@@ -97,9 +125,18 @@ public class StringUtil {
 
     public static String getPlural(String singular) {
         if (singular.endsWith("y")) {
-            return singular + "ies";
+            return singular.substring(0, singular.length() - 1) + "ies";
         }
         return singular + "s";
+    }
+
+    public static String getSingular(String plural) {
+        if (plural.endsWith("ies")) {
+            return plural.substring(0, plural.length() - 3);
+        } else if(plural.endsWith("s")) {
+            return plural.substring(0, plural.length() - 1);
+        }
+        return plural;
     }
 
 

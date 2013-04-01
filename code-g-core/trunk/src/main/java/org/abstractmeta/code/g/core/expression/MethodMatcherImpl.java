@@ -17,8 +17,8 @@ package org.abstractmeta.code.g.core.expression;
 
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.core.collection.function.OperationNameMatchFunction;
-import org.abstractmeta.code.g.core.collection.predicates.MethodMatchPredicate;
-import org.abstractmeta.code.g.core.collection.predicates.OperationMatchPredicate;
+import org.abstractmeta.code.g.core.collection.predicate.MethodMatchPredicate;
+import org.abstractmeta.code.g.core.collection.predicate.OperationMatchPredicate;
 import org.abstractmeta.code.g.core.expression.builder.AbstractionMatchBuilder;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import com.google.common.collect.Iterables;
@@ -108,7 +108,7 @@ public class MethodMatcherImpl implements MethodMatcher {
                     String pluralName = StringUtil.getPlural(matchName);
                     AbstractionMatchBuilder pluralMatch = methodMatchBuilders.get(pluralName);
                     if (pluralMatch == null) continue;
-                    pluralMatch.addMatches(builder.build().getMatches());
+                    pluralMatch.addMatches(builder.getMatches());
                     singularNames.add(matchName);
                 }
             }

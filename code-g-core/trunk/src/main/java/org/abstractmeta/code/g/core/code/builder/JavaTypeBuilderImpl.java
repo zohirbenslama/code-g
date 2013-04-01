@@ -25,10 +25,16 @@ import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.code.JavaTypeImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.generator.ContextImpl;
+import org.abstractmeta.code.g.core.internal.GenericArrayTypeImpl;
+import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 
@@ -129,7 +135,6 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     }
 
 
-
     @Override
     public JavaTypeImporter getImporter() {
         return javaTypeImporter;
@@ -187,6 +192,13 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
 
     }
 
+    @Override
+    public JavaTypeBuilder setFields(List<JavaField> fields) {
+        Preconditions.checkNotNull(fields, "fields was null");
+        this.fields = fields;
+        return this;
+    }
+
     public List<JavaField> getFields() {
         return this.fields;
     }
@@ -215,7 +227,9 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     @Override
     public JavaTypeBuilder addField(JavaField field) {
         for (FieldHandler handler : fieldHandlers) {
+            context.replace(JavaField.class, field);
             handler.handle(this, field, context);
+            context.remove(JavaField.class);
         }
         fields.add(field);
         return this;
@@ -251,7 +265,9 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     @Override
     public JavaTypeBuilder addMethod(JavaMethod method) {
         for (MethodHandler methodHandler : methodHandlers) {
+            context.replace(JavaMethod.class, method);
             methodHandler.handle(this, method, context);
+            context.remove(JavaMethod.class);
         }
         this.methods.add(method);
         return this;
@@ -289,9 +305,18 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     }
 
     @Override
+    public JavaTypeBuilder setMethods(List<JavaMethod> methods) {
+        Preconditions.checkNotNull(methods, "methods was null");
+        this.methods = methods;
+        return this;
+    }
+
+    @Override
     public JavaTypeBuilder addConstructor(JavaConstructor constructor) {
         for (ConstructorHandler handler : constructorHandlers) {
+            context.replace(JavaConstructor.class, constructor);
             handler.handle(this, constructor, context);
+            context.remove(JavaConstructor.class);
         }
         constructors.add(constructor);
         return this;
@@ -313,13 +338,22 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
         return this;
     }
 
+    @Override
+    public JavaTypeBuilder setConstructors(List<JavaConstructor> constructors) {
+        Preconditions.checkNotNull(constructors, "constructors was null");
+        this.constructors = constructors;
+        return this;
+    }
+
     public List<JavaConstructor> getConstructors() {
         return this.constructors;
     }
 
     @Override
     public JavaTypeBuilder addSuperInterfaces(Type... superInterfaces) {
-        Collections.addAll(this.superInterfaces, superInterfaces);
+        Collection<Type> collection = new ArrayList<Type>();
+        Collections.addAll(collection, superInterfaces);
+        addSuperInterfaces(collection);
         return this;
     }
 
@@ -333,6 +367,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
         this.superInterfaces.addAll(superInterfaces);
         return this;
     }
+
 
     @Override
     public JavaTypeBuilder addImportTypes(Type... importTypes) {
@@ -448,6 +483,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
 
     @Override
     public JavaTypeBuilder addAnnotations(Annotation... annotations) {
+        Collections.addAll(this.annotations, annotations);
         return this;
     }
 
@@ -529,9 +565,88 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
         for (TypeHandler typeHandler : typeHandlers) {
             typeHandler.handle(this, context);
         }
+
+        resolveGenerics();
+
         return new JavaTypeImpl(fields, methods, constructors, importTypes, superInterfaces, packageName, kind, bodyLines, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, simpleName, genericTypeArguments, genericTypeVariables);
     }
 
+
+    protected void resolveGenerics() {
+        resolveInterfaceTypeVariables();
+        resolveFieldsTypeVariables();
+        resolveGenericTypeArguments();
+        Map<String, TypeVariable> typeVariables = getTypeVariables();
+        for(Type typeArgument: genericTypeArguments)  {
+            if(typeArgument instanceof TypeVariable) {
+                typeVariables.remove(TypeVariable.class.cast(typeArgument).getName());
+            }
+        }
+        genericTypeArguments.addAll(typeVariables.values());
+
+    }
+
+    protected void resolveGenericTypeArguments() {
+        List<Type> genericTypeArguments = new ArrayList<Type>(this.genericTypeArguments);
+        this.genericTypeArguments.clear();
+        for(Type type : genericTypeArguments) {
+            Type resolvedType = ReflectUtil.resolveTypeVariables(type, genericTypeVariables);
+            if(resolvedType instanceof Class) continue;
+            this.genericTypeArguments.add(resolvedType);
+
+        }
+
+    }
+
+    protected void resolveInterfaceTypeVariables() {
+        Collection<Type> ifaces = new ArrayList<Type>(this.superInterfaces);
+        superInterfaces.clear();
+        for (Type iface : ifaces) {
+            this.superInterfaces.add(ReflectUtil.resolveTypeVariables(iface, genericTypeVariables));
+        }
+    }
+
+    protected void resolveFieldsTypeVariables() {
+        Collection<JavaField> fields = new ArrayList<JavaField>(this.fields);
+        this.fields.clear();
+        for (JavaField field : fields) {
+            this.fields.add(new JavaFieldBuilder().merge(field).setType(ReflectUtil.resolveTypeVariables(field.getType(), genericTypeVariables)).build());
+        }
+    }
+
+
+    protected Map<String, TypeVariable> getTypeVariables() {
+        List<TypeVariable> variables = new ArrayList<TypeVariable>();
+        for (Type superInterface : superInterfaces) {
+            addTypeVariables(superInterface, variables);
+        }
+        if (superType != null) addTypeVariables(superType, variables);
+        for (JavaField field : fields) {
+            addTypeVariables(field.getType(), variables);
+        }
+        Map<String, TypeVariable> result = new HashMap<String, TypeVariable>();
+        for (TypeVariable variable : variables) {
+            result.put(variable.getName(), variable);
+        }
+        return result;
+    }
+
+
+    protected void addTypeVariables(Type sourceType, List<TypeVariable> result) {
+        if (sourceType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = ParameterizedType.class.cast(sourceType);
+            for (Type argumentType : parameterizedType.getActualTypeArguments()) {
+                if (argumentType instanceof TypeVariable) {
+                    result.add(TypeVariable.class.cast(argumentType));
+                }
+            }
+        } else if (sourceType instanceof TypeVariable) {
+            result.add(TypeVariable.class.cast(sourceType));
+        } else if (sourceType instanceof GenericArrayType) {
+            GenericArrayType arrayType = GenericArrayType.class.cast(sourceType);
+            addTypeVariables(arrayType.getGenericComponentType(), result);
+        }
+    }
 
     @Override
     public JavaTypeBuilder merge(JavaType instance) {

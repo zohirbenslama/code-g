@@ -1,5 +1,6 @@
 package org.abstractmeta.code.g.core.generator;
 
+import org.abstractmeta.code.g.core.builder.handler.field.IndexedCollectionFieldHandler;
 import org.abstractmeta.code.g.core.builder.handler.field.RegistryFieldHandler;
 import org.abstractmeta.code.g.core.builder.handler.type.EqualMethodHandler;
 import org.abstractmeta.code.g.core.builder.handler.type.HashCodeMethodHandler;
@@ -9,16 +10,20 @@ import org.abstractmeta.code.g.core.builder.handler.type.HashCodeMethodHandler;
  *
  * @author Arian Witas
  */
-public class ClassGeneratorConfig implements EqualMethodHandler.Config, HashCodeMethodHandler.Config, RegistryFieldHandler.Config {
+public class ClassGeneratorConfig implements EqualMethodHandler.Config, HashCodeMethodHandler.Config, RegistryFieldHandler.Config, IndexedCollectionFieldHandler.Config {
 
     private boolean generateEqualMethod;
     private boolean generateHashMethod;
     private int hashMultiplier;
     private String includeInHashAnnotation;
-    private boolean generateRegistry;
     private String registryCreateMapMethodName;
     private String registryFieldName;
-    private boolean registryUseKeyProvider;
+    private boolean registryItemUseKeyProvider;
+    private String registryKeyAnnotation;
+    private String indexedCollectionItemKeyAnnotation;
+    private boolean indexedCollectionUseCache;
+    private boolean indexCollectionUseKeyProvider;
+    private boolean generateBuilder;
 
     public boolean isGenerateEqualMethod() {
         return generateEqualMethod;
@@ -52,13 +57,6 @@ public class ClassGeneratorConfig implements EqualMethodHandler.Config, HashCode
         this.includeInHashAnnotation = includeInHashAnnotation;
     }
 
-    public boolean isGenerateRegistry() {
-        return generateRegistry;
-    }
-
-    public void setGenerateRegistry(boolean generateRegistry) {
-        this.generateRegistry = generateRegistry;
-    }
 
     public String getRegistryCreateMapMethodName() {
         return registryCreateMapMethodName;
@@ -72,15 +70,56 @@ public class ClassGeneratorConfig implements EqualMethodHandler.Config, HashCode
         return registryFieldName;
     }
 
+    public void setRegistryKeyAnnotation(String registryKeyAnnotation) {
+        this.registryKeyAnnotation = registryKeyAnnotation;
+    }
+
+    @Override
+    public String getRegistryKeyAnnotation() {
+        return registryKeyAnnotation;
+    }
+
     public void setRegistryFieldName(String registryFieldName) {
         this.registryFieldName = registryFieldName;
     }
 
-    public boolean isRegistryUseKeyProvider() {
-        return registryUseKeyProvider;
+    public boolean isRegistryItemUseKeyProvider() {
+        return registryItemUseKeyProvider;
     }
 
-    public void setRegistryUseKeyProvider(boolean registryUseKeyProvider) {
-        this.registryUseKeyProvider = registryUseKeyProvider;
+    public void setRegistryItemUseKeyProvider(boolean registryItemUseKeyProvider) {
+        this.registryItemUseKeyProvider = registryItemUseKeyProvider;
+    }
+
+    public String getIndexedCollectionItemKeyAnnotation() {
+        return indexedCollectionItemKeyAnnotation;
+    }
+
+    public void setIndexedCollectionItemKeyAnnotation(String indexedCollectionItemKeyAnnotation) {
+        this.indexedCollectionItemKeyAnnotation = indexedCollectionItemKeyAnnotation;
+    }
+
+    public boolean isIndexedCollectionUseCache() {
+        return indexedCollectionUseCache;
+    }
+
+    public void setIndexedCollectionUseCache(boolean indexedCollectionUseCache) {
+        this.indexedCollectionUseCache = indexedCollectionUseCache;
+    }
+
+    public boolean isIndexCollectionUsePredicate() {
+        return indexCollectionUseKeyProvider;
+    }
+
+    public void setIndexCollectionUseKeyProvider(boolean indexCollectionUseKeyProvider) {
+        this.indexCollectionUseKeyProvider = indexCollectionUseKeyProvider;
+    }
+
+    public boolean isGenerateBuilder() {
+        return generateBuilder;
+    }
+
+    public void setGenerateBuilder(boolean generateBuilder) {
+        this.generateBuilder = generateBuilder;
     }
 }

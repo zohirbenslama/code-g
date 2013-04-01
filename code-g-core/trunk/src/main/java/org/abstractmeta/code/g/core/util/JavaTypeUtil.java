@@ -15,20 +15,25 @@
  */
 package org.abstractmeta.code.g.core.util;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
-import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaParameterBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.code.builder.*;
 import org.abstractmeta.code.g.core.collection.function.JavaParameterClassFunction;
 import org.abstractmeta.code.g.core.collection.function.JavaParameterName;
 import org.abstractmeta.code.g.core.collection.function.JavaParameterType;
 import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
-import org.abstractmeta.code.g.core.collection.predicates.ConstructorArgumentPredicate;
+import org.abstractmeta.code.g.core.collection.predicate.ConstructorArgumentPredicate;
+import org.abstractmeta.code.g.core.collection.predicate.FieldNamePredicate;
+import org.abstractmeta.code.g.core.collection.predicate.MethodNamePredicate;
+import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 
@@ -125,6 +130,7 @@ public class JavaTypeUtil {
         return true;
     }
 
+
     /**
      * Return simple class for a given class name
      *
@@ -191,13 +197,14 @@ public class JavaTypeUtil {
         return className;
     }
 
-    public static JavaMethod matchFirstFieldByType(Type ownerType, Type matchingType) {
+    public static JavaMethod matchOwnerFieldWithTheFirstMatchingType(Type ownerType, Type matchingType) {
         Class rawOwnerType = ReflectUtil.getRawClass(ownerType);
         JavaType javaOwnerType = new ClassTypeProvider(rawOwnerType).get();
-        return matchFirstAccessorByType(javaOwnerType, matchingType);
+        return matchOwnerFieldWithTheFirstMatchingType(javaOwnerType, matchingType);
     }
 
-    public static JavaMethod matchFirstAccessorByType(JavaType ownerType, Type matchingType) {
+
+    public static JavaMethod matchOwnerFieldWithTheFirstMatchingType(JavaType ownerType, Type matchingType) {
         for (JavaMethod method : ownerType.getMethods()) {
             if (!method.getName().startsWith("get")) continue;
             if (ReflectUtil.getObjectType(method.getResultType()).equals(matchingType)) {
@@ -205,6 +212,87 @@ public class JavaTypeUtil {
             }
         }
         return null;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static JavaMethod matchOwnerFieldWithMatchingType(Type ownerType, Type matchingType, String annotation) {
+        if (annotation != null) {
+
+            JavaType javaType = new ClassTypeProvider(ReflectUtil.getRawClass(ownerType)).get();
+            Class keyType = ReflectUtil.getRawClass(matchingType);
+            for (JavaField field : javaType.getFields()) {
+                Class fieldType = ReflectUtil.getRawClass(field.getType());
+                if (keyType.isAssignableFrom(fieldType) && JavaTypeUtil.containsAnnotation(field.getAnnotations(), annotation)) {
+                    String methodName = StringUtil.getGetterMethodName(field.getName(), field.getType());
+                    Optional<JavaMethod> optionalResult = Iterables.tryFind(javaType.getMethods(), new MethodNamePredicate(methodName));
+                    if (optionalResult.isPresent())
+                        return optionalResult.get();
+                }
+            }
+            for (JavaMethod method : javaType.getMethods()) {
+                Class fieldType = ReflectUtil.getRawClass(method.getResultType());
+                if (keyType.isAssignableFrom(fieldType) && JavaTypeUtil.containsAnnotation(method.getAnnotations(), annotation)) {
+                    return method;
+                }
+            }
+        }
+        return JavaTypeUtil.matchOwnerFieldWithTheFirstMatchingType(ownerType, matchingType);
+    }
+
+
+    public static JavaTypeBuilder buildKeyProviderFunction(JavaMethod providerMethod, String prefix, Type parameterType) {
+        String providerType = StringUtil.getClassName(prefix, "KeyProvider");
+        JavaTypeBuilder result = new JavaTypeBuilderImpl(providerType);
+        result.setNested(true);
+        result.addModifiers(JavaModifier.PUBLIC, JavaModifier.STATIC);
+        Type iFace = new ParameterizedTypeImpl(null, Function.class, parameterType, providerMethod.getResultType());
+        result.addSuperInterfaces(iFace);
+        result.addMethod(new JavaMethodBuilder().setName("apply")
+                .addModifier(JavaModifier.PUBLIC)
+                .setResultType(providerMethod.getResultType()).addParameter("value", parameterType)
+                .addBodyLines(String.format("return value.%s();", providerMethod.getName())));
+        return result;
+    }
+
+    public static String getKeyProviderFieldName(String fieldName) {
+        String providerType = StringUtil.getClassName(fieldName, "keyProvider");
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, providerType);
+    }
+
+    public static JavaTypeBuilder buildKeyProviderEqualPredicate(JavaMethod providerMethod, String prefix, Type parameterType) {
+        String providerType = StringUtil.getClassName(prefix, "EqualPredicate");
+        JavaTypeBuilder result = new JavaTypeBuilderImpl(providerType);
+        result.setNested(true);
+        Class providerResultType = ReflectUtil.getRawClass(providerMethod.getResultType());
+        result.addModifiers(JavaModifier.PUBLIC, JavaModifier.STATIC);
+        Type iFace = new ParameterizedTypeImpl(null, Predicate.class, parameterType);
+        result.addSuperInterfaces(iFace);
+        JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+        methodBuilder.setName("apply")
+                .addModifier(JavaModifier.PUBLIC)
+                .setResultType(boolean.class).addParameter("candidate", parameterType);
+        result.addField(new JavaFieldBuilder().addModifiers(JavaModifier.PRIVATE).setImmutable(true).setType(providerResultType).setName("requiredValue").build());
+
+        if (providerResultType.isPrimitive()) {
+            methodBuilder.addBodyLines(String.format("return requiredValue == candidate.%s());", providerMethod.getName()));
+        } else {
+            methodBuilder.addBodyLines(String.format("return requiredValue.equals(candidate.%s());", providerMethod.getName()));
+        }
+        result.addMethod(methodBuilder.build());
+        result.addConstructor(new JavaConstructorBuilder()
+                .addModifier(JavaModifier.PUBLIC)
+                .setName(result.getSimpleName())
+                .addParameters(
+                        new JavaParameterBuilder().setName("requiredValue").setType(providerResultType).build()
+                )
+                .addBodyLines("this.requiredValue = requiredValue;")
+                .build()
+
+
+        );
+
+        return result;
     }
 
 
@@ -241,7 +329,7 @@ public class JavaTypeUtil {
     protected static void addConstructorSuperParameters(JavaType sourceType, JavaConstructorBuilder constructorBuilder) {
         Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
         for (JavaField field : immutableJavaFields) {
-            if(! field.isImmutable()) continue;
+            if (!field.isImmutable()) continue;
             constructorBuilder.addParameters(
                     new JavaParameterBuilder()
                             .setName(field.getName())
@@ -256,12 +344,12 @@ public class JavaTypeUtil {
         Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
         for (JavaField field : immutableJavaFields) {
             String fieldName = field.getName();
-            javaConstructor.getParameters().add(  new JavaParameterBuilder()
+            javaConstructor.getParameters().add(new JavaParameterBuilder()
                     .setName(field.getName())
                     .setType(field.getType())
                     .build());
             String argumentName = fieldArgumentMap.get(fieldName);
-            javaConstructor.getBody().add(String.format("this.%s = %s;", fieldName, argumentName));
+            javaConstructor.getBodyLines().add(String.format("this.%s = %s;", fieldName, argumentName));
         }
     }
 
@@ -287,10 +375,8 @@ public class JavaTypeUtil {
                 }
             }
         }
-        constructorBuilder.addBody("super(" + result.toString() + ");");
+        constructorBuilder.addBodyLines("super(" + result.toString() + ");");
     }
-
-
 
 
     /**
@@ -350,13 +436,57 @@ public class JavaTypeUtil {
     }
 
     public static Type getSuperTypeIfDefined(JavaType javaType) {
-        if(javaType.getKind() != null && javaType.getKind().equals(JavaKind.INTERFACE))  {
+        if (javaType.getKind() != null && javaType.getKind().equals(JavaKind.INTERFACE)) {
             return new TypeNameWrapper(javaType.getName());
         }
-        if(javaType.getSuperType() != null && ! Object.class.equals(javaType.getSuperType())) {
+        if (javaType.getSuperType() != null && !Object.class.equals(javaType.getSuperType())) {
             return javaType.getSuperType();
         }
         return new TypeNameWrapper(javaType.getName());
     }
 
+    public static boolean containsMethod(Iterable<JavaMethod> methods, String name, Class... parameters) {
+        return getMethod(methods, name, parameters) != null;
+    }
+
+    public static JavaMethod getMethod(Iterable<JavaMethod> methods, String name, Class... parameters) {
+        Multimap<String, JavaMethod> sourceIndexedMethods = Multimaps.index(methods, new MethodNameKeyFunction());
+        if (sourceIndexedMethods.containsKey(name)) {
+            OUTER: for (JavaMethod methodCandidate : sourceIndexedMethods.values()) {
+                List<Class> methodParameters = getParameterClasses(methodCandidate.getParameters());
+                List<Class> matchingParameters = Arrays.asList(parameters);
+                for (int i = 0; i < matchingParameters.size(); i++) {
+                    if(! matchingParameters.get(i).equals(methodParameters.get(i))) {
+                         break OUTER;
+                    }
+                }
+                return methodCandidate;
+            }
+            return null;
+
+        }
+
+        return null;
+    }
+
+    public static Type getOwnerInterfaceOrType(JavaType javaType) {
+        if(! javaType.getSuperInterfaces().isEmpty()) {
+            return javaType.getSuperInterfaces().get(0);
+        }
+        Type [] genericTypes = javaType.getGenericTypeArguments().toArray(new Type[]{});
+        return new ParameterizedTypeImpl(null, new TypeNameWrapper(javaType.getName()), genericTypes);
+    }
+
+
+    public static JavaField getField(Iterable<JavaField> fields, String name) {
+        Optional<JavaField> result = Iterables.tryFind(fields, new FieldNamePredicate(name));
+        if(result.isPresent()) return result.get();
+        return null;
+    }
+
+    public static File getCompiledFileOutputTempDirectory() {
+        File outputDirectory = new File(System.getProperty("java.io.tmpdir"), "compiled-code-g_" + System.currentTimeMillis());
+        if(outputDirectory .exists()) outputDirectory.mkdirs();
+        return outputDirectory.getAbsoluteFile();
+    }
 }

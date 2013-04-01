@@ -15,56 +15,61 @@
  */
 package org.abstractmeta.code.g.core.builder.handler.field;
 
-import org.abstractmeta.code.g.code.JavaField;
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaModifier;
-import org.abstractmeta.code.g.code.JavaTypeBuilder;
+import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
+import java.lang.reflect.Type;
+
 /**
- * This handle creates set method.
- * for any given java field.
+ * This handle creates set method for any java field.
  * <p>
  * Take the following <code>field: Collection&lt;String> foos;</code> as example.
- * For this case the following method will be added to the owner type.
+ * For this case the following method will be added to the owner builder type.
  * <ul>
  * <li> setter: <pre>
- * public void setFoos(Collection&lt;String> foos) {
+ * public &lt;T> setFoos(Collection&lt;String> foos) {
  *    this.foos = foos;
+ *    return this;
  * }</pre></li>
  * <p/>
+ * Where &lt;T>  is the field owner type.
  * </p>
- * </ul>
- * <p/>
- * <h2>Advanced setting</h2>
- * <ul>
- * <li>onBeforeFieldAssignmentHandler - class name which implements JavaPluginHandler</li>
- * </ul>
  *
  * @author Adrian Witas
  */
-public class SetterFieldHandler implements FieldHandler {
+public class BuilderSetterFieldHandler implements FieldHandler {
+
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        if (target.isImmutable()) return;
         String methodName = StringUtil.getSetterMethodName(target.getName());
-        if (owner.containsMethod(methodName)) return;
-        JavaMethod setterMethod = buildSetterMethod(target, methodName);
-        owner.addMethod(setterMethod);
+        if(owner.containsMethod(methodName)) {
+            return ;
+        }
+        addSetterMethod(owner, target.getName(), target.getType());
     }
 
-    private JavaMethod buildSetterMethod(JavaField target, String methodName) {
+
+    protected void addSetterMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
+        if(fieldName.endsWith("Present"))  {
+            String baseField = fieldName.replace("Present","");
+            if(owner.containsField(baseField)) return;
+        }
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+        String methodName = StringUtil.getSetterMethodName(fieldName);
         methodBuilder.setName(methodName);
-        methodBuilder.setResultType(void.class);
-        methodBuilder.addParameter(target.getName(), target.getType());
+        methodBuilder.addParameter(fieldName, fieldType);
         methodBuilder.addModifier(JavaModifier.PUBLIC);
-        methodBuilder.addBodyLines(String.format("this.%s = %s;", target.getName(), target.getName()));
-        return methodBuilder.build();
+        methodBuilder.addBodyLines(String.format("this.%s = %s;", fieldName, fieldName));
+        BuilderUtil.addIsPresentFlag(owner, fieldName, methodBuilder);
+        BuilderUtil.addSetterResultType(owner, methodName, methodBuilder);
+        owner.addMethod(methodBuilder.build());
     }
+
+
 
 }

@@ -12,20 +12,20 @@ import java.util.logging.Logger;
  * Provides an instance of T type instantiated with supplied properties
  *
  * @author Adrian Witas
- *   <T>
+ *         <T>
  */
 public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T> {
 
     private static final Logger logger = Logger.getLogger(ObjectProvider.class.getName());
     private final Map<Class, Class> implementationMap;
     private final Class<? extends T> instanceClass;
-    private final  Class [] implementation;
+    private final Class[] implementation;
 
-    public ObjectProvider(Class<? extends T> instanceClass, Properties properties, String ... pathFragments) {
+    public ObjectProvider(Class<? extends T> instanceClass, Properties properties, String... pathFragments) {
         this(instanceClass, properties, new Class[0], pathFragments);
     }
 
-    public ObjectProvider(Class<? extends T> instanceClass, Properties properties, Class [] implementation, String ... pathFragments) {
+    public ObjectProvider(Class<? extends T> instanceClass, Properties properties, Class[] implementation, String... pathFragments) {
         super(instanceClass, properties, pathFragments);
         this.implementationMap = getImplementation(implementation);
         this.implementation = implementation;
@@ -34,8 +34,8 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
 
 
     @SuppressWarnings("unchecked")
-    protected <T> Class<T>getImplementation(Class<T> clazz) {
-        if(implementationMap.containsKey(clazz)) {
+    protected <T> Class<T> getImplementation(Class<T> clazz) {
+        if (implementationMap.containsKey(clazz)) {
             return implementationMap.get(clazz);
         }
         return clazz;
@@ -43,14 +43,14 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
     }
 
     protected Map<Class, Class> getImplementation(Class[] implementation) {
-        Map<Class, Class> result = new HashMap<Class, Class>(){{
+        Map<Class, Class> result = new HashMap<Class, Class>() {{
             put(List.class, ArrayList.class);
             put(Collection.class, ArrayList.class);
             put(Map.class, HashMap.class);
         }};
-        for(Class clazz: implementation) {
-            if(clazz.getInterfaces() == null) continue;
-            for(Class iFace: clazz.getInterfaces()) {
+        for (Class clazz : implementation) {
+            if (clazz.getInterfaces() == null) continue;
+            for (Class iFace : clazz.getInterfaces()) {
                 result.put(iFace, clazz);
             }
         }
@@ -108,6 +108,8 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
                 value = new BooleanProvider(getProperties(), pathFragments).get();
             } else if (String.class.equals(type)) {
                 value = getValue(path);
+            } else if (Class.class.equals(type)) {
+                value = new ClassProvider(getProperties(), pathFragments);
             }
 
         } else if (matchesPath(path)) {

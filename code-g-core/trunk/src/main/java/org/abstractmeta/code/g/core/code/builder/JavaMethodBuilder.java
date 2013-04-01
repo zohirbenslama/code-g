@@ -122,7 +122,7 @@ public class JavaMethodBuilder implements JavaMethod {
         return this;
     }
 
-    public JavaMethodBuilder addBody(Collection<String> body) {
+    public JavaMethodBuilder addBodyLines(Collection<String> body) {
         this.bodyLines.addAll(body);
         return this;
     }
@@ -255,7 +255,7 @@ public class JavaMethodBuilder implements JavaMethod {
             addExceptionTypes(instance.getExceptionTypes());
         }
         if (instance.getBodyLines() != null) {
-            addBody(instance.getBodyLines());
+            addBodyLines(instance.getBodyLines());
         }
         if (instance.getResultType() != null) {
             setResultType(instance.getResultType());

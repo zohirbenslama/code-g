@@ -39,11 +39,12 @@ import org.abstractmeta.code.g.generator.Context;
  *
  * @author Adrian Witas
  */
+@SuppressWarnings("unchecked")
 public class GetterFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        String methodName = StringUtil.getGetterName(target.getName());
+        String methodName = StringUtil.getGetterMethodName(target);
         if (owner.containsMethod(methodName)) return;
         JavaMethod getterMethod = buildGetterMethod(target, methodName);
         owner.addMethod(getterMethod);

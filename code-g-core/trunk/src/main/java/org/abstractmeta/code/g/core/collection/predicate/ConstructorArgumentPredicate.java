@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.collection.predicates;
+package org.abstractmeta.code.g.core.collection.predicate;
 
 
 import org.abstractmeta.code.g.code.JavaField;
@@ -31,7 +31,7 @@ import java.util.Collection;
 
 
 /**
- * This predicates sets rule constructor parameters required to initialise immutable,
+ * This predicate sets rule constructor parameters required to initialise immutable,
  * collection based fields where no "set" method is defined.
  *
  * @author Adrian Witas

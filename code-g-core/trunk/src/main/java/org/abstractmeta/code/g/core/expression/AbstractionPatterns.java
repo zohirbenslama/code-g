@@ -46,6 +46,50 @@ public class AbstractionPatterns {
                     .addBaseParameterTypes(Object.class).build()).build();
 
 
+    public static final AbstractionPattern INDEXED_COLLECTION_PATTERN = new AbstractionPatternBuilder()
+            .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("get")
+                    .setSingularNameMatching(true)
+                    .setBaseResultType(Object.class)
+                    .addBaseParameterTypes(Object.class).build())
+
+            .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("get")
+                    .setBaseResultType(Object.class)
+                    .addBaseParameterTypes().build())
+
+           .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("add")
+                    .setBaseResultType(Object.class)
+                    .addBaseParameterTypes(Object[].class).build())
+
+            .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("contains")
+                    .setSingularNameMatching(true)
+                    .setBaseResultType(boolean.class)
+                    .addBaseParameterTypes(Object.class).build())
+
+            .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("remove")
+                    .setSingularNameMatching(true)
+                    .setBaseResultType(boolean.class)
+                    .addBaseParameterTypes(Object.class).build())
+
+            .add(new MethodPatternBuilder()
+                    .addModifiers(JavaModifier.PUBLIC)
+                    .addOperationNames("clear")
+                    .setBaseResultType(void.class)
+                    .addBaseParameterTypes(Object[].class).build())
+
+            .build();
+
+
+
     public static final AbstractionPattern REGISTRY_PATTERN = new AbstractionPatternBuilder()
             .add(new MethodPatternBuilder()
                     .addModifiers(JavaModifier.PUBLIC)

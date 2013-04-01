@@ -15,6 +15,7 @@
  */
 package org.abstractmeta.code.g.core.code;
 
+import com.google.common.base.Preconditions;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
@@ -97,6 +98,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
 
     @Override
     public String getSimpleTypeName(Type type) {
+        Preconditions.checkNotNull(type, "type was null");
         if (type instanceof Class) {
             Class clazz = Class.class.cast(type);
             if (clazz.isPrimitive()) {

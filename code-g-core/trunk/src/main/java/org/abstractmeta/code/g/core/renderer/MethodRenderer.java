@@ -54,7 +54,7 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
     @Override
     void setParameters(JavaMethod instance, JavaTypeImporter importer, SimpleTemplate template, int indentSize) {
         if (instance.getResultType() == null) {
-            throw new IllegalStateException("result type was null for method " + instance.getName() + instance);
+            throw new IllegalStateException("result type was null on method " + instance.getName() + instance.getBodyLines());
         }
         template.set(DOCUMENTATION_PARAMETER, getDocumentation(instance.getDocumentation()));
         template.set(ANNOTATIONS_PARAMETER, getAnnotations(importer, instance.getAnnotations()));

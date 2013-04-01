@@ -15,7 +15,9 @@
  */
 package org.abstractmeta.code.g.core.renderer;
 
+import com.google.common.collect.Collections2;
 import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.core.collection.predicate.GenericTypePredicate;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.renderer.JavaConstructorRenderer;
@@ -23,7 +25,10 @@ import org.abstractmeta.code.g.renderer.JavaFieldRenderer;
 import org.abstractmeta.code.g.renderer.JavaMethodRenderer;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaTypeRenderer {
@@ -72,8 +77,9 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(KIND_PARAMETER, getValue(instance.getKind(), JavaKind.CLASS));
         template.set(ANNOTATIONS_PARAMETER, getAnnotations(importer, instance.getAnnotations()));
-        String typeName = importer.getTypeName(new TypeNameWrapper(instance.getName()), instance.getGenericTypeArguments());
 
+
+        String typeName = importer.getTypeName(new TypeNameWrapper(instance.getName()), Collections2.filter(instance.getGenericTypeArguments(), new GenericTypePredicate()));
         template.set(NAME_PARAMETER, importer.getSimpleTypeName(typeName));
         String extendsFragment = "";
         if (instance.getSuperType() != null) {
@@ -86,6 +92,8 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         String imports = instance.isNested() ? "" : StringUtil.join(importer.getTypeNames(), "import ", ";\n", true);
         template.set(IMPORT_PARAMETER, imports);
     }
+
+
 
 
     private String buildBody(JavaTypeImporter importer, JavaType instance, int indentSize) {

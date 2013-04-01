@@ -17,10 +17,7 @@ package org.abstractmeta.code.g.core.provider;
 
 import com.google.common.base.Splitter;
 import org.abstractmeta.code.g.code.*;
-import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.code.builder.*;
 import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 
@@ -80,7 +77,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
                     .setType(field.getGenericType())
                     .setImmutable(Modifier.isFinal(field.getModifiers()));
             for (String modifier : Splitter.on(" ").split(Modifier.toString(field.getModifiers()))) {
-                if(modifier.isEmpty())  continue;
+                if (modifier.isEmpty()) continue;
                 fieldBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
             }
             fieldBuilder.addAnnotations(Arrays.asList(field.getAnnotations()));
@@ -122,8 +119,19 @@ public class ClassTypeProvider implements Provider<JavaType> {
     protected void addMethodParameters(Method method, JavaMethodBuilder methodBuilder) {
         if (method.getGenericParameterTypes() == null) return;
         int i = 0;
+
+        Type[] types = method.getGenericExceptionTypes();
+        Annotation[][] annotations = method.getParameterAnnotations();
         for (Type type : method.getGenericParameterTypes()) {
-            methodBuilder.addParameter("argument" + i++, type);
+            JavaParameterBuilder parameterBuilder = new JavaParameterBuilder()
+                    .setName("argument" + i)
+                    .setType(type)
+                    .setVarTypeArgument(method.isVarArgs());
+            if (annotations != null && annotations.length > i && annotations[i] != null) {
+                parameterBuilder.addAnnotations(annotations[i]);
+            }
+            methodBuilder.addParameters(parameterBuilder.build());
+            i++;
         }
     }
 
@@ -133,7 +141,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
             for (Constructor constructor : sourceType.getConstructors()) {
                 JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
                 for (String modifier : Splitter.on(" ").split(Modifier.toString(constructor.getModifiers()))) {
-                    if(modifier.isEmpty()) continue;
+                    if (modifier.isEmpty()) continue;
                     constructorBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
                 }
                 if (constructor.getExceptionTypes() != null) {

@@ -22,7 +22,7 @@ import java.util.Collection;
 /**
  * Represents Basic Class generator.
  * This generator extracts fields from interface or superclass
- * with {@link AccessorFieldExtractor}  and {@lonk RegistryFieldExtractor}
+ * with {@link AccessorFieldExtractor}  and {@link RegistryFieldExtractor}
  * and generates implementation using {@link SimpleClassBuilder}
  * see {@link ClassGeneratorConfig} and {@link org.abstractmeta.code.g.config.Descriptor} for configuration details.
  *
@@ -47,6 +47,10 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
         addExtractableFields(simpleClassBuilder, sourceType, context);
         addExtractableMethods(simpleClassBuilder, sourceType, context);
         SourcedJavaType result = renderCode(simpleClassBuilder);
+        ClassGeneratorConfig config = context.get(ClassGeneratorConfig.class);
+        if(config.isGenerateBuilder()) {
+
+        }
         return Arrays.asList(result);
     }
 

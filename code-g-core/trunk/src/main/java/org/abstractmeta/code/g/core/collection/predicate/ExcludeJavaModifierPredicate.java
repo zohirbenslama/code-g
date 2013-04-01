@@ -1,9 +1,7 @@
-package org.abstractmeta.code.g.core.collection.predicates;
+package org.abstractmeta.code.g.core.collection.predicate;
 
 import com.google.common.base.Predicate;
 import org.abstractmeta.code.g.code.JavaModifier;
-
-import javax.annotation.Nullable;
 
 /**
  * Represents ExcludeJavaModifierPredicate

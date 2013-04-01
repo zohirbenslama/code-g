@@ -56,7 +56,7 @@ public class JavaFieldBuilder implements JavaField {
 
     @Override
     public boolean isImmutable() {
-        return immutable;
+        return immutable || modifiers.contains(JavaModifier.FINAL);
     }
 
     public JavaFieldBuilder setType(Type type) {
@@ -156,7 +156,7 @@ public class JavaFieldBuilder implements JavaField {
         return result;
     }
 
-    public void merge(JavaField instance) {
+    public JavaFieldBuilder merge(JavaField instance) {
         if (instance.getType() != null) {
             setType(instance.getType());
         }
@@ -175,7 +175,12 @@ public class JavaFieldBuilder implements JavaField {
         if (instance.getDocumentation() != null) {
             addDocumentation(instance.getDocumentation());
         }
-
+        this.immutable = instance.isImmutable();
+        return this;
     }
+
+
+
+
 
 }

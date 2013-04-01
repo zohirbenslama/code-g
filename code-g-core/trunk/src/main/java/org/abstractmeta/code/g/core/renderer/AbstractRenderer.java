@@ -15,10 +15,11 @@
  */
 package org.abstractmeta.code.g.core.renderer;
 
+import com.google.common.base.Preconditions;
 import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.core.util.TemplateUtil;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
-import com.google.common.base.Joiner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -100,8 +101,9 @@ public abstract class AbstractRenderer<T> {
 
     protected String getMethodArguments(JavaTypeImporter importer, List<JavaParameter> parameters) {
         StringBuilder result = new StringBuilder();
+        int i = 0;
         for (JavaParameter parameter : parameters) {
-            addMethodArgument(result, importer, parameter);
+            addMethodArgument(result, importer, parameter, ++i == parameters.size());
         }
         return result.toString();
     }
@@ -131,14 +133,25 @@ public abstract class AbstractRenderer<T> {
     }
 
 
-    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, JavaParameter parameter) {
+    protected void addMethodArgument(StringBuilder result, JavaTypeImporter importer, JavaParameter parameter, boolean isLastParameter) {
+        Preconditions.checkNotNull(parameter.getType(), "parameter type was null ");
+
         if (result.length() > 0) {
             result.append(", ");
         }
+
         String modifiers = getModifiers(parameter.getModifiers());
         String annotations = getAnnotations(importer, parameter.getAnnotations());
-        result.append(String.format("%s%s%s %s", modifiers, annotations, importer.getSimpleTypeName(parameter.getType()), parameter.getName()));
-    }
+
+        if(parameter.isVarTypeArgument() && isLastParameter) {
+            Type componentType = ReflectUtil.getComponentType(parameter.getType());
+            Preconditions.checkNotNull(componentType, "component type was null on "+ parameter.getType());
+            result.append(String.format("%s%s%s ... %s", modifiers, annotations, importer.getSimpleTypeName(componentType), parameter.getName()));
+
+        }  else {
+            result.append(String.format("%s%s%s %s", modifiers, annotations, importer.getSimpleTypeName(parameter.getType()), parameter.getName()));
+        }
+     }
 
     protected String getDocumentation(List<String> documentation) {
         if (documentation.size() == 0) {

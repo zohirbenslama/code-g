@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Represents AMessage
+ * Represents IMessage
  * <p>
  * </p>
  *

@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.core.util;
 
 import com.google.common.base.Joiner;
+import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
@@ -181,10 +182,9 @@ public class ReflectUtil {
     /**
      * Returns method signature.
      */
-    public static String getMethodSignature(String methodName, Class ... parameterTypes) {
+    public static String getMethodSignature(String methodName, Class... parameterTypes) {
         return methodName + ":" + Joiner.on(",").join(getClassNames(parameterTypes));
     }
-
 
 
     protected static void getMethods(Class type, List<Method> result, Set<String> methodSignatures) {
@@ -359,9 +359,38 @@ public class ReflectUtil {
     }
 
 
+
+    public static Type resolveTypeVariables(Type type, Map<String, Type> typeVariables) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
+            List<Type> newArguments = new ArrayList<Type>();
+            for (Type argument : parameterizedType.getActualTypeArguments()) {
+                if (argument instanceof TypeVariable) {
+                    TypeVariable typeVariable = TypeVariable.class.cast(argument);
+                    if (typeVariables.containsKey(typeVariable.getName())) {
+                        newArguments.add(typeVariables.get(typeVariable.getName()));
+                    } else {
+                        newArguments.add(argument);
+                    }
+                } else {
+                    newArguments.add(argument);
+
+                }
+            }
+            return new ParameterizedTypeImpl(parameterizedType.getOwnerType(), parameterizedType.getRawType(), newArguments.toArray(new Type[]{}));
+        } else if(type instanceof GenericArrayType) {
+            GenericArrayType arrayType = GenericArrayType.class.cast(type);
+            if(arrayType.getGenericComponentType() != null) {
+                return resolveTypeVariables(arrayType.getGenericComponentType(), typeVariables);
+            }
+        }
+        return type;
+    }
+
+
     public static <T> T newInstance(Class<T> type, String className, ClassLoader classLoader) {
         Class clazz = null;
-        if(type.isInterface()) {
+        if (type.isInterface()) {
             throw new IllegalStateException("Can not instantiate interface " + type);
         }
         try {
@@ -389,7 +418,6 @@ public class ReflectUtil {
         }
         return classLoader.loadClass(className);
     }
-
 
 
     public static Object invokeMethod(Object instance, String methodName, Class[] argumentTypes, Object... arguments) {
@@ -433,7 +461,7 @@ public class ReflectUtil {
 
     public static <T> T getFieldValue(Class<T> fieldType, Object instance, Field field) {
         try {
-            if(! field.isAccessible()) field.setAccessible(true);
+            if (!field.isAccessible()) field.setAccessible(true);
             Object result = field.get(instance);
             if (result == null) return null;
             return fieldType.cast(result);
@@ -464,6 +492,8 @@ public class ReflectUtil {
     }
 
 
+
+
     public static <T> T getInstance(Class<T> owner, Class[] argumentTypes, Object[] arguments) {
         try {
             Constructor<T> constructor = owner.getConstructor(argumentTypes);
@@ -473,4 +503,12 @@ public class ReflectUtil {
         }
     }
 
+    public static Type getComponentType(Type type) {
+        if (type instanceof GenericArrayType) {
+             return GenericArrayType.class.cast(type).getGenericComponentType();
+        } else if (type instanceof Class) {
+            return Class.class.cast(type).getComponentType();
+        }
+        throw new IllegalStateException("Not an array " + type);
+    }
 }

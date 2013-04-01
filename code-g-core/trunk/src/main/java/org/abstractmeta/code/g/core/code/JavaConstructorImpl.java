@@ -70,7 +70,7 @@ public class JavaConstructorImpl implements JavaConstructor {
         return exceptionTypes;
     }
 
-    public List<String> getBody() {
+    public List<String> getBodyLines() {
         return this.body;
     }
 

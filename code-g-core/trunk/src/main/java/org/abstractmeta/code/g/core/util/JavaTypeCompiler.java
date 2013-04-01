@@ -7,14 +7,15 @@ import org.abstractmeta.code.g.core.diconfig.JavaTypeRendererProvider;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
+import org.abstractmeta.toolbox.compilation.compiler.util.ClassPathUtil;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.LoggingMXBean;
 
 /**
  * JavaTypeCompiler
- *
+ * <p/>
  * This utility is to test JavaTypeBuilder
  *
  * @author Adrian Witas
@@ -23,7 +24,23 @@ public class JavaTypeCompiler {
 
     private static final Logger logger = Logger.getLogger(JavaTypeCompiler.class.getName());
 
+
+
     public static CompiledJavaType compile(JavaTypeBuilder javaTypeBuilder) {
+        return compile(javaTypeBuilder, CompiledJavaType.class.getClassLoader(), null);
+    }
+
+
+    public static CompiledJavaType compile(JavaTypeBuilder javaTypeBuilder, File compilationOutputDirectory) {
+         return compile(javaTypeBuilder, CompiledJavaType.class.getClassLoader(), compilationOutputDirectory);
+    }
+
+    public static CompiledJavaType compile(JavaTypeBuilder javaTypeBuilder, ClassLoader classLoader) {
+        return compile(javaTypeBuilder, classLoader, null);
+    }
+
+
+    public static CompiledJavaType compile(JavaTypeBuilder javaTypeBuilder, ClassLoader classLoader, File compilationOutputDirectory) {
         JavaTypeRenderer renderer = new JavaTypeRendererProvider().get();
         JavaTypeImporter importer = javaTypeBuilder.getImporter();
         JavaType javaType = javaTypeBuilder.build();
@@ -35,13 +52,28 @@ public class JavaTypeCompiler {
         sourcedJavaTypeBuilder.setSourceCode(sourceCode);
         SourcedJavaType sourcedType = sourcedJavaTypeBuilder.build();
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
-        JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
+
+        JavaSourceCompiler.CompilationUnit compilationUnit;
+        if(compilationOutputDirectory != null) {
+            compilationUnit = javaSourceCompiler.createCompilationUnit(compilationOutputDirectory);
+            compilationUnit.addClassPathEntry(compilationOutputDirectory.getAbsolutePath());
+            compilationUnit.addClassPathEntries(ClassPathUtil.getClassPathEntries());
+        } else {
+            compilationUnit =  javaSourceCompiler.createCompilationUnit();
+        }
+
         String source = "" + sourcedType.getSourceCode();
-        logger.log(Level.INFO, source);
-
         compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
-        ClassLoader compilationClassLoader = javaSourceCompiler.compile(CompiledJavaType.class.getClassLoader(), compilationUnit);
+        ClassLoader compilationClassLoader;
+        try {
+            compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
+            javaSourceCompiler.persistCompiledClasses(compilationUnit);
+            logger.log(Level.INFO, "Failed to compile source:" + source);
 
+        } catch (RuntimeException e) {
+            logger.log(Level.INFO, "Failed to compile source:" + source);
+            throw e;
+        }
         Class compiledType = null;
         try {
 
@@ -49,6 +81,7 @@ public class JavaTypeCompiler {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Missing compiled type " + sourcedType.getType().getName() + " please check package name", e);
         }
+
         return new CompiledJavaTypeImpl(javaType, sourceCode, compilationClassLoader, compiledType);
     }
 
