@@ -38,5 +38,5 @@ public interface JavaConstructor  {
 
     List<Type> getExceptionTypes();
 
-    List<String> getBody();
+    List<String> getBodyLines();
 }

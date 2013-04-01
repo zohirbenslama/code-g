@@ -69,6 +69,12 @@ public interface JavaTypeBuilder extends JavaType {
 
     JavaTypeBuilder addFields(Collection<JavaField> fields);
 
+    /**
+     * This method sets not null fields and does NOT trigger field handlers
+     * @param fields list of fields
+     */
+    JavaTypeBuilder setFields(List<JavaField> fields);
+
     boolean containsMethod(String methodName, JavaParameter ... parameters);
 
     JavaMethod getMethod(String methodName, JavaParameter ... parameters);
@@ -87,6 +93,13 @@ public interface JavaTypeBuilder extends JavaType {
     JavaTypeBuilder addMethods(Collection<JavaMethod> methods);
 
     /**
+     * This method sets methods and does NOT trigger method handlers
+     * @param methods list of methods
+     */
+    JavaTypeBuilder setMethods(List<JavaMethod> methods);
+
+
+    /**
      * Adds a field to this builder, all specified constructor handlers are called.
      * @param constructor java constructor
      * @return this builder
@@ -96,6 +109,12 @@ public interface JavaTypeBuilder extends JavaType {
     JavaTypeBuilder addConstructors(JavaConstructor ... constructors);
 
     JavaTypeBuilder addConstructors(Collection<JavaConstructor> constructors);
+
+    /**
+     * This method sets constructors and does NOT trigger constructor handlers
+     * @param constructors list of methods
+     */
+    JavaTypeBuilder setConstructors(List<JavaConstructor> constructors);
 
     JavaTypeBuilder addSuperInterfaces(Type ... superInterfaces);
 

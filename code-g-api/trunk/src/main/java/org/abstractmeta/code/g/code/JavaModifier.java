@@ -6,5 +6,5 @@ package org.abstractmeta.code.g.code;
  * @author Adrian Witas
  */
 public enum JavaModifier {
-    ABSTRACT, PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, TRANSIENT, VOLATILE
+    ABSTRACT, PUBLIC, PRIVATE, PROTECTED, STATIC, FINAL, TRANSIENT, VOLATILE, NATIVE
 }
