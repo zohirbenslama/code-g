@@ -4,12 +4,12 @@ import com.google.common.base.Strings;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
-import org.abstractmeta.code.g.config.SourceFilter;
+import org.abstractmeta.code.g.config.SourceMatcher;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
-import org.abstractmeta.code.g.core.config.SourceFilterImpl;
+import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
@@ -62,10 +62,10 @@ public abstract class AbstractGenerator<T> {
 
     protected LoadedSource loadSource(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
-        SourceFilter sourceFilter = applyProperties(descriptor.getSourceFilter());
+        SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher());
         JavaTypeRegistry typeRegistry = context.get(JavaTypeRegistry.class);
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
-        return sourceLoader.load(sourceFilter, typeRegistry, classLoader);
+        return sourceLoader.load(sourceMatcher, typeRegistry, classLoader);
     }
 
     protected Collection<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
@@ -158,15 +158,15 @@ public abstract class AbstractGenerator<T> {
     abstract protected boolean isApplicable(JavaType javaType, Context context);
 
 
-    private SourceFilter applyProperties(SourceFilter sourceFilter) {
-        SourceFilterImpl result = new SourceFilterImpl();
-        result.setSourceDirectory(expandProperty(sourceFilter.getSourceDirectory()));
-        result.setIncludeSubpackages(sourceFilter.isIncludeSubpackages());
-        result.setPackageNames(sourceFilter.getPackageNames());
-        result.setClassNames(sourceFilter.getClassNames());
-        result.setDependencyPackages(sourceFilter.getDependencyPackages());
-        result.setExclusionPatterns(sourceFilter.getExclusionPatterns());
-        result.setInclusionPatterns(sourceFilter.getInclusionPatterns());
+    private SourceMatcher applyProperties(SourceMatcher sourceMatcher) {
+        SourceMatcherImpl result = new SourceMatcherImpl();
+        result.setSourceDirectory(expandProperty(sourceMatcher.getSourceDirectory()));
+        result.setIncludeSubpackages(sourceMatcher.isIncludeSubpackages());
+        result.setPackageNames(sourceMatcher.getPackageNames());
+        result.setClassNames(sourceMatcher.getClassNames());
+        result.setDependencyPackages(sourceMatcher.getDependencyPackages());
+        result.setExclusionPatterns(sourceMatcher.getExclusionPatterns());
+        result.setInclusionPatterns(sourceMatcher.getInclusionPatterns());
         return result;
     }
 

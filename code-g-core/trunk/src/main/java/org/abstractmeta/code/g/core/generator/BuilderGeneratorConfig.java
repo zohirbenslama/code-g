@@ -1,11 +1,10 @@
 package org.abstractmeta.code.g.core.generator;
 
 /**
- * Represents BuilderGeneratorConfig
- * <p>
- * </p>
+ * BuilderGeneratorConfig
  *
  * @author Adrian Witas
  */
-public class BuilderGeneratorConfig {
+public class BuilderGeneratorConfig extends ClassGeneratorConfig {
+
 }

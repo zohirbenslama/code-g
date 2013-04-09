@@ -43,7 +43,7 @@ public class BuilderCollectionFieldHandlerTest {
      *
      * @throws Exception
      */
-    public void testSimpleClass() throws Exception {
+    public void testSimpleClassWithVariableType() throws Exception {
         File compilationOutputFile = JavaTypeUtil.getCompiledFileOutputTempDirectory();
         JavaTypeBuilder sourceType = getSourceType();
         CompiledJavaType compiledSourceJavaType = JavaTypeCompiler.compile(sourceType, compilationOutputFile);
@@ -69,13 +69,51 @@ public class BuilderCollectionFieldHandlerTest {
 
 
         ReflectUtil.invokeMethod(instance, "addNames", new Class[]{String[].class},new Object[]{new String[]{"a1", "a2"}});
-        ReflectUtil.invokeMethod(instance, "addIds", new Class[]{int[].class}, new Object[]{new int[]{1,2,3}});
+        ReflectUtil.invokeMethod(instance, "addIds", new Class[]{Integer[].class}, new Object[]{new Integer[]{1,2,3}});
         Object builtFoo = ReflectUtil.invokeMethod(instance, "build", new Class[]{});
         IFoo foo = IFoo.class.cast(builtFoo);
         Assert.assertEquals(foo.getNames(), Arrays.asList("a1", "a2"));
         Assert.assertEquals(foo.getIds(), Arrays.asList(1, 2, 3));
 
     }
+
+
+    /**
+     * This use case is to test setter, getter and constructor for immutable and non immutable fields
+     *
+     * @throws Exception
+     */
+    public void testSimpleClassWithGeneric() throws Exception {
+        File compilationOutputFile = JavaTypeUtil.getCompiledFileOutputTempDirectory();
+        JavaTypeBuilder sourceType = getSourceType();
+        sourceType.addGenericTypeVariable("T", String.class);
+        CompiledJavaType compiledSourceJavaType = JavaTypeCompiler.compile(sourceType, compilationOutputFile);
+        compiledSourceJavaType.getClassLoader().loadClass("com.test.Foo");
+
+        BuilderClassBuilder builder = new BuilderClassBuilder("com.test.builder.FooBuilder", sourceType.build(), new ContextImpl());
+        builder.addAnnotations( new SuppressWarningsBuilder().addValue("unchecked").build());
+        builder.addGenericTypeVariable("T", String.class);
+        builder.addModifiers(JavaModifier.PUBLIC);
+
+        builder.addField(new JavaFieldBuilder().addModifiers(JavaModifier.PRIVATE).setType(boolean.class).setName("idsPresent"));
+        for(JavaField field: sourceType.getFields()) {
+            builder.addField(new JavaFieldBuilder().addModifiers(JavaModifier.PRIVATE).setType(field.getType()).setName(field.getName()));
+        }
+        CompiledJavaType compiledJavaType = JavaTypeCompiler.compile(builder, compiledSourceJavaType.getClassLoader(), compilationOutputFile);
+        logger.log(Level.FINE, "Generated " + compiledJavaType.getSourceCode());
+        @SuppressWarnings("unchecked")
+        Object instance = ReflectUtil.newInstance(compiledJavaType.getCompiledType());
+
+
+        ReflectUtil.invokeMethod(instance, "addNames", new Class[]{String[].class},new Object[]{new String[]{"a1", "a2"}});
+        ReflectUtil.invokeMethod(instance, "addIds", new Class[]{Integer[].class}, new Object[]{new Integer[]{1,2,3}});
+        Object builtFoo = ReflectUtil.invokeMethod(instance, "build", new Class[]{});
+        IFoo foo = IFoo.class.cast(builtFoo);
+        Assert.assertEquals(foo.getNames(), Arrays.asList("a1", "a2"));
+        Assert.assertEquals(foo.getIds(), Arrays.asList(1, 2, 3));
+
+    }
+
 
 
     protected JavaTypeBuilder getSourceType() {

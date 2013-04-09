@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.config.SourceFilter;
+import org.abstractmeta.code.g.config.SourceMatcher;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
@@ -32,6 +32,7 @@ import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
 import java.io.*;
+import java.lang.ref.Reference;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -49,12 +50,13 @@ public class JavaSourceLoaderImpl implements SourceLoader {
     private final Logger logger = Logger.getLogger(JavaSourceLoaderImpl.class.getName());
 
     @Override
-    public LoadedSource load(SourceFilter sourceFilter, JavaTypeRegistry registry, ClassLoader classLoader) {
-        Preconditions.checkNotNull(sourceFilter, "sourceFilter was null");
+    public LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader) {
+        Preconditions.checkNotNull(sourceMatcher, "sourceMatcher was null");
         Preconditions.checkNotNull(registry, "registry was null");
         LoadedSourceImpl result = new LoadedSourceImpl();
-        Map<String, String> javaSources = loadFromSourceDirectory(sourceFilter);
-        Collection<JavaType> javaTypes = loadFromClassLoader(sourceFilter, classLoader);
+        result.setClassLoader(classLoader);
+        Map<String, String> javaSources = loadFromSourceDirectory(sourceMatcher);
+        Collection<JavaType> javaTypes = loadFromClassLoader(sourceMatcher, classLoader);
         if(! javaSources.isEmpty()) {
             javaTypes.addAll(compileSources(javaSources, classLoader, result));
         }
@@ -63,15 +65,15 @@ public class JavaSourceLoaderImpl implements SourceLoader {
                  registry.register(javaType);
             }
         }
-        Collection<JavaType> filteredTypes = applyFilter(sourceFilter, registry);
+        Collection<JavaType> filteredTypes = applyFilter(sourceMatcher, registry);
         result.setJavaTypes(filteredTypes);
-        Collection<CompiledJavaType> sourcedTypes = getCompiledJavaTypes(javaSources, registry, classLoader);
+        Collection<CompiledJavaType> sourcedTypes = getCompiledJavaTypes(javaSources, registry, result.getClassLoader());
         result.setCompiledJavaTypes(sourcedTypes);
         return result;
     }
 
-    protected Collection<JavaType> applyFilter(SourceFilter sourceFilter, JavaTypeRegistry registry) {
-        return Collections2.filter(registry.get(), new SourceFilterPredicate(sourceFilter));
+    protected Collection<JavaType> applyFilter(SourceMatcher sourceMatcher, JavaTypeRegistry registry) {
+        return Collections2.filter(registry.get(), new SourceFilterPredicate(sourceMatcher));
     }
 
     protected Collection<CompiledJavaType> getCompiledJavaTypes(Map<String, String> javaSources, JavaTypeRegistry registry, ClassLoader classLoader) {
@@ -110,17 +112,17 @@ public class JavaSourceLoaderImpl implements SourceLoader {
 
 
 
-    protected Collection<JavaType> loadFromClassLoader(SourceFilter sourceFilter, ClassLoader classLoader) {
+    protected Collection<JavaType> loadFromClassLoader(SourceMatcher sourceMatcher, ClassLoader classLoader) {
         Collection<JavaType> result = new ArrayList<JavaType>();
         if (classLoader == null) return result;
-        loadClassesWithClassLoader(sourceFilter, result, classLoader);
-        loadPackagesWithClassLoader(sourceFilter, result, classLoader);
+        loadClassesWithClassLoader(sourceMatcher, result, classLoader);
+        loadPackagesWithClassLoader(sourceMatcher, result, classLoader);
         return result;
     }
 
-    protected void loadClassesWithClassLoader(SourceFilter sourceFilter, Collection<JavaType> result, ClassLoader classLoader) {
-        if (sourceFilter.getClassNames() == null) return;
-        for (String className : sourceFilter.getClassNames()) {
+    protected void loadClassesWithClassLoader(SourceMatcher sourceMatcher, Collection<JavaType> result, ClassLoader classLoader) {
+        if (sourceMatcher.getClassNames() == null) return;
+        for (String className : sourceMatcher.getClassNames()) {
             if (exists(className, classLoader)) {
                 result.add(loadClass(className, classLoader));
             }
@@ -128,16 +130,16 @@ public class JavaSourceLoaderImpl implements SourceLoader {
     }
 
 
-    protected void loadPackagesWithClassLoader(SourceFilter sourceFilter, Collection<JavaType> result, ClassLoader classLoader) {
-        if (sourceFilter.getPackageNames() == null) return;
+    protected void loadPackagesWithClassLoader(SourceMatcher sourceMatcher, Collection<JavaType> result, ClassLoader classLoader) {
+        if (sourceMatcher.getPackageNames() == null) return;
         Set<String> classNames = new HashSet<String>();
-        for (String packageName : sourceFilter.getPackageNames()) {
+        for (String packageName : sourceMatcher.getPackageNames()) {
             String internalPackageName = packageName.replace(".", "/");
             try {
                 Enumeration<URL> packageUrls = classLoader.getResources(internalPackageName);
                 if (packageUrls == null) continue;
                 for (URL packageUrl : Collections.list(packageUrls)) {
-                    classNames.addAll(loadPackagesWithClassLoader(packageName, packageUrl, sourceFilter.isIncludeSubpackages()));
+                    classNames.addAll(loadPackagesWithClassLoader(packageName, packageUrl, sourceMatcher.isIncludeSubpackages()));
                 }
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to load package " + internalPackageName);
@@ -248,27 +250,27 @@ public class JavaSourceLoaderImpl implements SourceLoader {
     /**
      * Returns a map of class name, source code for a given source filter.
      *
-     * @param sourceFilter source filter
+     * @param sourceMatcher source filter
      * @return of class name, source code map
      */
-    protected Map<String, String> loadFromSourceDirectory(SourceFilter sourceFilter) {
+    protected Map<String, String> loadFromSourceDirectory(SourceMatcher sourceMatcher) {
         Map<String, String> result = new HashMap<String, String>();
-        if (sourceFilter.getSourceDirectory() == null) return result;
-        loadClassesFromSourceDirectory(sourceFilter, result);
-        loadPackagesFromSourceDirectory(sourceFilter, result);
+        if (sourceMatcher.getSourceDirectory() == null) return result;
+        loadClassesFromSourceDirectory(sourceMatcher, result);
+        loadPackagesFromSourceDirectory(sourceMatcher, result);
         return result;
     }
 
-    protected void loadPackagesFromSourceDirectory(SourceFilter sourceFilter, Map<String, String> result) {
-        if (sourceFilter.getPackageNames() == null) return;
-        for (String packageName : sourceFilter.getPackageNames()) {
-            loadPackage(sourceFilter, packageName, result);
+    protected void loadPackagesFromSourceDirectory(SourceMatcher sourceMatcher, Map<String, String> result) {
+        if (sourceMatcher.getPackageNames() == null) return;
+        for (String packageName : sourceMatcher.getPackageNames()) {
+            loadPackage(sourceMatcher, packageName, result);
         }
     }
 
 
-    protected void loadPackage(SourceFilter sourceFilter, String packageName, Map<String, String> result) {
-        File packageDirectory = new File(new File(sourceFilter.getSourceDirectory()), packageName.replace(".", "/"));
+    protected void loadPackage(SourceMatcher sourceMatcher, String packageName, Map<String, String> result) {
+        File packageDirectory = new File(new File(sourceMatcher.getSourceDirectory()), packageName.replace(".", "/"));
         File[] files = packageDirectory.listFiles();
         if (!packageDirectory.exists() || files == null) {
             return;
@@ -276,23 +278,23 @@ public class JavaSourceLoaderImpl implements SourceLoader {
 
         for (File candidate : files) {
             if (candidate.isDirectory()) {
-                if (sourceFilter.isIncludeSubpackages()) {
-                    loadPackage(sourceFilter, packageName + "." + candidate.getName(), result);
+                if (sourceMatcher.isIncludeSubpackages()) {
+                    loadPackage(sourceMatcher, packageName + "." + candidate.getName(), result);
                 }
             } else if (candidate.getName().endsWith(".java")) {
                 String simpleClassName = candidate.getName().replace(".java", "");
                 String className = packageName + "." + simpleClassName;
-                String sourceCode = loadSourceCode(sourceFilter.getSourceDirectory(), className);
+                String sourceCode = loadSourceCode(sourceMatcher.getSourceDirectory(), className);
                 result.put(className, sourceCode);
             }
         }
     }
 
-    protected void loadClassesFromSourceDirectory(SourceFilter sourceFilter, Map<String, String> result) {
-        if (sourceFilter.getClassNames() == null) return;
-        for (String className : sourceFilter.getClassNames()) {
-            if (exists(sourceFilter.getSourceDirectory(), className)) {
-                String sourceCode = loadSourceCode(sourceFilter.getSourceDirectory(), className);
+    protected void loadClassesFromSourceDirectory(SourceMatcher sourceMatcher, Map<String, String> result) {
+        if (sourceMatcher.getClassNames() == null) return;
+        for (String className : sourceMatcher.getClassNames()) {
+            if (exists(sourceMatcher.getSourceDirectory(), className)) {
+                String sourceCode = loadSourceCode(sourceMatcher.getSourceDirectory(), className);
                 result.put(className, sourceCode);
             }
         }

@@ -14,7 +14,7 @@ import java.util.Properties;
 public class UnitDescriptorProvider extends ObjectProvider<UnitDescriptor> implements Provider<UnitDescriptor> {
 
     public UnitDescriptorProvider(Properties properties, String... pathFragments) {
-        super(UnitDescriptorImpl.class, properties, new Class[]{DescriptorImpl.class, NamingConventionImpl.class, SourceFilterImpl.class,}, pathFragments);
+        super(UnitDescriptorImpl.class, properties, new Class[]{DescriptorImpl.class, NamingConventionImpl.class, SourceMatcherImpl.class,}, pathFragments);
     }
 
 }

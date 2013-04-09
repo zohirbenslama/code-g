@@ -77,7 +77,6 @@ public class BuilderClassBuilderTest {
         Object builtFoo = ReflectUtil.invokeMethod(instance, "build", new Class[]{});
         IFoo foo = IFoo.class.cast(builtFoo);
         Assert.assertEquals(foo.getName(), "test");
-        Assert.assertEquals(compiledJavaType.getSourceCode(), "");
     }
 
     protected JavaTypeBuilder getSourceType() {

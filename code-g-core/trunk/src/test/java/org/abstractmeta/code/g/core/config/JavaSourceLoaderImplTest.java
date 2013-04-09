@@ -21,7 +21,7 @@ public class JavaSourceLoaderImplTest {
 
     public void testLoadPackageFromExternalJar() {
         JavaSourceLoaderImpl sourceLoader = new JavaSourceLoaderImpl();
-        SourceFilterImpl sourceFilter = new SourceFilterImpl();
+        SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setPackageNames(Arrays.asList("javax.inject"));
         sourceFilter.setIncludeSubpackages(true);
         LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
@@ -31,7 +31,7 @@ public class JavaSourceLoaderImplTest {
 
     public void testLoadClassFromExternalJar() {
         JavaSourceLoaderImpl sourceLoader = new JavaSourceLoaderImpl();
-        SourceFilterImpl sourceFilter = new SourceFilterImpl();
+        SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setClassNames(Arrays.asList("javax.inject.Inject"));
         sourceFilter.setIncludeSubpackages(true);
         LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
@@ -41,7 +41,7 @@ public class JavaSourceLoaderImplTest {
 
     public void testLoadClassFromExternalPath() {
         JavaSourceLoaderImpl sourceLoader = new JavaSourceLoaderImpl();
-        SourceFilterImpl sourceFilter = new SourceFilterImpl();
+        SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setPackageNames(Arrays.asList("org.abstractmeta.code.g.core.helper"));
         sourceFilter.setIncludeSubpackages(true);
         LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
@@ -51,7 +51,7 @@ public class JavaSourceLoaderImplTest {
 
     public void testLoadClassFromSourcePath() {
         JavaSourceLoaderImpl sourceLoader = new JavaSourceLoaderImpl();
-        SourceFilterImpl sourceFilter = new SourceFilterImpl();
+        SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setPackageNames(Arrays.asList("org.abstractmeta.code.g.test.source"));
         sourceFilter.setIncludeSubpackages(true);
         sourceFilter.setSourceDirectory(new File("src/test/test-source").getAbsolutePath());

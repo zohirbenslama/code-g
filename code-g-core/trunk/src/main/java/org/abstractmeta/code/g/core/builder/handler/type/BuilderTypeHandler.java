@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
+import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
@@ -71,9 +72,9 @@ public class BuilderTypeHandler implements TypeHandler {
         setFieldDefaults(owner);
     }
 
-    protected void setFieldDefaults(JavaTypeBuilder  owner) {
+    protected void setFieldDefaults(JavaTypeBuilder owner) {
         List<JavaField> javaFields = owner.getFields();
-       
+
         owner.setFields(new ArrayList<JavaField>());
         for (JavaField field : javaFields) {
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
@@ -128,8 +129,8 @@ public class BuilderTypeHandler implements TypeHandler {
         }
 
 
-        String builtResultTypeName =owner.getImporter().getSimpleTypeName(buildResultType);
-        String builtImplementationSimpleTypeName =owner.getImporter().getSimpleTypeName(buildResultImplementationType);
+        String builtResultTypeName = owner.getImporter().getSimpleTypeName(buildResultType);
+        String builtImplementationSimpleTypeName = owner.getImporter().getSimpleTypeName(buildResultImplementationType);
         methodBuilder.addBodyLines(String.format("%s result = new %s(%s);",
                 builtResultTypeName,
                 builtImplementationSimpleTypeName,
@@ -144,50 +145,39 @@ public class BuilderTypeHandler implements TypeHandler {
 
     protected void setDefaultValue(JavaTypeBuilder owner, JavaFieldBuilder field) {
         Class rawType = ReflectUtil.getRawClass(field.getType());
-        Type[] genericTypeArguments = ReflectUtil.getGenericActualTypeArguments(field.getType());
-        Class componentType = ReflectUtil.getGenericClassArgument(genericTypeArguments, 0, Object.class);
-        String componentSimpleTypeName = JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
-        if (NavigableSet.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(TreeSet.class);
-            owner.getImporter().addTypes(componentType);
-            field.setInitBody(String.format(" = new %s<%s>()", TreeSet.class.getSimpleName(), componentSimpleTypeName));
-        } else if (Set.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(HashSet.class);
-            owner.getImporter().addTypes(componentType);
-            field.setInitBody(String.format(" = new %s<%s>()", HashSet.class.getSimpleName(), componentSimpleTypeName));
-        } else if (Collection.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(ArrayList.class);
-            owner.getImporter().addTypes(componentType);
-            field.setInitBody(String.format(" = new %s<%s>()", ArrayList.class.getSimpleName(), componentSimpleTypeName));
-        } else if (Properties.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(HashSet.class);
-            owner.getImporter().addTypes(componentType);
-            field.setInitBody(" = new Properties()");
-        } else if (NavigableMap.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(HashSet.class);
-            owner.getImporter().addTypes(componentType);
-            Class valueType = ReflectUtil.getGenericClassArgument(genericTypeArguments, 1, Object.class);
-            String valueSimpleTypeName = JavaTypeUtil.getSimpleClassName(valueType.getName(), true);
-            owner.getImporter().addTypes(valueType);
-            owner.getImporter().addTypes(TreeMap.class);
-            field.setInitBody(String.format(" = new %s<%s, %s>()", TreeMap.class.getSimpleName(), componentSimpleTypeName, valueSimpleTypeName));
-        } else if (Map.class.isAssignableFrom(rawType)) {
-            owner.getImporter().addTypes(HashSet.class);
-            owner.getImporter().addTypes(componentType);
-            Class valueType = ReflectUtil.getGenericClassArgument(genericTypeArguments, 1, Object.class);
-            String valueSimpleTypeName = JavaTypeUtil.getSimpleClassName(valueType.getName(), true);
-            owner.getImporter().addTypes(HashMap.class);
-            owner.getImporter().addTypes(valueType);
-            field.setInitBody(String.format(" = new %s<%s, %s>()", HashMap.class.getSimpleName(), componentSimpleTypeName, valueSimpleTypeName));
-        } else if (rawType.isArray()) {
-            componentType = rawType.getComponentType();
-            owner.getImporter().addTypes(componentType);
-            componentSimpleTypeName =  JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
-            field.setInitBody(String.format(" = new %s[]{}", componentSimpleTypeName));
 
+
+        Type[] genericTypeArguments = ReflectUtil.getGenericActualTypeArguments(field.getType());
+        for (Type type : genericTypeArguments) {
+            owner.getImporter().addTypes(type);
+        }
+        Class implementationClass = null;
+
+        if (NavigableSet.class.isAssignableFrom(rawType) || SortedSet.class.isAssignableFrom(rawType)) {
+            implementationClass = TreeSet.class;
+        } else if (Set.class.isAssignableFrom(rawType)) {
+            implementationClass = HashSet.class;
+        } else if (List.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)) {
+            implementationClass = ArrayList.class;
+        } else if (Properties.class.isAssignableFrom(rawType)) {
+            implementationClass = Properties.class;
+        } else if (NavigableMap.class.isAssignableFrom(rawType) || SortedMap.class.isAssignableFrom(rawType)) {
+            implementationClass = TreeMap.class;
+        } else if (Map.class.isAssignableFrom(rawType)) {
+            implementationClass = HashMap.class;
+        } else if (rawType.isArray()) {
+            Class componentType = rawType.getComponentType();
+            owner.getImporter().addTypes(componentType);
+            String componentSimpleTypeName = JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
+            field.setInitBody(String.format(" = new %s[]{}", componentSimpleTypeName));
+        }
+
+        if (implementationClass != null) {
+            owner.getImporter().addTypes(implementationClass);
+            Type implementationType = new ParameterizedTypeImpl(null, implementationClass, genericTypeArguments);
+            field.setInitBody(String.format(" = new %s()", owner.getImporter().getSimpleTypeName(implementationType)));
         }
     }
-
 
 
     protected static class ImmutableImplementation {
@@ -201,21 +191,20 @@ public class BuilderTypeHandler implements TypeHandler {
     }
 
 
-
-
     @SuppressWarnings("unchecked")
     protected Map<Class, ImmutableImplementation> getImmutableImplementation(Context context) {
-        if(! context.contains(Config.class)) return Collections.emptyMap();
+        if (!context.contains(Config.class)) return Collections.emptyMap();
         Map<Class, Class> mapping = context.get(Config.class).getImmutableImplementation();
-        if(mapping == null) return Collections.emptyMap();
+        if (mapping == null) return Collections.emptyMap();
         Map<Class, ImmutableImplementation> result = new HashMap<Class, ImmutableImplementation>();
-        OUTER: for(Class source: mapping.keySet())  {
+        OUTER:
+        for (Class source : mapping.keySet()) {
             Class target = mapping.get(source);
-            for(Method candidate: target.getDeclaredMethods())  {
-                if(source.isAssignableFrom(candidate.getReturnType())) {
-                    Class [] parameterTypes = candidate.getParameterTypes();
-                    if(parameterTypes == null || parameterTypes.length != 1) break OUTER;
-                    if(candidate.getReturnType().isAssignableFrom(parameterTypes[0])) {
+            for (Method candidate : target.getDeclaredMethods()) {
+                if (source.isAssignableFrom(candidate.getReturnType())) {
+                    Class[] parameterTypes = candidate.getParameterTypes();
+                    if (parameterTypes == null || parameterTypes.length != 1) break OUTER;
+                    if (candidate.getReturnType().isAssignableFrom(parameterTypes[0])) {
                         result.put(source, new ImmutableImplementation(target, candidate));
                     }
                 }
@@ -226,16 +215,15 @@ public class BuilderTypeHandler implements TypeHandler {
     }
 
 
-
     public static interface Config {
         /**
          * Source class and target
+         *
          * @return
          */
         Map<Class, Class> getImmutableImplementation();
 
     }
-
 
 
 }

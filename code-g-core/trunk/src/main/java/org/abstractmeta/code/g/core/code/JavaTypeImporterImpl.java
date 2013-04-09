@@ -120,6 +120,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
         } else if (type instanceof TypeVariable) {
+
             String typeVariableName = TypeVariable.class.cast(type).getName();
             if (genericTypeVariables.containsKey(typeVariableName)) {
                 Type result = genericTypeVariables.get(typeVariableName);
@@ -152,7 +153,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         } else if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
             String argumentTypeName = getGenericArgumentTypeName(type);
-            return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
+         return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
         } else if (type instanceof TypeVariable) {
@@ -214,8 +215,10 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
             Collection<Type> actualTypeArguments = new ArrayList<Type>();
             Collections.addAll(actualTypeArguments, parameterizedType.getActualTypeArguments());
             result = getGenericArgumentTypeName(actualTypeArguments);
+
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
+
         } else if (type instanceof TypeVariable) {
             String typeVariableName = TypeVariable.class.cast(type).getName();
             if (genericTypeVariables.containsKey(typeVariableName)) {

@@ -18,7 +18,7 @@ package org.abstractmeta.code.g.core.config;
 
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
-import org.abstractmeta.code.g.config.SourceFilter;
+import org.abstractmeta.code.g.config.SourceMatcher;
 
 import java.util.Properties;
 
@@ -30,17 +30,17 @@ import java.util.Properties;
 
 public class DescriptorImpl implements Descriptor {
 
-    private SourceFilter sourceFilter;
+    private SourceMatcher sourceMatcher;
     private NamingConvention namingConvention;
     private String generatorClass;
     private Properties properties;
 
-    public SourceFilter getSourceFilter() {
-        return sourceFilter;
+    public SourceMatcher getSourceMatcher() {
+        return sourceMatcher;
     }
 
-    public void setSourceFilter(SourceFilter sourceFilter) {
-        this.sourceFilter = sourceFilter;
+    public void setSourceMatcher(SourceMatcher sourceMatcher) {
+        this.sourceMatcher = sourceMatcher;
     }
 
     public NamingConvention getNamingConvention() {

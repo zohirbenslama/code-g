@@ -1,15 +1,15 @@
 package org.abstractmeta.code.g.core.config;
 
-import org.abstractmeta.code.g.config.SourceFilter;
+import org.abstractmeta.code.g.config.SourceMatcher;
 
 import java.util.Collection;
 
 /**
- * SourceFilter implementation.
+ * SourceMatcher implementation.
  *
  * @author Adrian Witas
  */
-public class SourceFilterImpl implements SourceFilter {
+public class SourceMatcherImpl implements SourceMatcher {
     
     
     private String sourceDirectory;

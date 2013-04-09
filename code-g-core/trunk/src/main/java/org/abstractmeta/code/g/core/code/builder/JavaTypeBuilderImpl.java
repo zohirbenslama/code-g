@@ -553,6 +553,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     @Override
     public JavaTypeBuilder addGenericTypeVariable(String key, Type value) {
         this.genericTypeVariables.put(key, value);
+        this.javaTypeImporter.getGenericTypeVariables().put(key, value);
         return this;
     }
 
@@ -636,9 +637,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
         if (sourceType instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(sourceType);
             for (Type argumentType : parameterizedType.getActualTypeArguments()) {
-                if (argumentType instanceof TypeVariable) {
-                    result.add(TypeVariable.class.cast(argumentType));
-                }
+                addTypeVariables(argumentType, result);
             }
         } else if (sourceType instanceof TypeVariable) {
             result.add(TypeVariable.class.cast(sourceType));
