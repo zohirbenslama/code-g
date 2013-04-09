@@ -16,11 +16,7 @@
 package org.abstractmeta.code.g.config.loader;
 
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.config.SourceFilter;
-import org.abstractmeta.code.g.generator.Context;
-
-import java.util.Collection;
+import org.abstractmeta.code.g.config.SourceMatcher;
 
 /**
  *
@@ -35,5 +31,5 @@ public interface SourceLoader {
      *
      * @return loaded source
      */
-    LoadedSource load(SourceFilter sourceFilter, JavaTypeRegistry registry, ClassLoader classLoader);
+    LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader);
 }

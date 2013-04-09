@@ -19,11 +19,11 @@ package org.abstractmeta.code.g.config;
 import java.util.Collection;
 
 /**
- * Represents SourceFilter
+ * Represents SourceMatcher
  *
  * @author Adrian Witas
  */
-public interface SourceFilter {
+public interface SourceMatcher {
 
     String getSourceDirectory();
 
@@ -44,6 +44,8 @@ public interface SourceFilter {
      * @return collection of pattern
      */
     Collection<String> getExclusionPatterns();
+
+
 
 
     /**

@@ -28,7 +28,7 @@ public interface Descriptor {
      * Source filter
      * @return
      */
-    SourceFilter getSourceFilter();
+    SourceMatcher getSourceMatcher();
 
     /**
      * Returns naming convention
