@@ -5,6 +5,7 @@ package org.abstractmeta.code.g.core.config.provider;
  */
 
 import javax.inject.Provider;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class BooleanProvider extends AbstractProvider<Long> implements Provider<Boolean>  {

@@ -16,18 +16,24 @@
 package org.abstractmeta.code.g.core.util;
 
 import com.google.common.base.CaseFormat;
-import org.abstractmeta.code.g.code.JavaField;
+import com.google.common.base.Strings;
+import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.config.NamingConvention;
+import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
+import org.abstractmeta.code.g.generator.Context;
+import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
+import javax.inject.Provider;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 /**
  * @author Adrian Witas
  */
-public class StringUtil {
+public class CodeGeneratorUtil {
 
     public static String getSetterMethodName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
 
@@ -37,26 +43,26 @@ public class StringUtil {
 
     public static String getGetterMethodName(String fieldName, Type fieldType) {
         String prefix = boolean.class.equals(fieldType) ? "is" : "get";
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, prefix, fieldName, CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, prefix, fieldName, CaseFormat.LOWER_CAMEL);
     }
 
 
     public static String getPresentFieldName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, fieldName , "Present", CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, fieldName, "Present", CaseFormat.LOWER_CAMEL);
     }
 
 
     public static String getPresentMethodName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, "is",  fieldName + "Present", CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, "is", fieldName + "Present", CaseFormat.LOWER_CAMEL);
     }
 
 
     public static String getAddMethodName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, "add", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
     public static String getClearMethodName(String fieldName) {
-        return StringUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
+        return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, "clear", fieldName, CaseFormat.LOWER_CAMEL);
     }
 
 
@@ -150,5 +156,53 @@ public class StringUtil {
         if(value == null) return defaultValue;
         return value;
     }
+
+    /**
+     * Renders code for a given java type builder
+     * @param javaTypeBuilder
+     * @param rendererProvider
+     * @return
+     */
+    public static SourcedJavaType renderCode(JavaTypeBuilder javaTypeBuilder, Provider<JavaTypeRenderer> rendererProvider) {
+        JavaTypeRenderer renderer = rendererProvider.get();
+        JavaTypeImporter importer = javaTypeBuilder.getImporter();
+        JavaType javaType = javaTypeBuilder.build();
+        importer.getGenericTypeVariables().putAll(javaType.getGenericTypeVariables());
+        importer.addTypes(javaTypeBuilder.getImportTypes());
+        String sourceCode = renderer.render(javaType, importer, 0);
+        SourcedJavaTypeBuilder sourcedJavaTypeBuilder = new SourcedJavaTypeBuilder();
+        sourcedJavaTypeBuilder.setType(javaType);
+        sourcedJavaTypeBuilder.setSourceCode(sourceCode);
+        return sourcedJavaTypeBuilder.build();
+    }
+
+
+    /**
+     * Formats target class name for a given NamingConvention
+     * NamingConvention is read first from context->descriptor->NamingConvention or from the getNamingConvention method
+     *
+     * @param context    context
+     * @param sourceType source type
+     * @return target class name
+     */
+    public static String formatTargetClassName(Context context, JavaType sourceType,  NamingConvention namingConvention) {
+        Descriptor descriptor = context.get(Descriptor.class);
+        if (descriptor.getNamingConvention() != null) {
+            namingConvention = descriptor.getNamingConvention();
+        }
+        StringBuilder result = new StringBuilder(sourceType.getPackageName()).append(".");
+        if (!Strings.isNullOrEmpty(namingConvention.getPackagePostfix())) {
+            result.append(namingConvention.getPackagePostfix()).append(".");
+        }
+        if (!Strings.isNullOrEmpty(namingConvention.getClassPrefix())) {
+            result.append(namingConvention.getClassPrefix());
+        }
+        result.append(sourceType.getSimpleName());
+        if (!Strings.isNullOrEmpty(namingConvention.getClassPostfix())) {
+            result.append(namingConvention.getClassPostfix());
+        }
+        return result.toString();
+    }
+
 
 }

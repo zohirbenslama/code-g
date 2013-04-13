@@ -87,7 +87,7 @@ public class BuilderGeneratorPlugin  {
 //                JavaFieldBuilder trackerFieldBuilder = new JavaFieldBuilder();
 //                trackerFieldBuilder.addModifiers(JavaModifier.PRIVATE, JavaModifier.TRANSIENT);
 //                trackerFieldBuilder.setType(boolean.class);
-//                trackerFieldBuilder.setName(StringUtil.isPresentFieldName(field.getName()));
+//                trackerFieldBuilder.setName(CodeGeneratorUtil.isPresentFieldName(field.getName()));
 //                javaTypeBuilder.addField(trackerFieldBuilder.build());
 //            }
 //        }

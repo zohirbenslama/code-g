@@ -15,7 +15,7 @@
  */
 package org.abstractmeta.code.g.core.renderer;
 
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,7 @@ public class SimpleTemplate {
             String argumentName = argumentNames.get(i);
             templateValues[i] = values.containsKey(argumentName) ? values.get(argumentName) : "";
         }
-        return StringUtil.indent(format(templateValues), indentSize);
+        return CodeGeneratorUtil.indent(format(templateValues), indentSize);
     }
 
     protected String format(Object... arguments) {

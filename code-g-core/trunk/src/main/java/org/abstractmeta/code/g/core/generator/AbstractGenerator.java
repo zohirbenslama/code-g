@@ -5,12 +5,14 @@ import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.config.SourceMatcher;
+import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
 import org.abstractmeta.code.g.generator.Context;
@@ -18,12 +20,11 @@ import org.abstractmeta.code.g.property.PropertyRegistry;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
+import org.abstractmeta.toolbox.compilation.compiler.util.ClassPathUtil;
 
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
+import java.io.File;
+import java.util.*;
 
 /**
  * This AbstractGenerator provides a scaffolding building target classes from defined in descriptor sources.
@@ -32,9 +33,9 @@ import java.util.Properties;
  */
 public abstract class AbstractGenerator<T> {
 
-    private final SourceLoader sourceLoader;
-    private final PropertyRegistry propertyRegistry;
-    private final Provider<JavaTypeRenderer> rendererProvider;
+    protected final SourceLoader sourceLoader;
+    protected final PropertyRegistry propertyRegistry;
+    protected final Provider<JavaTypeRenderer> rendererProvider;
 
     public AbstractGenerator(SourceLoader sourceLoader, PropertyRegistry propertyRegistry, Provider<JavaTypeRenderer> rendererProvider) {
         this.sourceLoader = sourceLoader;
@@ -43,13 +44,13 @@ public abstract class AbstractGenerator<T> {
     }
 
 
-    public Collection<CompiledJavaType> generate(Context context) {
+    public List<CompiledJavaType> generate(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
         Properties properties = applyProperties(descriptor.getProperties());
         context.replace(getSettingClass(), getSetting(properties));
         LoadedSource loadedSource = loadSource(context);
         context.replace(LoadedSource.class, loadedSource);
-        Collection<SourcedJavaType> sourceTypes = new ArrayList<SourcedJavaType>();
+        List<SourcedJavaType> sourceTypes = new ArrayList<SourcedJavaType>();
         for (JavaType sourceType : loadedSource.getJavaTypes()) {
             if (isApplicable(sourceType, context)) {
                 Collection<SourcedJavaType> generatedSourcedTypes = generate(sourceType, context);
@@ -60,6 +61,7 @@ public abstract class AbstractGenerator<T> {
     }
 
 
+
     protected LoadedSource loadSource(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
         SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher());
@@ -68,17 +70,19 @@ public abstract class AbstractGenerator<T> {
         return sourceLoader.load(sourceMatcher, typeRegistry, classLoader);
     }
 
-    protected Collection<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
-        Collection<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
+    protected List<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
+        List<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
-        JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
+        JavaSourceCompiler.CompilationUnit compilationUnit = getCompilationUnit(context, javaSourceCompiler);
         for (SourcedJavaType sourcedType : sourceTypes) {
             String source = "" + sourcedType.getSourceCode();
             compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
         }
         try {
             ClassLoader compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
+            javaSourceCompiler.persistCompiledClasses(compilationUnit);
+            context.replace(ClassLoader.class, compilationClassLoader);
             for (SourcedJavaType sourcedType : sourceTypes) {
                 Class compiledType = null;
                 try {
@@ -105,18 +109,32 @@ public abstract class AbstractGenerator<T> {
         return result;
     }
 
+    protected JavaSourceCompiler.CompilationUnit getCompilationUnit(Context context, JavaSourceCompiler javaSourceCompiler) {
+        File compilationTargetDirectory = getCompilationTargetDirectory(context);
+        JavaSourceCompiler.CompilationUnit result;
+        if(compilationTargetDirectory != null) {
+            result = javaSourceCompiler.createCompilationUnit(compilationTargetDirectory);
+            result.addClassPathEntries(ClassPathUtil.getClassPathEntries());
+            result.addClassPathEntry(compilationTargetDirectory.getAbsolutePath());
+        } else {
+            result = javaSourceCompiler.createCompilationUnit();
+        }
+        context.replace(JavaSourceCompiler.CompilationUnit.class, result);
+        return result;
+    }
+
+    protected File getCompilationTargetDirectory(Context context) {
+        if(context.contains(UnitDescriptor.class)) {
+            return new File(context.get(UnitDescriptor.class).getTargetCompilationDirectory());
+        } else if(context.contains(JavaSourceCompiler.CompilationUnit.class)) {
+            return context.get(JavaSourceCompiler.CompilationUnit.class).getOutputClassDirectory();
+        }
+        return null;
+    }
+
 
     protected SourcedJavaType renderCode(JavaTypeBuilder javaTypeBuilder) {
-        JavaTypeRenderer renderer = rendererProvider.get();
-        JavaTypeImporter importer = javaTypeBuilder.getImporter();
-        JavaType javaType = javaTypeBuilder.build();
-        importer.getGenericTypeVariables().putAll(javaType.getGenericTypeVariables());
-        importer.addTypes(javaTypeBuilder.getImportTypes());
-        String sourceCode = renderer.render(javaType, importer, 0);
-        SourcedJavaTypeBuilder sourcedJavaTypeBuilder = new SourcedJavaTypeBuilder();
-        sourcedJavaTypeBuilder.setType(javaType);
-        sourcedJavaTypeBuilder.setSourceCode(sourceCode);
-        return sourcedJavaTypeBuilder.build();
+        return CodeGeneratorUtil.renderCode(javaTypeBuilder, rendererProvider);
     }
 
     abstract protected Collection<SourcedJavaType> generate(JavaType sourceType, Context context);
@@ -131,24 +149,9 @@ public abstract class AbstractGenerator<T> {
      * @return target class name
      */
     protected String formatTargetClassName(Context context, JavaType sourceType) {
-        Descriptor descriptor = context.get(Descriptor.class);
-        NamingConvention namingConvention = getNamingConvention();
-        if (descriptor.getNamingConvention() != null) {
-            namingConvention = descriptor.getNamingConvention();
-        }
-        StringBuilder result = new StringBuilder(sourceType.getPackageName()).append(".");
-        if (!Strings.isNullOrEmpty(namingConvention.getPackagePostfix())) {
-            result.append(namingConvention.getPackagePostfix()).append(".");
-        }
-        if (!Strings.isNullOrEmpty(namingConvention.getClassPrefix())) {
-            result.append(namingConvention.getClassPrefix());
-        }
-        result.append(sourceType.getSimpleName());
-        if (!Strings.isNullOrEmpty(namingConvention.getClassPostfix())) {
-            result.append(namingConvention.getClassPostfix());
-        }
-        return result.toString();
+        return CodeGeneratorUtil.formatTargetClassName(context, sourceType, getNamingConvention(context));
     }
+
 
     protected T getSetting(Properties properties) {
         return new ObjectProvider<T>(getSettingClass(), properties).get();
@@ -158,7 +161,7 @@ public abstract class AbstractGenerator<T> {
     abstract protected boolean isApplicable(JavaType javaType, Context context);
 
 
-    private SourceMatcher applyProperties(SourceMatcher sourceMatcher) {
+    protected SourceMatcher applyProperties(SourceMatcher sourceMatcher) {
         SourceMatcherImpl result = new SourceMatcherImpl();
         result.setSourceDirectory(expandProperty(sourceMatcher.getSourceDirectory()));
         result.setIncludeSubpackages(sourceMatcher.isIncludeSubpackages());
@@ -170,7 +173,7 @@ public abstract class AbstractGenerator<T> {
         return result;
     }
 
-    private Properties applyProperties(Properties properties) {
+    protected Properties applyProperties(Properties properties) {
         Properties result = new Properties();
         if (properties == null) return result;
         for (String key : properties.stringPropertyNames()) {
@@ -233,7 +236,7 @@ public abstract class AbstractGenerator<T> {
         return propertyRegistry;
     }
 
-    abstract public NamingConvention getNamingConvention();
+    abstract public NamingConvention getNamingConvention(Context context);
 
 
     abstract public Class<T> getSettingClass();

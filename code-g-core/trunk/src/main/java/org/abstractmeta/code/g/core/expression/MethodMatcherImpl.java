@@ -20,7 +20,7 @@ import org.abstractmeta.code.g.core.collection.function.OperationNameMatchFuncti
 import org.abstractmeta.code.g.core.collection.predicate.MethodMatchPredicate;
 import org.abstractmeta.code.g.core.collection.predicate.OperationMatchPredicate;
 import org.abstractmeta.code.g.core.expression.builder.AbstractionMatchBuilder;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import com.google.common.collect.Iterables;
 import org.abstractmeta.code.g.expression.*;
 
@@ -105,7 +105,7 @@ public class MethodMatcherImpl implements MethodMatcher {
             AbstractionMatchBuilder builder = methodMatchBuilders.get(matchName);
             for (MethodMatch methodMatch : builder.build().getMatches()) {
                 if (methodMatch.getPattern().isSingularNameMatching()) {
-                    String pluralName = StringUtil.getPlural(matchName);
+                    String pluralName = CodeGeneratorUtil.getPlural(matchName);
                     AbstractionMatchBuilder pluralMatch = methodMatchBuilders.get(pluralName);
                     if (pluralMatch == null) continue;
                     pluralMatch.addMatches(builder.getMatches());

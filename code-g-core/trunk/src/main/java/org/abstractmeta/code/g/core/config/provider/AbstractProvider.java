@@ -7,10 +7,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Represents abstract value provider from properties file
@@ -21,8 +18,8 @@ public class AbstractProvider<T> {
 
     private final Type type;
 
-    private final Properties properties;
-    private final String[] pathFragments;
+    protected final Properties properties;
+    protected final String[] pathFragments;
 
 
     public AbstractProvider(Type type, Properties properties, String[] pathFragments) {
@@ -70,7 +67,7 @@ public class AbstractProvider<T> {
     }
 
     protected String getValue() {
-        return getValue(getPath(pathFragments));
+        return getValue(getPath());
     }
 
     protected String getValue(String path) {

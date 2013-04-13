@@ -21,7 +21,7 @@ import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 /**
@@ -51,7 +51,7 @@ public class SetterFieldHandler implements FieldHandler {
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
         if (target.isImmutable()) return;
-        String methodName = StringUtil.getSetterMethodName(target.getName());
+        String methodName = CodeGeneratorUtil.getSetterMethodName(target.getName());
         if (owner.containsMethod(methodName)) return;
         JavaMethod setterMethod = buildSetterMethod(target, methodName);
         owner.addMethod(setterMethod);

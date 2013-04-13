@@ -18,8 +18,7 @@ package org.abstractmeta.code.g.core.builder.handler.field;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
-import org.abstractmeta.code.g.core.util.JavaTypeUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
@@ -46,7 +45,7 @@ public class BuilderSetterFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        String methodName = StringUtil.getSetterMethodName(target.getName());
+        String methodName = CodeGeneratorUtil.getSetterMethodName(target.getName());
         if(owner.containsMethod(methodName)) {
             return ;
         }
@@ -60,7 +59,7 @@ public class BuilderSetterFieldHandler implements FieldHandler {
             if(owner.containsField(baseField)) return;
         }
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        String methodName = StringUtil.getSetterMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getSetterMethodName(fieldName);
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, fieldType);
         methodBuilder.addModifier(JavaModifier.PUBLIC);

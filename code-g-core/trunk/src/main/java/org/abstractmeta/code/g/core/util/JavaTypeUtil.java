@@ -224,7 +224,7 @@ public class JavaTypeUtil {
             for (JavaField field : javaType.getFields()) {
                 Class fieldType = ReflectUtil.getRawClass(field.getType());
                 if (keyType.isAssignableFrom(fieldType) && JavaTypeUtil.containsAnnotation(field.getAnnotations(), annotation)) {
-                    String methodName = StringUtil.getGetterMethodName(field.getName(), field.getType());
+                    String methodName = CodeGeneratorUtil.getGetterMethodName(field.getName(), field.getType());
                     Optional<JavaMethod> optionalResult = Iterables.tryFind(javaType.getMethods(), new MethodNamePredicate(methodName));
                     if (optionalResult.isPresent())
                         return optionalResult.get();
@@ -242,7 +242,7 @@ public class JavaTypeUtil {
 
 
     public static JavaTypeBuilder buildKeyProviderFunction(JavaMethod providerMethod, String prefix, Type parameterType) {
-        String providerType = StringUtil.getClassName(prefix, "KeyProvider");
+        String providerType = CodeGeneratorUtil.getClassName(prefix, "KeyProvider");
         JavaTypeBuilder result = new JavaTypeBuilderImpl(providerType);
         result.setNested(true);
         result.addModifiers(JavaModifier.PUBLIC, JavaModifier.STATIC);
@@ -256,12 +256,12 @@ public class JavaTypeUtil {
     }
 
     public static String getKeyProviderFieldName(String fieldName) {
-        String providerType = StringUtil.getClassName(fieldName, "keyProvider");
+        String providerType = CodeGeneratorUtil.getClassName(fieldName, "keyProvider");
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, providerType);
     }
 
     public static JavaTypeBuilder buildKeyProviderEqualPredicate(JavaMethod providerMethod, String prefix, Type parameterType) {
-        String providerType = StringUtil.getClassName(prefix, "EqualPredicate");
+        String providerType = CodeGeneratorUtil.getClassName(prefix, "EqualPredicate");
         JavaTypeBuilder result = new JavaTypeBuilderImpl(providerType);
         result.setNested(true);
         Class providerResultType = ReflectUtil.getRawClass(providerMethod.getResultType());

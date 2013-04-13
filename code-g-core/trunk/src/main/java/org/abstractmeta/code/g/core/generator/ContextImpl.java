@@ -70,13 +70,14 @@ public class ContextImpl implements Context {
     }
 
     @Override
-    public boolean remove(Class key) {
-        context.remove(key);
+    public  <T> T remove(Class<T> key) {
+        Object result = context.remove(key);
         removeInterfaceKey(key.getInterfaces());
         if(key.getSuperclass() != null && ! Object.class.equals(key.getSuperclass())) {
            removeInterfaceKey(key.getSuperclass().getInterfaces());
         }
-        return true;
+        if(result == null) return null;
+        return key.cast(result);
     }
 
 

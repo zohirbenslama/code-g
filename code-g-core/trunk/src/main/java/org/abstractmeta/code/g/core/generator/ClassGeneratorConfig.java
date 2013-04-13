@@ -122,4 +122,22 @@ public class ClassGeneratorConfig implements EqualMethodHandler.Config, HashCode
     public void setGenerateBuilder(boolean generateBuilder) {
         this.generateBuilder = generateBuilder;
     }
+
+    @Override
+    public String toString() {
+        return "ClassGeneratorConfig{" +
+                "generateEqualMethod=" + generateEqualMethod +
+                ", generateHashMethod=" + generateHashMethod +
+                ", hashMultiplier=" + hashMultiplier +
+                ", includeInHashAnnotation='" + includeInHashAnnotation + '\'' +
+                ", registryCreateMapMethodName='" + registryCreateMapMethodName + '\'' +
+                ", registryFieldName='" + registryFieldName + '\'' +
+                ", registryItemUseKeyProvider=" + registryItemUseKeyProvider +
+                ", registryKeyAnnotation='" + registryKeyAnnotation + '\'' +
+                ", indexedCollectionItemKeyAnnotation='" + indexedCollectionItemKeyAnnotation + '\'' +
+                ", indexedCollectionUseCache=" + indexedCollectionUseCache +
+                ", indexCollectionUseKeyProvider=" + indexCollectionUseKeyProvider +
+                ", generateBuilder=" + generateBuilder +
+                '}';
+    }
 }

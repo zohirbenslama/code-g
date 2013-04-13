@@ -23,9 +23,9 @@ import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
@@ -135,10 +135,10 @@ public class BuilderMergeHandler implements TypeHandler {
         String fieldName = javaField.getName();
         Type fieldType = javaField.getType();
         Class rawType = ReflectUtil.getRawClass(fieldType);
-        String setterMethodName = StringUtil.getSetterMethodName(javaField.getName());
-        String getterMethodName = StringUtil.getGetterMethodName(javaField);
+        String setterMethodName = CodeGeneratorUtil.getSetterMethodName(javaField.getName());
+        String getterMethodName = CodeGeneratorUtil.getGetterMethodName(javaField);
         boolean isPrimitive = rawType.isPrimitive();
-        String isPresentMethodName = StringUtil.getPresentMethodName(fieldName);
+        String isPresentMethodName = CodeGeneratorUtil.getPresentMethodName(fieldName);
         boolean isPresentMethodExists = sourceIndexedMethods.containsKey(isPresentMethodName);
         if (isPresentMethodExists) {
             methodBuilder.addBodyLines(String.format("if(instance.%s()){", isPresentMethodName));
@@ -158,7 +158,7 @@ public class BuilderMergeHandler implements TypeHandler {
         if (Collection.class.isAssignableFrom(rawType)
                 || Map.class.isAssignableFrom(Map.class)
                 || rawType.isArray()) {
-            String addMethodName = StringUtil.getAddMethodName(fieldName);
+            String addMethodName = CodeGeneratorUtil.getAddMethodName(fieldName);
             if (owner.containsMethod(addMethodName)) {
                 methodBuilder.addBodyLines(String.format("    this.%s(instance.%s());", addMethodName, getterMethodName));
                 methodBuilder.addBodyLines("}");

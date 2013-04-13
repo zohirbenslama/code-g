@@ -20,8 +20,8 @@ import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
@@ -72,7 +72,7 @@ public class BuilderMapFieldHandler implements FieldHandler {
     }
 
     protected void addCollectionAddItemsMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getAddMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.addModifier(JavaModifier.PUBLIC);
@@ -88,8 +88,8 @@ public class BuilderMapFieldHandler implements FieldHandler {
 
 
     protected void addCollectionAddMethods(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String singularName = StringUtil.getSingular(fieldName);
-        String methodName = StringUtil.getAddMethodName(singularName);
+        String singularName = CodeGeneratorUtil.getSingular(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(singularName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
@@ -106,7 +106,7 @@ public class BuilderMapFieldHandler implements FieldHandler {
 
 
     protected void addCollectionClearMethod(JavaTypeBuilder owner, String fieldName) {
-        String methodName = StringUtil.getClearMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.addModifier(JavaModifier.PUBLIC);

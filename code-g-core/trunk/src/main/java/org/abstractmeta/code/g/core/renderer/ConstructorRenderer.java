@@ -17,7 +17,7 @@ package org.abstractmeta.code.g.core.renderer;
 
 import org.abstractmeta.code.g.code.JavaConstructor;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.renderer.JavaConstructorRenderer;
 import com.google.common.base.Joiner;
 
@@ -45,7 +45,7 @@ public class ConstructorRenderer extends AbstractRenderer<JavaConstructor> imple
         template.set(NAME_PARAMETER, instance.getName());
         template.set(ARGUMENTS_PARAMETER, getMethodArguments(importer, instance.getParameters()));
         template.set(EXCEPTION_PARAMETER, getMethodExceptions(importer, instance.getExceptionTypes()));
-        template.set(BODY_PARAMETER, StringUtil.indent(Joiner.on("\n").join(instance.getBodyLines()), indentSize + 4));
+        template.set(BODY_PARAMETER, CodeGeneratorUtil.indent(Joiner.on("\n").join(instance.getBodyLines()), indentSize + 4));
     }
 
 }

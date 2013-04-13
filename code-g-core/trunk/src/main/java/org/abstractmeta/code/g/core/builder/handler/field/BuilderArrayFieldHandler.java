@@ -17,14 +17,12 @@ package org.abstractmeta.code.g.core.builder.handler.field;
 
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaModifier;
-import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
 import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
@@ -80,7 +78,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
         Class rawFieldType = ReflectUtil.getRawClass(fieldType);
         String fieldName = javaField.getName();
         if (rawFieldType.isArray()) {
-            String methodName = StringUtil.getAddMethodName(fieldName);
+            String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
             if (! owner.containsMethod(methodName)) {
                 addArrayAddItemMethod(owner, javaField.getName(), javaField.getType());
                 addArrayAddItemsMethod(owner, javaField.getName(), javaField.getType());
@@ -90,7 +88,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
     }
 
     protected void addArrayAddItemsMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getAddMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
         JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
         methodBuilder.addModifier(JavaModifier.PUBLIC);
@@ -107,7 +105,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
     }
 
     protected void addArrayAddItemMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getAddMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
         JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
         methodBuilder.addModifier(JavaModifier.PUBLIC);
@@ -123,7 +121,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
     }
 
     protected void addCollectionClearMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getClearMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.addModifier(JavaModifier.PUBLIC);

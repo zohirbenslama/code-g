@@ -15,7 +15,6 @@
  */
 package org.abstractmeta.code.g.core.builder.handler.field;
 
-import com.google.common.base.CaseFormat;
 import org.abstractmeta.code.g.code.JavaField;
 import org.abstractmeta.code.g.code.JavaModifier;
 import org.abstractmeta.code.g.code.JavaTypeBuilder;
@@ -23,10 +22,8 @@ import org.abstractmeta.code.g.code.handler.FieldHandler;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaParameterBuilder;
 import org.abstractmeta.code.g.core.internal.GenericArrayTypeImpl;
-import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.core.plugin.BuilderGeneratorPlugin;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
 import org.abstractmeta.code.g.generator.Context;
 
 import java.lang.reflect.Type;
@@ -80,7 +77,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
         Type fieldType = javaField.getType();
         Class rawFieldType = ReflectUtil.getRawClass(fieldType);
         String fieldName = javaField.getName();
-        String methodName = StringUtil.getClearMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
 
         if (Collection.class.isAssignableFrom(rawFieldType) && !owner.containsMethod(methodName)) {
             addCollectionAddItemMethod(owner, javaField.getName(), javaField.getType());
@@ -90,7 +87,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
     }
 
     protected void addCollectionAddItemsMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getAddMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
@@ -103,7 +100,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
 
 
     protected void addCollectionAddItemMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
-        String methodName = StringUtil.getAddMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
@@ -118,7 +115,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
     }
 
     protected void addCollectionClearMethod(JavaTypeBuilder owner, String fieldName) {
-        String methodName = StringUtil.getClearMethodName(fieldName);
+        String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
             methodBuilder.addModifier(JavaModifier.PUBLIC);

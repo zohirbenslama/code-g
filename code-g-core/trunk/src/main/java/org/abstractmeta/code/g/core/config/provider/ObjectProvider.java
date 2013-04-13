@@ -100,6 +100,7 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
         } else if (Map.class.isAssignableFrom(type) || Properties.class.isAssignableFrom(type)) {
             value = getProperties(path);
         } else if (containsPath(path)) {
+
             if (Integer.class.equals(ReflectUtil.getObjectType(type))) {
                 value = new IntegerProvider(getProperties(), pathFragments).get();
             } else if (Long.class.equals(ReflectUtil.getObjectType(type))) {

@@ -28,7 +28,7 @@ import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeVariableImpl;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.expression.MethodMatch;
 import org.abstractmeta.code.g.expression.MethodMatcher;
@@ -379,12 +379,12 @@ public class RegistryFieldHandler implements FieldHandler {
 
     protected String getRegistryFieldName(Context context) {
         if(! context.contains(Config.class)) return DEFAULT_REGISTRY_FIELD;
-        return StringUtil.getValue(context.get(Config.class).getRegistryFieldName(),DEFAULT_REGISTRY_FIELD);
+        return CodeGeneratorUtil.getValue(context.get(Config.class).getRegistryFieldName(), DEFAULT_REGISTRY_FIELD);
     }
 
     protected String getCreateMapMethodName(Context context) {
         if(! context.contains(Config.class)) return DEFAULT_MAKE_MAP_METHOD;
-        return StringUtil.getValue(context.get(Config.class).getRegistryCreateMapMethodName(), DEFAULT_MAKE_MAP_METHOD);
+        return CodeGeneratorUtil.getValue(context.get(Config.class).getRegistryCreateMapMethodName(), DEFAULT_MAKE_MAP_METHOD);
     }
 
 

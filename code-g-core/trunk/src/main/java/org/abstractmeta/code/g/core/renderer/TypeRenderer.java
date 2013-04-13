@@ -19,7 +19,7 @@ import com.google.common.collect.Collections2;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.core.collection.predicate.TypeVariablePredicate;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.renderer.JavaConstructorRenderer;
 import org.abstractmeta.code.g.renderer.JavaFieldRenderer;
 import org.abstractmeta.code.g.renderer.JavaMethodRenderer;
@@ -88,7 +88,7 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         template.set(IMPLEMENTS_PARAMETER, mergeFragment(" implements ", getTypes(importer, instance.getSuperInterfaces()), ""));
         String body = buildBody(importer, instance, indentSize);
         template.set(BODY_PARAMETER, body);
-        String imports = instance.isNested() ? "" : StringUtil.join(importer.getTypeNames(), "import ", ";\n", true);
+        String imports = instance.isNested() ? "" : CodeGeneratorUtil.join(importer.getTypeNames(), "import ", ";\n", true);
         template.set(IMPORT_PARAMETER, imports);
     }
 

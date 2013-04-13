@@ -17,7 +17,7 @@ package org.abstractmeta.code.g.core.renderer;
 
 import org.abstractmeta.code.g.code.JavaMethod;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
-import org.abstractmeta.code.g.core.util.StringUtil;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.renderer.JavaMethodRenderer;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import com.google.common.base.Joiner;
@@ -69,7 +69,7 @@ public class MethodRenderer extends AbstractRenderer<JavaMethod> implements Java
             javaInlineTypes = javaInlineTypes + "\n";
         }
         String body = Joiner.on("\n").join(instance.getBodyLines());
-        template.set(BODY_PARAMETER, StringUtil.indent(String.format("%s%s", javaInlineTypes, body), indentSize + 4));
+        template.set(BODY_PARAMETER, CodeGeneratorUtil.indent(String.format("%s%s", javaInlineTypes, body), indentSize + 4));
     }
 
     private String getGenericVariables(Collection<Type> genericVariables) {

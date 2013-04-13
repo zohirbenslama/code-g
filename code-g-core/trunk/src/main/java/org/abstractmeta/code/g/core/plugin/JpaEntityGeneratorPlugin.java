@@ -81,7 +81,7 @@ public class JpaEntityGeneratorPlugin  {
 //        List<String> result = new ArrayList<String>();
 //        result.addAll(addEntityTypesFromTable(configuration, connection, registry));
 //        result.addAll(addMatchedEntityTypesFromTable(configuration, connection, registry));
-//        if (StringUtil.isNotEmpty(configuration.getSql())) {
+//        if (CodeGeneratorUtil.isNotEmpty(configuration.getSql())) {
 //            JavaType type = addEntityType(configuration.getSql(), connection, configuration);
 //            registry.register(type);
 //            result.add(type.getName());
@@ -206,11 +206,11 @@ public class JpaEntityGeneratorPlugin  {
 //        }
 //        String upperCamelTypeName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tableName.toUpperCase());
 //        StringBuilder resultBuilder = new StringBuilder(configuration.getTargetPackage()).append(".");
-//        if (StringUtil.isNotEmpty(configuration.getEntityPrefix())) {
+//        if (CodeGeneratorUtil.isNotEmpty(configuration.getEntityPrefix())) {
 //            resultBuilder.append(configuration.getEntityPrefix());
 //        }
 //        resultBuilder.append(upperCamelTypeName);
-//        if (StringUtil.isNotEmpty(configuration.getEntityPostfix())) {
+//        if (CodeGeneratorUtil.isNotEmpty(configuration.getEntityPostfix())) {
 //            resultBuilder.append(configuration.getEntityPostfix());
 //        }
 //        return resultBuilder.toString();
