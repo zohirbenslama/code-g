@@ -47,6 +47,6 @@ public interface Context {
 
     boolean contains(Class key);
 
-    boolean remove(Class key);
+    <T> T remove(Class<T> key);
 
 }

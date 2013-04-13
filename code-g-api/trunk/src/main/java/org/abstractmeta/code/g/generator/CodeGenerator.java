@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.property.PropertyRegistry;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents CodeGenerator
@@ -30,12 +31,12 @@ import java.util.Collection;
 public interface CodeGenerator<T> {
 
 
-    Collection<CompiledJavaType> generate(Context context);
+    List<CompiledJavaType> generate(Context context);
     /**
      * Naming convention
      * @return
      */
-    NamingConvention getNamingConvention();
+    NamingConvention getNamingConvention(Context context);
 
     /**
      * Setting class created from {@link org.abstractmeta.code.g.config.Descriptor#getProperties()}
