@@ -2,8 +2,12 @@ package org.abstractmeta.code.g.core.generator;
 
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.NamingConvention;
+import org.abstractmeta.code.g.config.loader.LoadedSource;
+import org.abstractmeta.code.g.core.builder.SimpleClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.config.loader.JavaSourceLoaderImpl;
+import org.abstractmeta.code.g.core.config.loader.LoadedSourceImpl;
 import org.abstractmeta.code.g.core.jpa.ColumnFieldMap;
 import org.abstractmeta.code.g.core.jpa.DbCatalogLoader;
 import org.abstractmeta.code.g.core.jpa.DbConnection;
@@ -12,35 +16,78 @@ import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.Context;
 import org.abstractmeta.code.g.property.PropertyRegistry;
+import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
+import javax.inject.Provider;
 import javax.persistence.GenerationType;
 import javax.persistence.TemporalType;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents JpaClassGenerator
  *
  * @author Adrian Witas
  */
-public class JpaClassGenerator implements CodeGenerator<JpaClassConfig> {
+public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> implements CodeGenerator<JpaClassConfig> {
 
     private final PropertyRegistry propertyRegistry;
     private final DbCatalogLoader dbCatalogLoader;
 
-    public JpaClassGenerator(PropertyRegistry propertyRegistry, DbCatalogLoader dbCatalogLoader) {
+    public JpaClassGenerator(PropertyRegistry propertyRegistry, DbCatalogLoader dbCatalogLoader, Provider<JavaTypeRenderer> javaTypeRendererProvider) {
+        super(new JavaSourceLoaderImpl(), propertyRegistry, javaTypeRendererProvider);
         this.propertyRegistry = propertyRegistry;
         this.dbCatalogLoader = dbCatalogLoader;
     }
 
     @Override
-    public List<CompiledJavaType> generate(Context context) {
-        return null;
+    protected Collection<SourcedJavaType> generate(JavaType sourceType, Context context) {
+        String targetName = formatTargetClassName(context, sourceType);
+        SimpleClassBuilder simpleClassBuilder = new SimpleClassBuilder(targetName, sourceType, context);
+        simpleClassBuilder.addModifiers(JavaModifier.PUBLIC);
+        simpleClassBuilder.addAnnotations(sourceType.getAnnotations());
+        addExtractableFields(simpleClassBuilder, sourceType, context);
+        addExtractableMethods(simpleClassBuilder, sourceType, context);
+        SourcedJavaType result = renderCode(simpleClassBuilder);
+        return Arrays.asList(result);
     }
+
+        @Override
+    protected boolean isApplicable(JavaType javaType, Context context) {
+        return context.contains(JpaClassConfig.class);
+    }
+
+
+    /**
+     * Loads soures from database
+     *
+     * @param context
+     * @return
+     */
+    @Override
+    protected LoadedSource loadSource(Context context) {
+        JpaClassConfig config = context.get(JpaClassConfig.class);
+        Connection connection = null;
+        try {
+            connection = connect(config.getConnection());
+        } finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException ignore) {}
+        }
+        List<JavaType> result = new ArrayList<JavaType>();
+        result.addAll(addEntityTypesFromTable(connection, context));
+        result.addAll(addEntityTypesFromNamedSql(connection, context));
+        LoadedSourceImpl loadedSource = new LoadedSourceImpl();
+        loadedSource.setJavaTypes(result);
+        if(context.contains(ClassLoader.class)) {
+            loadedSource.setClassLoader(context.get(ClassLoader.class));
+        }
+        return loadedSource;
+    }
+
 
 
     @Override
@@ -59,79 +106,38 @@ public class JpaClassGenerator implements CodeGenerator<JpaClassConfig> {
     }
 
 
-//    private void buildInterface(Descriptor descriptor, JavaTypeBuilder entityTypeBuilder) {
-
-//        if (!DescriptorUtil.is(descriptor, BUILD_INTERFACE)) {
-//            return;
-//        }
-
-//        throw new UnsupportedOperationException("Yet no supported");
-//        //TODO add support
-//    }
-//
 
 
-//    protected JavaTypeBuilder getEntityClassBuilder(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
-//        JavaTypeBuilder result = new JavaTypeBuilderImpl(JavaKind.CLASS, sourceType.getName(), sourceType, descriptor, registry);
-//        result.merge(sourceType);
-//        return result;
-//    }
-
-
-//
-//    protected List<String> addEntityTypes(JpaEntityGeneratorConfiguration configuration, Connection connection, JavaTypeRegistry registry) {
-//        List<String> result = new ArrayList<String>();
-//        result.addAll(addEntityTypesFromTable(configuration, connection, registry));
-//        result.addAll(addMatchedEntityTypesFromTable(configuration, connection, registry));
-//        if (CodeGeneratorUtil.isNotEmpty(configuration.getSql())) {
-//            JavaType type = addEntityType(configuration.getSql(), connection, configuration);
-//            registry.register(type);
-//            result.add(type.getName());
-//        }
-//        return result;
-//    }
-//
-//    protected List<String> addMatchedEntityTypesFromTable(JpaEntityGeneratorConfiguration configuration, Connection connection, JavaTypeRegistry registry) {
-//        List<String> result = new ArrayList<String>();
-//        Pattern tableMatchingPattern = configuration.getTableMatchingPattern();
-//        if (tableMatchingPattern == null) return result;
-//        for (String tableName : dbCatalogLoader.getTableNames(connection)) {
-//            Matcher matcher = tableMatchingPattern.matcher(tableName);
-//            if (matcher.matches()) {
-//                JavaType type = addEntityType(tableName, connection, configuration);
-//                registry.register(type);
-//                result.add(type.getName());
-//            }
-//        }
-//        return result;
-//    }
-//
-//
-
-
-    protected List<String> addEntityTypesFromTable(Connection connection, JavaTypeRegistry registry, Context context) {
-        List<String> result = new ArrayList<String>();
+    protected List<JavaType> addEntityTypesFromTable(Connection connection, Context context) {
+        List<JavaType> result = new ArrayList<JavaType>();
         JpaClassConfig config = context.get(JpaClassConfig.class);
-        if (config.getTablesNames() != null && config.getTablesNames().size() > 0) {
+        if (config.getTablesNames() != null && !config.getTablesNames().isEmpty()) {
             for (String tableName : config.getTablesNames()) {
-                JavaType type = addEntityType(tableName, connection, context);
-                if (type != null) {
-                    registry.register(type);
-                    result.add(type.getName());
-                }
+                JavaType type = addEntityType(tableName, tableName, connection, context);
+                result.add(type);
+            }
+        }
+        return result;
+    }
+
+    protected List<JavaType> addEntityTypesFromNamedSql(Connection connection, Context context) {
+        List<JavaType> result = new ArrayList<JavaType>();
+        JpaClassConfig config = context.get(JpaClassConfig.class);
+        if (config.getNamedSqls() != null && !config.getNamedSqls().isEmpty()) {
+            for (Map.Entry<String, String> entry : config.getNamedSqls().entrySet()) {
+                JavaType type = addEntityType(entry.getKey(), entry.getValue(), connection, context);
+                result.add(type);
             }
         }
         return result;
     }
 
 
-
-
-    protected JavaType addEntityType(String tableName, Connection connection, Context context) {
+    protected JavaType addEntityType(String name, String sql, Connection connection, Context context) {
         JpaClassConfig config = context.get(JpaClassConfig.class);
-        Collection<ColumnFieldMap> columnFieldMaps = dbCatalogLoader.loadColumnFieldMap(connection, tableName, config.getTypeMapping());
-        JavaTypeBuilder resultBuilder = buildJavaType(tableName, columnFieldMaps, context);
-        resultBuilder.addAnnotations(new TableBuilder().setName(tableName).build());
+        Collection<ColumnFieldMap> columnFieldMaps = dbCatalogLoader.loadColumnFieldMap(connection, sql, config.getTypeMapping());
+        JavaTypeBuilder resultBuilder = buildJavaType(name, columnFieldMaps, context);
+        resultBuilder.addAnnotations(new TableBuilder().setName(name).build());
         EntityBuilder entityBuilder = new EntityBuilder();
         entityBuilder.setName(resultBuilder.getSimpleName());
         resultBuilder.addAnnotations(entityBuilder.build());
@@ -202,7 +208,6 @@ public class JpaClassGenerator implements CodeGenerator<JpaClassConfig> {
             throw new IllegalStateException("Failed to connect to " + dbConnection.getUrl() + " " + dbConnection.getUsername() + "/*****", e);
         }
     }
-
 
 
 }

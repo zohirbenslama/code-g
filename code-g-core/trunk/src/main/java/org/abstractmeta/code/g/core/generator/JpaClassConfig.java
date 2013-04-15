@@ -4,12 +4,9 @@ import org.abstractmeta.code.g.core.jpa.DbConnection;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Represents JpaClassConfig
- * <p>
- * </p>
  *
  * @author Adrian Witas
  */

@@ -6,6 +6,9 @@ import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.builder.BuilderClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.config.NamingConventionImpl;
+import org.abstractmeta.code.g.core.config.loader.JavaSourceLoaderImpl;
+import org.abstractmeta.code.g.core.diconfig.JavaTypeRendererProvider;
+import org.abstractmeta.code.g.core.property.PropertyRegistryImpl;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.Context;
@@ -26,6 +29,10 @@ public class BuilderGenerator extends AbstractGenerator<BuilderGeneratorConfig> 
 
     private final NamingConvention DEFAULT_NAMING_CONVENTION = new NamingConventionImpl("", "Builder", "builder");
 
+    public  BuilderGenerator() {
+        this(new JavaSourceLoaderImpl(), new PropertyRegistryImpl(), new JavaTypeRendererProvider());
+    }
+
     public BuilderGenerator(SourceLoader sourceLoader, PropertyRegistry propertyRegistry, Provider<JavaTypeRenderer> rendererProvider) {
         super(sourceLoader, propertyRegistry, rendererProvider);
     }
@@ -42,7 +49,6 @@ public class BuilderGenerator extends AbstractGenerator<BuilderGeneratorConfig> 
             fieldBuilder.addModifier(JavaModifier.PRIVATE);
             fieldBuilder.setName(field.getName());
             fieldBuilder.setType(field.getType());
-
             addFiled(classBuilder, fieldBuilder);
             if(isIncludePresentFiled) {
                 JavaFieldBuilder presentFiledBuilder = new JavaFieldBuilder();
