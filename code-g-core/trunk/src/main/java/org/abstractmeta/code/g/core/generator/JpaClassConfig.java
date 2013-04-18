@@ -13,7 +13,7 @@ import java.util.Map;
 public class JpaClassConfig {
 
     private DbConnection connection;
-    private Collection<String> tablesNames;
+    private Collection<String> tableNames;
     private Map<String, String> namedSqls;
     private String targetPackage;
     private Map<Integer, Class> typeMapping;
@@ -26,12 +26,12 @@ public class JpaClassConfig {
         this.connection = connection;
     }
 
-    public Collection<String> getTablesNames() {
-        return tablesNames;
+    public Collection<String> getTableNames() {
+        return tableNames;
     }
 
-    public void setTablesNames(Collection<String> tablesNames) {
-        this.tablesNames = tablesNames;
+    public void setTableNames(Collection<String> tableNames) {
+        this.tableNames = tableNames;
     }
 
     public Map<String, String> getNamedSqls() {

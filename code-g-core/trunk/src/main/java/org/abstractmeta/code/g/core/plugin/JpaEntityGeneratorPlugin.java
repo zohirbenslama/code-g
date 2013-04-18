@@ -107,8 +107,8 @@ public class JpaEntityGeneratorPlugin  {
 //
 //    protected List<String> addEntityTypesFromTable(JpaEntityGeneratorConfiguration configuration, Connection connection, JavaTypeRegistry registry) {
 //        List<String> result = new ArrayList<String>();
-//        if (configuration.getTablesNames() != null && configuration.getTablesNames().size() > 0) {
-//            for (String tableName : configuration.getTablesNames()) {
+//        if (configuration.getTableNames() != null && configuration.getTableNames().size() > 0) {
+//            for (String tableName : configuration.getTableNames()) {
 //                JavaType type = addEntityType(tableName, connection, configuration);
 //                if (type != null) {
 //                    registry.register(type);

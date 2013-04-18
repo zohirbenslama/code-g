@@ -492,6 +492,16 @@ public class ReflectUtil {
     }
 
 
+    public static <T> T getInstance(Class<T> owner, String implementationClassName) {
+        try {
+            Class implementationClass = Class.forName(implementationClassName);
+            return owner.cast(implementationClass.newInstance());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to instantiate " + owner, e);
+        }
+    }
+
+
 
 
     public static <T> T getInstance(Class<T> owner, Class[] argumentTypes, Object[] arguments) {

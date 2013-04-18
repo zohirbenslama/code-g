@@ -86,6 +86,12 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
         String path = getPath(pathFragments);
         if (Collection.class.isAssignableFrom(type)) {
             Type componentType = ReflectUtil.getGenericActualTypeArguments(genericType)[0];
+            String literalValue = getValue(path);
+            if(literalValue != null) {
+                Collection<String> collection = new ArrayList<String>();
+                Collections.addAll(collection, literalValue.split(","));
+                return (T)collection;
+            }
             Collection<Object> collection = new ArrayList<Object>();
             for (int i = 0; ; i++) {
                 String componentPath = getPath(merge(pathFragments, "_" + i));

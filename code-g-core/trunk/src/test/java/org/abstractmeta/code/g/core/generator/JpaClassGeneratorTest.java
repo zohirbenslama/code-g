@@ -49,12 +49,12 @@ public class JpaClassGeneratorTest {
 
 
     public void testSimpleClassGenerator() throws Exception {
-        CodeGenerator classGenerator = new ClassGenerator();
+        JpaClassGenerator classGenerator = new JpaClassGenerator();
         Context context = getContextForTestSimpleClassGenerator();
         List<CompiledJavaType> result = classGenerator.generate(context);
         Assert.assertEquals(result.size(), 1);
         Class type = result.get(0).getCompiledType();
-        Assert.assertEquals(type, "");
+        Assert.assertEquals(type.getName(), "com.test.persistence.UserEntity");
     }
 
     protected Context getContextForTestSimpleClassGenerator(){
@@ -62,10 +62,11 @@ public class JpaClassGeneratorTest {
         Properties properties = new Properties();
         File file = new File("target/").getAbsoluteFile();
         String dbName = String.format("jdbc:h2:%s-test", new File(file, "db"));
-        properties.setProperty("connection.username" , "db");
-        properties.setProperty("connection.password" , "db");
+        properties.setProperty("connection.username" , "sa");
+        properties.setProperty("connection.password" , "");
         properties.setProperty("connection.url" , dbName);
         properties.setProperty("tableNames", "USERS");
+        properties.setProperty("targetPackage", "com.test");
         descriptor.setProperties(properties);
         Context context = new ContextImpl();
         context.put(Descriptor.class, descriptor);
@@ -80,7 +81,7 @@ public class JpaClassGeneratorTest {
             file.mkdirs();
         }
         String dbName = String.format("jdbc:h2:%s-test", new File(file, "db"));
-        final Connection connection = DriverManager.getConnection(dbName, "sa", "dev");
+        final Connection connection = DriverManager.getConnection(dbName, "sa", "");
         connection.createStatement().execute("CREATE TABLE USERS (id INT PRIMARY KEY, username VARCHAR(64), create_time TIMESTAMP);");
         connectionProvider = new Provider<Connection>() {
             public Connection get() {

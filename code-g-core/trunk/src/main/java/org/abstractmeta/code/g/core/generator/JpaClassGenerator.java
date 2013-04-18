@@ -1,17 +1,22 @@
 package org.abstractmeta.code.g.core.generator;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Strings;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.core.builder.SimpleClassBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaTypeBuilderImpl;
+import org.abstractmeta.code.g.core.config.NamingConventionImpl;
 import org.abstractmeta.code.g.core.config.loader.JavaSourceLoaderImpl;
 import org.abstractmeta.code.g.core.config.loader.LoadedSourceImpl;
+import org.abstractmeta.code.g.core.diconfig.JavaTypeRendererProvider;
 import org.abstractmeta.code.g.core.jpa.ColumnFieldMap;
 import org.abstractmeta.code.g.core.jpa.DbCatalogLoader;
 import org.abstractmeta.code.g.core.jpa.DbConnection;
 import org.abstractmeta.code.g.core.jpa.builder.*;
+import org.abstractmeta.code.g.core.property.PropertyRegistryImpl;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.Context;
@@ -33,8 +38,15 @@ import java.util.*;
  */
 public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> implements CodeGenerator<JpaClassConfig> {
 
+    private final NamingConvention DEFAULT_NAMING_CONVENTION = new NamingConventionImpl("", "Entity", "persistence");
+
     private final PropertyRegistry propertyRegistry;
     private final DbCatalogLoader dbCatalogLoader;
+
+
+    public JpaClassGenerator() {
+        this(new PropertyRegistryImpl(), new DbCatalogLoader(), new JavaTypeRendererProvider());
+    }
 
     public JpaClassGenerator(PropertyRegistry propertyRegistry, DbCatalogLoader dbCatalogLoader, Provider<JavaTypeRenderer> javaTypeRendererProvider) {
         super(new JavaSourceLoaderImpl(), propertyRegistry, javaTypeRendererProvider);
@@ -48,15 +60,21 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
         SimpleClassBuilder simpleClassBuilder = new SimpleClassBuilder(targetName, sourceType, context);
         simpleClassBuilder.addModifiers(JavaModifier.PUBLIC);
         simpleClassBuilder.addAnnotations(sourceType.getAnnotations());
-        addExtractableFields(simpleClassBuilder, sourceType, context);
-        addExtractableMethods(simpleClassBuilder, sourceType, context);
+        for(JavaField field: sourceType.getFields()) {
+            simpleClassBuilder.addField(field);
+        }
         SourcedJavaType result = renderCode(simpleClassBuilder);
         return Arrays.asList(result);
     }
 
-        @Override
+    @Override
     protected boolean isApplicable(JavaType javaType, Context context) {
-        return context.contains(JpaClassConfig.class);
+        boolean result =  context.contains(JpaClassConfig.class);
+
+        if(result && Strings.isNullOrEmpty(context.get(JpaClassConfig.class).getTargetPackage())) {
+            throw new NullPointerException("JpaClassConfig.targetPackage was null");
+        }
+        return result;
     }
 
 
@@ -72,27 +90,29 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
         Connection connection = null;
         try {
             connection = connect(config.getConnection());
+            List<JavaType> result = new ArrayList<JavaType>();
+            result.addAll(addEntityTypesFromTable(connection, context));
+            result.addAll(addEntityTypesFromNamedSql(connection, context));
+            LoadedSourceImpl loadedSource = new LoadedSourceImpl();
+            loadedSource.setJavaTypes(result);
+            if (context.contains(ClassLoader.class)) {
+                loadedSource.setClassLoader(context.get(ClassLoader.class));
+            }
+            return loadedSource;
         } finally {
+
             try {
                 if (connection != null) connection.close();
-            } catch (SQLException ignore) {}
+            } catch (SQLException ignore) {
+            }
         }
-        List<JavaType> result = new ArrayList<JavaType>();
-        result.addAll(addEntityTypesFromTable(connection, context));
-        result.addAll(addEntityTypesFromNamedSql(connection, context));
-        LoadedSourceImpl loadedSource = new LoadedSourceImpl();
-        loadedSource.setJavaTypes(result);
-        if(context.contains(ClassLoader.class)) {
-            loadedSource.setClassLoader(context.get(ClassLoader.class));
-        }
-        return loadedSource;
-    }
 
+    }
 
 
     @Override
     public NamingConvention getNamingConvention(Context context) {
-        return null;
+        return DEFAULT_NAMING_CONVENTION;
     }
 
     @Override
@@ -106,13 +126,11 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
     }
 
 
-
-
     protected List<JavaType> addEntityTypesFromTable(Connection connection, Context context) {
         List<JavaType> result = new ArrayList<JavaType>();
         JpaClassConfig config = context.get(JpaClassConfig.class);
-        if (config.getTablesNames() != null && !config.getTablesNames().isEmpty()) {
-            for (String tableName : config.getTablesNames()) {
+        if (config.getTableNames() != null && !config.getTableNames().isEmpty()) {
+            for (String tableName : config.getTableNames()) {
                 JavaType type = addEntityType(tableName, tableName, connection, context);
                 result.add(type);
             }
@@ -157,8 +175,8 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
 
     protected String formatTargetClassName(Context context, String name) {
         JpaClassConfig config = context.get(JpaClassConfig.class);
-        JavaType javaType = new JavaTypeBuilderImpl(config.getTargetPackage() + "." + name);
-        return CodeGeneratorUtil.formatTargetClassName(context, javaType, getNamingConvention(context));
+        JavaType javaType = new JavaTypeBuilderImpl(config.getTargetPackage() + "." + CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, CodeGeneratorUtil.getSingular(name.toLowerCase())));
+        return javaType.getName();
     }
 
 
@@ -177,13 +195,13 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
         } else {
             resultBuilder.addAnnotations(new BasicBuilder().build());
         }
-        if (columnFieldMap.getType().getSimpleName().equals("Timestamp")) {
-            resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIMESTAMP).build());
-        } else if (columnFieldMap.getType().getSimpleName().equals("Date")) {
-            resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.DATE).build());
-        } else if (columnFieldMap.getType().getSimpleName().equals("Time")) {
-            resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIME).build());
-        }
+//        if (columnFieldMap.getType().getSimpleName().equals("Timestamp")) {
+//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIMESTAMP).build());
+//        } else if (columnFieldMap.getType().getSimpleName().equals("Date")) {
+//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.DATE).build());
+//        } else if (columnFieldMap.getType().getSimpleName().equals("Time")) {
+//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIME).build());
+//        }
         resultBuilder.setName(columnFieldMap.getFieldName());
         resultBuilder.setType(columnFieldMap.getType());
         resultBuilder.addModifiers(JavaModifier.PRIVATE);
