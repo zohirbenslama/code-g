@@ -25,7 +25,7 @@ public interface CompiledJavaTypeRegistry {
 
     void register(CompiledJavaType type);
 
-    JavaType get(String typeName);
+    CompiledJavaType get(String typeName);
 
     boolean isRegistered(String typeName);
 
