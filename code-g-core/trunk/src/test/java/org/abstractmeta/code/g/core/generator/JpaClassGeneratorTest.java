@@ -43,28 +43,32 @@ import java.util.Properties;
 @Test
 public class JpaClassGeneratorTest {
 
-        private static Provider<Connection> connectionProvider;
-
-
+    private static Provider<Connection> connectionProvider;
 
 
     public void testSimpleClassGenerator() throws Exception {
-        JpaClassGenerator classGenerator = new JpaClassGenerator();
-        Context context = getContextForTestSimpleClassGenerator();
-        List<CompiledJavaType> result = classGenerator.generate(context);
-        Assert.assertEquals(result.size(), 1);
-        Class type = result.get(0).getCompiledType();
-        Assert.assertEquals(type.getName(), "com.test.persistence.UserEntity");
+
+        try {
+            initConnection();
+            JpaClassGenerator classGenerator = new JpaClassGenerator();
+            Context context = getContextForTestSimpleClassGenerator();
+            List<CompiledJavaType> result = classGenerator.generate(context);
+            Assert.assertEquals(result.size(), 1);
+            Class type = result.get(0).getCompiledType();
+            Assert.assertEquals(type.getName(), "com.test.persistence.UserEntity");
+        } finally {
+            destroyConnection();
+        }
     }
 
-    protected Context getContextForTestSimpleClassGenerator(){
+    protected Context getContextForTestSimpleClassGenerator() {
         DescriptorImpl descriptor = new DescriptorImpl();
         Properties properties = new Properties();
         File file = new File("target/").getAbsoluteFile();
         String dbName = String.format("jdbc:h2:%s-test", new File(file, "db"));
-        properties.setProperty("connection.username" , "sa");
-        properties.setProperty("connection.password" , "");
-        properties.setProperty("connection.url" , dbName);
+        properties.setProperty("connection.username", "sa");
+        properties.setProperty("connection.password", "");
+        properties.setProperty("connection.url", dbName);
         properties.setProperty("tableNames", "USERS");
         properties.setProperty("targetPackage", "com.test");
         descriptor.setProperties(properties);
@@ -74,7 +78,6 @@ public class JpaClassGeneratorTest {
         return context;
     }
 
-    @BeforeTest
     public void initConnection() throws SQLException {
         File file = new File("target/").getAbsoluteFile();
         if (!file.exists()) {
@@ -93,7 +96,6 @@ public class JpaClassGeneratorTest {
     }
 
 
-    @AfterTest
     public void destroyConnection() throws SQLException {
         Connection connection = connectionProvider.get();
         connection.createStatement().execute("DROP TABLE USERS");

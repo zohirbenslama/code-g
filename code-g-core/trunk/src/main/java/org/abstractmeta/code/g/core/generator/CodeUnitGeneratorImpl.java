@@ -47,6 +47,8 @@ public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
 
     protected void generate(Descriptor descriptor, Context context, CompiledJavaTypeRegistry registry) {
         CodeGenerator codeGenerator = ReflectUtil.getInstance(CodeGenerator.class, descriptor.getGeneratorClass());
+        context.replace(Descriptor.class, descriptor);
+        @SuppressWarnings("unchecked")
         Collection<CompiledJavaType> generatedTypes = codeGenerator.generate(context);
         if (generatedTypes == null) return;
         for (CompiledJavaType compiledJavaType : generatedTypes) {

@@ -9,6 +9,7 @@ import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
+import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
@@ -65,9 +66,19 @@ public abstract class AbstractGenerator<T> {
     protected LoadedSource loadSource(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
         SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher());
-        JavaTypeRegistry typeRegistry = context.get(JavaTypeRegistry.class);
+        JavaTypeRegistry typeRegistry = getJavaTypeRegistry(context);
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
         return sourceLoader.load(sourceMatcher, typeRegistry, classLoader);
+    }
+
+    protected JavaTypeRegistry getJavaTypeRegistry(Context context) {
+        if(context.contains(JavaTypeRegistry.class))  {
+            return context.get(JavaTypeRegistry.class);
+        }
+        JavaTypeRegistry registry = new JavaTypeRegistryImpl();
+        context.put(JavaTypeRegistry.class, registry);
+        return registry;
+
     }
 
     protected List<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
