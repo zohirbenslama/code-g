@@ -75,4 +75,17 @@ public class SourceMatcherImpl implements SourceMatcher {
     public void setDependencyPackages(Collection<String> dependencyPackages) {
         this.dependencyPackages = dependencyPackages;
     }
+
+    @Override
+    public String toString() {
+        return "SourceMatcherImpl{" +
+                "sourceDirectory='" + sourceDirectory + '\'' +
+                ", classNames=" + classNames +
+                ", packageNames=" + packageNames +
+                ", includeSubpackages=" + includeSubpackages +
+                ", inclusionPatterns=" + inclusionPatterns +
+                ", exclusionPatterns=" + exclusionPatterns +
+                ", dependencyPackages=" + dependencyPackages +
+                '}';
+    }
 }

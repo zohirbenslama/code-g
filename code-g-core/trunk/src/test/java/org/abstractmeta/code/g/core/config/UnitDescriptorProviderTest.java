@@ -13,27 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.abstractmeta.code.g.core.test;
-
-import java.util.Collection;
-import java.util.Map;
+package org.abstractmeta.code.g.core.config;
 
 /**
- * Represents IMessage
- * <p>
- * </p>
- *
- * @author Adrian Witas
  */
-public interface IMessage {
-
-    int getId();
-
-    String getName();
-
-    void setName(String name);
-
-    Map<String, String> getMap();
-
-
+public class UnitDescriptorProviderTest {
 }

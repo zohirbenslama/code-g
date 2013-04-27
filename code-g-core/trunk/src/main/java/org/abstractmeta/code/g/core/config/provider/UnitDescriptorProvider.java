@@ -11,7 +11,7 @@ import java.util.Properties;
  * This provider uses properties to create unit descriptor.
  * @author Adrian Witas
  */
-public class UnitDescriptorProvider extends ObjectProvider<UnitDescriptor> implements Provider<UnitDescriptor> {
+public class UnitDescriptorProvider extends ObjectProvider<UnitDescriptorImpl> implements Provider<UnitDescriptorImpl> {
 
     public UnitDescriptorProvider(Properties properties, String... pathFragments) {
         super(UnitDescriptorImpl.class, properties, new Class[]{DescriptorImpl.class, NamingConventionImpl.class, SourceMatcherImpl.class,}, pathFragments);

@@ -93,4 +93,17 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     public void setPostDescriptor(Descriptor postDescriptor) {
         this.postDescriptor = postDescriptor;
     }
+
+    @Override
+    public String toString() {
+        return "UnitDescriptorImpl{" +
+                "dependencyPackages=" + dependencyPackages +
+                ", targetSourceDirectory='" + targetSourceDirectory + '\'' +
+                ", targetCompilationDirectory='" + targetCompilationDirectory + '\'' +
+                ", sourceDirectory='" + sourceDirectory + '\'' +
+                ", classPathEntries=" + classPathEntries +
+                ", descriptors=" + descriptors +
+                ", postDescriptor=" + postDescriptor +
+                '}';
+    }
 }

@@ -66,4 +66,14 @@ public class DescriptorImpl implements Descriptor {
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return "DescriptorImpl{" +
+                "sourceMatcher=" + sourceMatcher +
+                ", namingConvention=" + namingConvention +
+                ", generatorClass='" + generatorClass + '\'' +
+                ", properties=" + properties +
+                '}';
+    }
 }

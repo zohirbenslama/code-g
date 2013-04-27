@@ -45,4 +45,13 @@ public class NamingConventionImpl implements NamingConvention {
     public void setPackagePostfix(String packagePostfix) {
         this.packagePostfix = packagePostfix;
     }
+
+    @Override
+    public String toString() {
+        return "NamingConventionImpl{" +
+                "classPrefix='" + classPrefix + '\'' +
+                ", classPostfix='" + classPostfix + '\'' +
+                ", packagePostfix='" + packagePostfix + '\'' +
+                '}';
+    }
 }
