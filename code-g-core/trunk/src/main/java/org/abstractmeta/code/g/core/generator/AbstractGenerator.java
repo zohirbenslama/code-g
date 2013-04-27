@@ -62,7 +62,6 @@ public abstract class AbstractGenerator<T> {
     }
 
 
-
     protected LoadedSource loadSource(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
         SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher());
@@ -72,7 +71,7 @@ public abstract class AbstractGenerator<T> {
     }
 
     protected JavaTypeRegistry getJavaTypeRegistry(Context context) {
-        if(context.contains(JavaTypeRegistry.class))  {
+        if (context.contains(JavaTypeRegistry.class)) {
             return context.get(JavaTypeRegistry.class);
         }
         JavaTypeRegistry registry = new JavaTypeRegistryImpl();
@@ -123,7 +122,7 @@ public abstract class AbstractGenerator<T> {
     protected JavaSourceCompiler.CompilationUnit getCompilationUnit(Context context, JavaSourceCompiler javaSourceCompiler) {
         File compilationTargetDirectory = getCompilationTargetDirectory(context);
         JavaSourceCompiler.CompilationUnit result;
-        if(compilationTargetDirectory != null) {
+        if (compilationTargetDirectory != null) {
             result = javaSourceCompiler.createCompilationUnit(compilationTargetDirectory);
             result.addClassPathEntries(ClassPathUtil.getClassPathEntries());
             result.addClassPathEntry(compilationTargetDirectory.getAbsolutePath());
@@ -135,9 +134,9 @@ public abstract class AbstractGenerator<T> {
     }
 
     protected File getCompilationTargetDirectory(Context context) {
-        if(context.contains(UnitDescriptor.class)) {
+        if (context.contains(UnitDescriptor.class)) {
             return new File(context.get(UnitDescriptor.class).getTargetCompilationDirectory());
-        } else if(context.contains(JavaSourceCompiler.CompilationUnit.class)) {
+        } else if (context.contains(JavaSourceCompiler.CompilationUnit.class)) {
             return context.get(JavaSourceCompiler.CompilationUnit.class).getOutputClassDirectory();
         }
         return null;
@@ -160,7 +159,7 @@ public abstract class AbstractGenerator<T> {
      * @return target class name
      */
     protected String formatTargetClassName(Context context, JavaType sourceType) {
-        return CodeGeneratorUtil.formatTargetClassName(context, sourceType, getNamingConvention(context));
+        return CodeGeneratorUtil.formatTargetClassName(context, sourceType.getPackageName(), sourceType.getSimpleName(), getNamingConvention(context));
     }
 
 

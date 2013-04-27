@@ -68,8 +68,6 @@ public class JavaTypeCompiler {
         try {
             compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
             javaSourceCompiler.persistCompiledClasses(compilationUnit);
-            logger.log(Level.INFO, "Failed to compile source:" + source);
-
         } catch (RuntimeException e) {
             logger.log(Level.INFO, "Failed to compile source:" + source);
             throw e;

@@ -182,22 +182,23 @@ public class CodeGeneratorUtil {
      * NamingConvention is read first from context->descriptor->NamingConvention or from the getNamingConvention method
      *
      * @param context    context
-     * @param sourceType source type
+     * @param sourcePackageName source package name
+     * @param sourceSimpleClassName source simple classname
      * @return target class name
      */
-    public static String formatTargetClassName(Context context, JavaType sourceType,  NamingConvention namingConvention) {
+    public static String formatTargetClassName(Context context, String sourcePackageName, String sourceSimpleClassName , NamingConvention namingConvention) {
         Descriptor descriptor = context.get(Descriptor.class);
         if (descriptor.getNamingConvention() != null) {
             namingConvention = descriptor.getNamingConvention();
         }
-        StringBuilder result = new StringBuilder(sourceType.getPackageName()).append(".");
+        StringBuilder result = new StringBuilder(sourcePackageName).append(".");
         if (!Strings.isNullOrEmpty(namingConvention.getPackagePostfix())) {
             result.append(namingConvention.getPackagePostfix()).append(".");
         }
         if (!Strings.isNullOrEmpty(namingConvention.getClassPrefix())) {
             result.append(namingConvention.getClassPrefix());
         }
-        result.append(sourceType.getSimpleName());
+        result.append(sourceSimpleClassName);
         if (!Strings.isNullOrEmpty(namingConvention.getClassPostfix())) {
             result.append(namingConvention.getClassPostfix());
         }

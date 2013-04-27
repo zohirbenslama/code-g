@@ -84,6 +84,16 @@ public class BuilderGenerator extends AbstractGenerator<BuilderGeneratorConfig> 
         return DEFAULT_NAMING_CONVENTION;
     }
 
+    protected String formatTargetClassName(Context context, JavaType sourceType) {
+        String sourcePackage = sourceType.getPackageName();
+        if (sourcePackage.endsWith(".impl")) {
+            sourcePackage = sourcePackage.replace(".impl", "");
+        }
+        return CodeGeneratorUtil.formatTargetClassName(context, sourcePackage, sourceType.getSimpleName(), getNamingConvention(context));
+
+    }
+
+
 
     @Override
     public Class<BuilderGeneratorConfig> getSettingClass() {
