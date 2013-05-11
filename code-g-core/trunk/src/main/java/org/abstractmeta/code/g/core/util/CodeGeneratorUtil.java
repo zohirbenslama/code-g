@@ -21,6 +21,7 @@ import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
+import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.generator.Context;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
@@ -34,6 +35,34 @@ public class CodeGeneratorUtil {
 
     public static String getSetterMethodName(String fieldName) {
         return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, "set", fieldName, CaseFormat.LOWER_CAMEL);
+    }
+
+
+    public static JavaMethod getSupperGetterMethodName(JavaType owner, JavaField field) {
+        if (owner.getSuperInterfaces() != null && !owner.getSuperInterfaces().isEmpty()) {
+            for (Type iFace : owner.getSuperInterfaces()) {
+                Class clazz = ReflectUtil.getRawClass(iFace);
+                JavaMethod result = getSupperGetterMethodName(new ClassTypeProvider(clazz).get(), field);
+                if (result != null) return result;
+            }
+        }
+        return getGetterMethodName(owner, field.getName(), field.getType());
+    }
+
+
+    public static JavaMethod getGetterMethodName(JavaType owner, String fieldName, Type fieldType) {
+        String methodName = getGetterMethodName(fieldName, fieldType);
+        JavaMethod result = JavaTypeUtil.getMethod(owner.getMethods(), methodName);
+        if (result == null) {
+            Class rawFieldType = ReflectUtil.getRawClass(fieldType);
+            if (boolean.class.equals(rawFieldType)) {
+                methodName = getGetterMethodName(fieldName, Boolean.class);
+            } else if(Boolean.class.equals(rawFieldType)) {
+                methodName = getGetterMethodName(fieldName, boolean.class);
+            }
+            result = JavaTypeUtil.getMethod(owner.getMethods(), methodName);
+        }
+        return result;
     }
 
 
@@ -67,7 +96,7 @@ public class CodeGeneratorUtil {
 
 
     public static String getClassName(String fragment, String postfix) {
-        return format(CaseFormat.UPPER_CAMEL,fragment, postfix, CaseFormat.LOWER_CAMEL);
+        return format(CaseFormat.UPPER_CAMEL, fragment, postfix, CaseFormat.LOWER_CAMEL);
     }
 
     public static String format(CaseFormat resultCaseFormat, String prefix, String fragment, CaseFormat sourceCaseFormat) {
@@ -106,7 +135,6 @@ public class CodeGeneratorUtil {
     }
 
 
-
     public static String join(Iterable<String> items, String itemPrefix, String itemSeparator, boolean appendSeparatorAfterLastItem) {
         StringBuilder result = new StringBuilder();
         for (String item : items) {
@@ -128,7 +156,6 @@ public class CodeGeneratorUtil {
     }
 
 
-
     public static String getPlural(String singular) {
         if (singular.endsWith("y")) {
             return singular.substring(0, singular.length() - 1) + "ies";
@@ -139,7 +166,7 @@ public class CodeGeneratorUtil {
     public static String getSingular(String plural) {
         if (plural.endsWith("ies")) {
             return plural.substring(0, plural.length() - 3);
-        } else if(plural.endsWith("s")) {
+        } else if (plural.endsWith("s")) {
             return plural.substring(0, plural.length() - 1);
         }
         return plural;
@@ -148,17 +175,19 @@ public class CodeGeneratorUtil {
 
     /**
      * Return value, or default value if value is null.
+     *
      * @param value
      * @param defaultValue
      * @return
      */
     public static String getValue(String value, String defaultValue) {
-        if(value == null) return defaultValue;
+        if (value == null) return defaultValue;
         return value;
     }
 
     /**
      * Renders code for a given java type builder
+     *
      * @param javaTypeBuilder
      * @param rendererProvider
      * @return
@@ -181,12 +210,12 @@ public class CodeGeneratorUtil {
      * Formats target class name for a given NamingConvention
      * NamingConvention is read first from context->descriptor->NamingConvention or from the getNamingConvention method
      *
-     * @param context    context
-     * @param sourcePackageName source package name
+     * @param context               context
+     * @param sourcePackageName     source package name
      * @param sourceSimpleClassName source simple classname
      * @return target class name
      */
-    public static String formatTargetClassName(Context context, String sourcePackageName, String sourceSimpleClassName , NamingConvention namingConvention) {
+    public static String formatTargetClassName(Context context, String sourcePackageName, String sourceSimpleClassName, NamingConvention namingConvention) {
         Descriptor descriptor = context.get(Descriptor.class);
         if (descriptor.getNamingConvention() != null) {
             namingConvention = descriptor.getNamingConvention();

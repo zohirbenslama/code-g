@@ -15,10 +15,7 @@
  */
 package org.abstractmeta.code.g.core.util;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
+import com.google.common.base.*;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -205,6 +202,7 @@ public class JavaTypeUtil {
 
 
     public static JavaMethod matchOwnerFieldWithTheFirstMatchingType(JavaType ownerType, Type matchingType) {
+        matchingType = ReflectUtil.getObjectType(matchingType);
         for (JavaMethod method : ownerType.getMethods()) {
             if (!method.getName().startsWith("get")) continue;
             if (ReflectUtil.getObjectType(method.getResultType()).equals(matchingType)) {
@@ -218,11 +216,11 @@ public class JavaTypeUtil {
     @SuppressWarnings("unchecked")
     public static JavaMethod matchOwnerFieldWithMatchingType(Type ownerType, Type matchingType, String annotation) {
         if (annotation != null) {
-
             JavaType javaType = new ClassTypeProvider(ReflectUtil.getRawClass(ownerType)).get();
-            Class keyType = ReflectUtil.getRawClass(matchingType);
+            Class keyType = ReflectUtil.getRawClass(ReflectUtil.getObjectType(matchingType));
+
             for (JavaField field : javaType.getFields()) {
-                Class fieldType = ReflectUtil.getRawClass(field.getType());
+                Class fieldType = ReflectUtil.getRawClass(ReflectUtil.getObjectType(field.getType()));
                 if (keyType.isAssignableFrom(fieldType) && JavaTypeUtil.containsAnnotation(field.getAnnotations(), annotation)) {
                     String methodName = CodeGeneratorUtil.getGetterMethodName(field.getName(), field.getType());
                     Optional<JavaMethod> optionalResult = Iterables.tryFind(javaType.getMethods(), new MethodNamePredicate(methodName));
@@ -303,7 +301,7 @@ public class JavaTypeUtil {
 
 
     public static boolean containsAnnotation(Collection<Annotation> annotations, String annotationName) {
-        if (annotations == null || annotationName == null) return false;
+        if (annotations == null || Strings.isNullOrEmpty(annotationName )) return false;
         for (Annotation annotation : annotations) {
             String candidateAnnotationName = annotation.annotationType().getName();
             if (candidateAnnotationName.equals(annotationName)) {
@@ -452,7 +450,10 @@ public class JavaTypeUtil {
     public static JavaMethod getMethod(Iterable<JavaMethod> methods, String name, Class... parameters) {
         Multimap<String, JavaMethod> sourceIndexedMethods = Multimaps.index(methods, new MethodNameKeyFunction());
         if (sourceIndexedMethods.containsKey(name)) {
-            OUTER: for (JavaMethod methodCandidate : sourceIndexedMethods.values()) {
+            Collection<JavaMethod> candidateMethods = sourceIndexedMethods.get(name);
+
+            OUTER:
+            for (JavaMethod methodCandidate : candidateMethods) {
                 List<Class> methodParameters = getParameterClasses(methodCandidate.getParameters());
                 List<Class> matchingParameters = Arrays.asList(parameters);
                 for (int i = 0; i < matchingParameters.size(); i++) {
@@ -467,6 +468,12 @@ public class JavaTypeUtil {
         }
 
         return null;
+    }
+
+
+    public static boolean containsField(Iterable<JavaField> fields, String fieldName) {
+        Optional<JavaField> result = Iterables.tryFind(fields, new FieldNamePredicate(fieldName));
+        return result.isPresent();
     }
 
     public static Type getOwnerInterfaceOrType(JavaType javaType) {

@@ -10,7 +10,6 @@ import org.abstractmeta.code.g.config.loader.LoadedSource;
 import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
-import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
@@ -26,6 +25,8 @@ import org.abstractmeta.toolbox.compilation.compiler.util.ClassPathUtil;
 import javax.inject.Provider;
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This AbstractGenerator provides a scaffolding building target classes from defined in descriptor sources.
@@ -34,6 +35,7 @@ import java.util.*;
  */
 public abstract class AbstractGenerator<T> {
 
+    protected final Logger logger = Logger.getLogger(AbstractGenerator.class.getName());
     protected final SourceLoader sourceLoader;
     protected final PropertyRegistry propertyRegistry;
     protected final Provider<JavaTypeRenderer> rendererProvider;
@@ -49,8 +51,13 @@ public abstract class AbstractGenerator<T> {
         Descriptor descriptor = context.get(Descriptor.class);
         Properties properties = applyProperties(descriptor.getProperties());
         context.replace(getSettingClass(), getSetting(properties));
+
         LoadedSource loadedSource = loadSource(context);
+        //persistLoadedSource(loadedSource);
         context.replace(LoadedSource.class, loadedSource);
+        if(loadedSource.getClassLoader() != null) {
+            context.replace(ClassLoader.class, loadedSource.getClassLoader());
+        }
         List<SourcedJavaType> sourceTypes = new ArrayList<SourcedJavaType>();
         for (JavaType sourceType : loadedSource.getJavaTypes()) {
             if (isApplicable(sourceType, context)) {
@@ -64,10 +71,21 @@ public abstract class AbstractGenerator<T> {
 
     protected LoadedSource loadSource(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
-        SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher());
+        SourceMatcher sourceMatcher = applyProperties(descriptor.getSourceMatcher(), context);
         JavaTypeRegistry typeRegistry = getJavaTypeRegistry(context);
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
-        return sourceLoader.load(sourceMatcher, typeRegistry, classLoader);
+        File targetCompilationDirectory = getCompilationDirectory(context);
+        return sourceLoader.load(sourceMatcher, typeRegistry, classLoader, targetCompilationDirectory);
+    }
+
+    protected File getCompilationDirectory(Context context) {
+        if(context.contains(UnitDescriptor.class)) {
+            UnitDescriptor unitDescriptor  = context.get(UnitDescriptor.class);
+            if(unitDescriptor.getTargetCompilationDirectory() != null) {
+                return new File(unitDescriptor.getTargetCompilationDirectory());
+            }
+        }
+        return null;
     }
 
     protected JavaTypeRegistry getJavaTypeRegistry(Context context) {
@@ -82,11 +100,13 @@ public abstract class AbstractGenerator<T> {
 
     protected List<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
         List<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
+        if(sourceTypes.isEmpty())  return result;
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
         JavaSourceCompiler.CompilationUnit compilationUnit = getCompilationUnit(context, javaSourceCompiler);
         for (SourcedJavaType sourcedType : sourceTypes) {
             String source = "" + sourcedType.getSourceCode();
+            logger.log(Level.FINE, "Adding compilation class " + sourcedType.getType().getName());
             compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
         }
         try {
@@ -134,7 +154,7 @@ public abstract class AbstractGenerator<T> {
     }
 
     protected File getCompilationTargetDirectory(Context context) {
-        if (context.contains(UnitDescriptor.class)) {
+        if (context.contains(UnitDescriptor.class)  && ! Strings.isNullOrEmpty(context.get(UnitDescriptor.class).getTargetCompilationDirectory())) {
             return new File(context.get(UnitDescriptor.class).getTargetCompilationDirectory());
         } else if (context.contains(JavaSourceCompiler.CompilationUnit.class)) {
             return context.get(JavaSourceCompiler.CompilationUnit.class).getOutputClassDirectory();
@@ -171,9 +191,16 @@ public abstract class AbstractGenerator<T> {
     abstract protected boolean isApplicable(JavaType javaType, Context context);
 
 
-    protected SourceMatcher applyProperties(SourceMatcher sourceMatcher) {
+    protected SourceMatcher applyProperties(SourceMatcher sourceMatcher, Context context) {
         SourceMatcherImpl result = new SourceMatcherImpl();
-        result.setSourceDirectory(expandProperty(sourceMatcher.getSourceDirectory()));
+        if (sourceMatcher == null) return null;
+        String sourceDirectory = sourceMatcher.getSourceDirectory();
+
+        if (Strings.isNullOrEmpty(sourceDirectory) && context.contains(UnitDescriptor.class)) {
+            sourceDirectory = context.get(UnitDescriptor.class).getSourceDirectory();
+        }
+
+        result.setSourceDirectory(expandProperty(sourceDirectory));
         result.setIncludeSubpackages(sourceMatcher.isIncludeSubpackages());
         result.setPackageNames(sourceMatcher.getPackageNames());
         result.setClassNames(sourceMatcher.getClassNames());
@@ -215,7 +242,12 @@ public abstract class AbstractGenerator<T> {
 
     protected void addExtractableFields(JavaTypeBuilder builder, JavaType sourceType, Context context) {
         for (FieldExtractor extractor : getFieldExtractors()) {
-            builder.addFields(extractor.extract(sourceType, context));
+
+            List<JavaField> fields = extractor.extract(sourceType, context);
+            for(JavaField field: fields) {
+                if(builder.containsField(field.getName())) continue;
+                builder.addField(field);
+            }
         }
     }
 

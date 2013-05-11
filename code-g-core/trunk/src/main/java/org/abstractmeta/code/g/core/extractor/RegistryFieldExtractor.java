@@ -90,6 +90,10 @@ public class RegistryFieldExtractor implements FieldExtractor {
                 registryType = new ParameterizedTypeImpl(null, Map.class, ReflectUtil.getObjectType(keyType), ReflectUtil.getObjectType(valueType));
             }
             String name = match.getName();
+            if(JavaTypeUtil.containsField(sourceType.getFields(), "registry")) {
+                continue;
+            }
+
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.addModifier(JavaModifier.PRIVATE).setImmutable(true);
             fieldBuilder.setType(registryType);

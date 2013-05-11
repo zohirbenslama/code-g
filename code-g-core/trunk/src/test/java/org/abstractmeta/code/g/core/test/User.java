@@ -23,6 +23,8 @@ public interface User {
 
     int getId();
 
+    String getName();
+
     List<String> getAliases();
 
     int getSequenceChangeNo();

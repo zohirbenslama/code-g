@@ -44,16 +44,20 @@ public class GetterFieldHandler implements FieldHandler {
 
     @Override
     public void handle(JavaTypeBuilder owner, JavaField target, Context context) {
-        String methodName = CodeGeneratorUtil.getGetterMethodName(target);
-        if (owner.containsMethod(methodName)) return;
-        JavaMethod getterMethod = buildGetterMethod(target, methodName);
+        JavaMethod supperGetterMethod = CodeGeneratorUtil.getSupperGetterMethodName(owner, target);
+        String methodName = supperGetterMethod == null ? CodeGeneratorUtil.getGetterMethodName(target) : supperGetterMethod.getName();
+        if (owner.containsMethod(methodName)) {
+            return;
+        }
+
+        JavaMethod getterMethod = buildGetterMethod(target, methodName, supperGetterMethod);
         owner.addMethod(getterMethod);
     }
 
-    private JavaMethod buildGetterMethod(JavaField target, String methodName) {
+    private JavaMethod buildGetterMethod(JavaField target, String methodName, JavaMethod supperGetterMethod) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName(methodName);
-        methodBuilder.setResultType(target.getType());
+        methodBuilder.setResultType(supperGetterMethod == null ? target.getType() : supperGetterMethod.getResultType());
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.addBodyLines(String.format("return this.%s;", target.getName()));
         return methodBuilder.build();

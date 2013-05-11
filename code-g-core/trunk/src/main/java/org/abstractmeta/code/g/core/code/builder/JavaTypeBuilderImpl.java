@@ -27,6 +27,8 @@ import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.generator.ContextImpl;
 import org.abstractmeta.code.g.core.internal.GenericArrayTypeImpl;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
+import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.Context;
 
@@ -242,24 +244,27 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
 
     @Override
     public JavaMethod getMethod(String methodName, JavaParameter... matchingParameters) {
-        outer_loop:
-        for (JavaMethod methodCandidate : getMethods()) {
-            if (methodName.equals(methodCandidate.getName())) {
-                if (matchingParameters == null || matchingParameters.length == 0) {
-                    return methodCandidate;
-                }
-                if (matchingParameters.length != methodCandidate.getParameters().size()) continue;
-                for (int i = 0, matchingParametersLength = matchingParameters.length; i < matchingParametersLength; i++) {
-                    JavaParameter matchingParameter = matchingParameters[i];
-                    JavaParameter candidateParameter = methodCandidate.getParameters().get(i);
-                    if (!matchingParameter.getType().equals(candidateParameter.getType())) {
-                        continue outer_loop;
-                    }
-                }
-                return methodCandidate;
-            }
-        }
-        return null;
+        List<Class> argumentTypes = JavaTypeUtil.getParameterClasses(Arrays.asList(matchingParameters));
+        return JavaTypeUtil.getMethod(getMethods(), methodName, argumentTypes.toArray(new Class[]{}));
+
+//        outer_loop:
+//        for (JavaMethod methodCandidate : getMethods()) {
+//            if (methodName.equals(methodCandidate.getName())) {
+//                if (matchingParameters == null || matchingParameters.length == 0) {
+//                    return methodCandidate;
+//                }
+//                if (matchingParameters.length != methodCandidate.getParameters().size()) continue;
+//                for (int i = 0, matchingParametersLength = matchingParameters.length; i < matchingParametersLength; i++) {
+//                    JavaParameter matchingParameter = matchingParameters[i];
+//                    JavaParameter candidateParameter = methodCandidate.getParameters().get(i);
+//                    if (!matchingParameter.getType().equals(candidateParameter.getType())) {
+//                        continue outer_loop;
+//                    }
+//                }
+//                return methodCandidate;
+//            }
+//        }
+//        return null;
     }
 
     @Override

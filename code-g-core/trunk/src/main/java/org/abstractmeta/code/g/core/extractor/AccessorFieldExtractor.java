@@ -23,6 +23,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.expression.AbstractionPatterns;
 import org.abstractmeta.code.g.core.expression.MethodMatcherImpl;
+import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.expression.AbstractionMatch;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.expression.MethodMatcher;
@@ -91,12 +92,17 @@ public class AccessorFieldExtractor implements FieldExtractor {
                 continue;
             }
 
+
             //skip field that are generic variable type without owner type variable
             //i.e  <T> T getFoo() { ... }
             if (isLocalTypeVariable(sourceType, fieldType)) continue;
             String filedName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, match.getName());
             if (filedName.isEmpty()) {
                 filedName = "_";
+            }
+
+            if(JavaTypeUtil.containsField(sourceType.getFields(), filedName)) {
+                continue;
             }
             JavaFieldBuilder fieldBuilder = new JavaFieldBuilder();
             fieldBuilder.setName(filedName);

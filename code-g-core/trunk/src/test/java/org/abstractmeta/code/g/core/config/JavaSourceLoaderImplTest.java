@@ -39,7 +39,7 @@ public class JavaSourceLoaderImplTest {
         SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setPackageNames(Arrays.asList("javax.inject"));
         sourceFilter.setIncludeSubpackages(true);
-        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
+        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader(), null);
         Assert.assertTrue(result.getJavaTypes().size() > 4, "should load classes from jar using package name");
     }
 
@@ -49,7 +49,7 @@ public class JavaSourceLoaderImplTest {
         SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setClassNames(Arrays.asList("javax.inject.Inject"));
         sourceFilter.setIncludeSubpackages(true);
-        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
+        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader(), null);
         Assert.assertEquals(result.getJavaTypes().size(), 1, "should load javax.inject.Inject");
     }
 
@@ -59,7 +59,7 @@ public class JavaSourceLoaderImplTest {
         SourceMatcherImpl sourceFilter = new SourceMatcherImpl();
         sourceFilter.setPackageNames(Arrays.asList("org.abstractmeta.code.g.core.helper"));
         sourceFilter.setIncludeSubpackages(true);
-        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
+        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader(), null);
         Assert.assertTrue(result.getJavaTypes().size() > 1, "should load org.abstractmeta.code.g.core.helper");
     }
 
@@ -70,7 +70,7 @@ public class JavaSourceLoaderImplTest {
         sourceFilter.setPackageNames(Arrays.asList("org.abstractmeta.code.g.test.source"));
         sourceFilter.setIncludeSubpackages(true);
         sourceFilter.setSourceDirectory(new File("src/test/test-source").getAbsolutePath());
-        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader());
+        LoadedSource result = sourceLoader.load(sourceFilter, registry, JavaSourceLoaderImplTest.class.getClassLoader(), null);
         Assert.assertTrue(! result.getJavaTypes().isEmpty(), "should load org.abstractmeta.code.g.core.annotation");
         Assert.assertTrue(! result.getCompiledJavaTypes().isEmpty(), "should have source code");
 

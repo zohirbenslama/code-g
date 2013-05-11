@@ -72,7 +72,7 @@ public class JavaTypeCompiler {
             logger.log(Level.INFO, "Failed to compile source:" + source);
             throw e;
         }
-        Class compiledType = null;
+        Class compiledType;
         try {
 
             compiledType = compilationClassLoader.loadClass(sourcedType.getType().getName());

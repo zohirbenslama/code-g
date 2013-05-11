@@ -13,7 +13,6 @@ public class CompiledJavaTypeImpl extends SourcedJavaTypeImpl implements Compile
     private final ClassLoader classLoader;
     private final Class compiledType;
 
-
     public CompiledJavaTypeImpl(JavaType type, CharSequence sourceCode, ClassLoader classLoader, Class compiledType) {
         super(type, sourceCode);
         this.classLoader = classLoader;

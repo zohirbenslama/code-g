@@ -22,6 +22,8 @@ import org.abstractmeta.code.g.config.SourceMatcher;
 import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
 import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
+import org.abstractmeta.code.g.core.test.User;
+import org.abstractmeta.code.g.core.test.UserRegistry;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.Context;
@@ -29,35 +31,30 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
- *
  * @author Adrian Witas
  */
 @Test
 public class ClassGeneratorTest {
 
 
-
     public void testSimpleClassGenerator() throws Exception {
         CodeGenerator classGenerator = new ClassGenerator();
-        Context context = getContextForTestSimpleClassGenerator();
+        Context context = getContextForTestSimpleClassGenerator(Foo.class);
         List<CompiledJavaType> result = classGenerator.generate(context);
         Assert.assertEquals(result.size(), 1);
         Class type = result.get(0).getCompiledType();
         @SuppressWarnings("unchecked")
-        Foo foo = (Foo)type.getConstructor(int.class).newInstance(12);
+        Foo foo = (Foo) type.getConstructor(int.class).newInstance(12);
         Assert.assertEquals(foo.getId(), 12);
     }
 
 
     public void testSimpleClassWithBuilderGenerator() throws Exception {
         CodeGenerator classGenerator = new ClassGenerator();
-        Context context = getContextForTestSimpleClassGenerator();
+        Context context = getContextForTestSimpleClassGenerator(Foo.class);
         context.get(Descriptor.class).getProperties().setProperty("generateBuilder", "true");
         List<CompiledJavaType> result = classGenerator.generate(context);
         Assert.assertEquals(result.size(), 2);
@@ -65,16 +62,26 @@ public class ClassGeneratorTest {
         @SuppressWarnings("unchecked")
         Object builder = ReflectUtil.getInstance(builderType);
         ReflectUtil.setFieldValue(builder, "id", 12);
-        Foo foo = (Foo)ReflectUtil.invokeMethod(builder, "build", new Class[0]);
+        Foo foo = (Foo) ReflectUtil.invokeMethod(builder, "build", new Class[0]);
         Assert.assertEquals(foo.getId(), 12);
+
     }
 
+    public void testSimpleClassWithRegistryGenerator() throws Exception {
+        CodeGenerator classGenerator = new ClassGenerator();
+        Context context = getContextForTestSimpleClassGenerator(User.class, UserRegistry.class);
+        List<CompiledJavaType> result = classGenerator.generate(context);
+        Assert.assertEquals(result.size(), 2);
+        Class type = result.get(0).getCompiledType();
+    }
 
-    protected  Context  getContextForTestSimpleClassGenerator(){
+    protected Context getContextForTestSimpleClassGenerator(Class... clazz) {
         DescriptorImpl descriptor = new DescriptorImpl();
         SourceMatcherImpl sourceMatcher = new SourceMatcherImpl();
         sourceMatcher.setSourceDirectory(new File("src/test/java").getAbsolutePath());
-        sourceMatcher.setClassNames(Arrays.asList(Foo.class.getName()));
+        List<String> list = new ArrayList<String>();
+        for (Class c : clazz) list.add(c.getName());
+        sourceMatcher.setClassNames(list);
         descriptor.setSourceMatcher(sourceMatcher);
         Properties properties = new Properties();
         descriptor.setProperties(properties);

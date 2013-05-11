@@ -30,6 +30,7 @@ public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
         result.setRegistry(new CompiledJavaTypeRegistryImpl());
         ContextImpl context = new ContextImpl();
         context.put(CompiledJavaTypeRegistry.class, result.getRegistry());
+        context.put(UnitDescriptor.class, unitDescriptor);
         for (Descriptor descriptor : unitDescriptor.getDescriptors()) {
             generate(descriptor, context, result.getRegistry());
         }

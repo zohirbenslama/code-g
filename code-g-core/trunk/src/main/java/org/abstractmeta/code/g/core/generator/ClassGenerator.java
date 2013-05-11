@@ -91,7 +91,6 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
             classNames.add(compiledJavaType.getType().getName());
         }
         sourceMatcher.setClassNames(classNames);
-        sourceMatcher.setSourceDirectory(descriptor.getSourceMatcher().getSourceDirectory());
         result.setSourceMatcher(sourceMatcher);
         result.setProperties(descriptor.getProperties());
         return result;

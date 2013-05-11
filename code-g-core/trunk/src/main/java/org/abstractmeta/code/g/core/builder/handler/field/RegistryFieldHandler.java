@@ -473,12 +473,14 @@ public class RegistryFieldHandler implements FieldHandler {
 
         String annotation  = context.get(Config.class).getRegistryKeyAnnotation();
         JavaMethod accessor =  JavaTypeUtil.matchOwnerFieldWithMatchingType(registryValueType, registryKeyType, annotation);
+        if(accessor == null) {
+            throw new IllegalStateException("Failed to match accessor " + registryValueType + " with " + registryKeyType);
+        }
         boolean useKeyProvider = isUseKeyProvider(context);
         if (useKeyProvider) {
             buildKeyProviderField(owner, javaField, accessor, registryValueType);
             String providerFieldName =  JavaTypeUtil.getKeyProviderFieldName(javaField.getName());
             methodBuilder.addBodyLines(String.format("%s.put(%s.apply(%s), %s);", javaField.getName(), providerFieldName, registerArgumentName, registerArgumentName));
-
 
         } else {
 
@@ -562,6 +564,9 @@ public class RegistryFieldHandler implements FieldHandler {
         } else {
             String annotation = context.get(Config.class).getRegistryKeyAnnotation();
             JavaMethod accessor =  JavaTypeUtil.matchOwnerFieldWithMatchingType(registryValueType, registryKeyType, annotation);
+            if(accessor == null) {
+                throw new IllegalStateException("Failed to match accessor " + registryValueType + " " +registryKeyType);
+            }
             boolean useKeyProvider = isUseKeyProvider(context);
             if (useKeyProvider) {
                 String providerFieldName = JavaTypeUtil.getKeyProviderFieldName(javaField.getName());

@@ -3,6 +3,8 @@ package org.abstractmeta.code.g.core.config.loader;
 import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.loader.LoadedSource;
+import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
+import org.abstractmeta.toolbox.compilation.compiler.registry.JavaFileObjectRegistry;
 
 import java.util.Collection;
 
@@ -18,7 +20,6 @@ public class LoadedSourceImpl implements LoadedSource {
     private ClassLoader classLoader;
     private Collection<JavaType> javaTypes;
     private Collection<CompiledJavaType> compiledJavaTypes;
-
 
     public ClassLoader getClassLoader() {
         return classLoader;
@@ -43,4 +44,6 @@ public class LoadedSourceImpl implements LoadedSource {
     public void setCompiledJavaTypes(Collection<CompiledJavaType> compiledJavaTypes) {
         this.compiledJavaTypes = compiledJavaTypes;
     }
+
+
 }

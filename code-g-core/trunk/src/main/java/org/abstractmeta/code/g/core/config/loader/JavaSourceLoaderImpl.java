@@ -30,9 +30,13 @@ import org.abstractmeta.code.g.core.config.loader.predicate.SourceFilterPredicat
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
+import org.abstractmeta.toolbox.compilation.compiler.impl.SimpleClassLoader;
+import org.abstractmeta.toolbox.compilation.compiler.util.URIUtil;
 
+import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import java.io.*;
-import java.lang.ref.Reference;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -50,24 +54,24 @@ public class JavaSourceLoaderImpl implements SourceLoader {
     private final Logger logger = Logger.getLogger(JavaSourceLoaderImpl.class.getName());
 
     @Override
-    public LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader) {
+    public LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader, File compilationDirectory) {
         Preconditions.checkNotNull(sourceMatcher, "sourceMatcher was null");
         Preconditions.checkNotNull(registry, "registry was null");
         LoadedSourceImpl result = new LoadedSourceImpl();
-        result.setClassLoader(classLoader);
+        //result.setClassLoader(classLoader);
         Map<String, String> javaSources = loadFromSourceDirectory(sourceMatcher);
         Collection<JavaType> javaTypes = loadFromClassLoader(sourceMatcher, classLoader);
-        if(! javaSources.isEmpty()) {
-            javaTypes.addAll(compileSources(javaSources, classLoader, result));
+        if (!javaSources.isEmpty()) {
+            javaTypes.addAll(compileSources(javaSources, classLoader, result, compilationDirectory));
         }
-        for(JavaType javaType: javaTypes) {
-            if(! registry.isRegistered(javaType.getName())) {
-                 registry.register(javaType);
+        for (JavaType javaType : javaTypes) {
+            if (!registry.isRegistered(javaType.getName())) {
+                registry.register(javaType);
             }
         }
         Collection<JavaType> filteredTypes = applyFilter(sourceMatcher, registry);
         result.setJavaTypes(filteredTypes);
-        Collection<CompiledJavaType> sourcedTypes = getCompiledJavaTypes(javaSources, registry, result.getClassLoader());
+        Collection<CompiledJavaType> sourcedTypes = getCompiledJavaTypes(javaSources, registry, result);
         result.setCompiledJavaTypes(sourcedTypes);
         return result;
     }
@@ -76,9 +80,10 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         return Collections2.filter(registry.get(), new SourceFilterPredicate(sourceMatcher));
     }
 
-    protected Collection<CompiledJavaType> getCompiledJavaTypes(Map<String, String> javaSources, JavaTypeRegistry registry, ClassLoader classLoader) {
+    protected Collection<CompiledJavaType> getCompiledJavaTypes(Map<String, String> javaSources, JavaTypeRegistry registry, LoadedSourceImpl loadedSource) {
+        ClassLoader classLoader = loadedSource.getClassLoader();
         Collection<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
-        for(Map.Entry<String, String> entry: javaSources.entrySet()) {
+        for (Map.Entry<String, String> entry : javaSources.entrySet()) {
             JavaType javaType = registry.get(entry.getKey());
             Class compiledType = null;
             try {
@@ -91,17 +96,26 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         return result;
     }
 
-    protected Collection<JavaType> compileSources(Map<String, String> javaSources, ClassLoader classLoader, LoadedSourceImpl loadedSources) {
+    protected Collection<JavaType> compileSources(Map<String, String> javaSources, ClassLoader classLoader, LoadedSourceImpl loadedSources, File compilationDirectory) {
         Collection<JavaType> result = new ArrayList<JavaType>();
+        if (javaSources.isEmpty()) return result;
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
-        JavaSourceCompiler.CompilationUnit compilationUnit = javaSourceCompiler.createCompilationUnit();
-        for(Map.Entry<String, String> entry: javaSources.entrySet()) {
+        JavaSourceCompiler.CompilationUnit compilationUnit = compilationDirectory != null
+                ? javaSourceCompiler.createCompilationUnit(compilationDirectory)
+                : javaSourceCompiler.createCompilationUnit();
+
+        for (Map.Entry<String, String> entry : javaSources.entrySet()) {
+            logger.log(Level.FINE, "Adding compilation class " + entry.getKey());
             compilationUnit.addJavaSource(entry.getKey(), entry.getValue());
         }
         ClassLoader compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
+        if(compilationDirectory != null) {
+            javaSourceCompiler.persistCompiledClasses(compilationUnit);
+        }
         loadedSources.setClassLoader(compilationClassLoader);
-        for(String className: javaSources.keySet()) {
-            if(exists(className, compilationClassLoader)) {
+
+        for (String className : javaSources.keySet()) {
+            if (exists(className, compilationClassLoader)) {
                 result.add(loadClass(className, compilationClassLoader));
             } else {
                 logger.log(Level.WARNING, "Missing class in compiled source class loader " + className);
@@ -109,7 +123,6 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         }
         return result;
     }
-
 
 
     protected Collection<JavaType> loadFromClassLoader(SourceMatcher sourceMatcher, ClassLoader classLoader) {
@@ -146,7 +159,7 @@ public class JavaSourceLoaderImpl implements SourceLoader {
             }
 
         }
-        if(logger.isLoggable(Level.FINE)) {
+        if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Loaded classes from package with class loader" + classNames);
         }
         for (String className : classNames) {
@@ -176,14 +189,14 @@ public class JavaSourceLoaderImpl implements SourceLoader {
         Collection<String> result = new ArrayList<String>();
         File directory = new File(fileName);
         if (directory.isDirectory()) {
-            File [] files = directory.listFiles();
-            if(files == null) return result;
-            for(File file: files) {
-                if(file.isDirectory()) {
-                    if(includeSubPackages) {
+            File[] files = directory.listFiles();
+            if (files == null) return result;
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    if (includeSubPackages) {
                         result.addAll(loadPackageClassesFromFileSystem(file.getAbsolutePath(), packageName + "." + file.getName(), includeSubPackages));
                     }
-                } else if(file.getName().endsWith(".class")) {
+                } else if (file.getName().endsWith(".class")) {
                     result.add(packageName + "." + file.getName().replace(".class", ""));
                 }
             }
@@ -206,11 +219,11 @@ public class JavaSourceLoaderImpl implements SourceLoader {
                 String resourceCandidate = jarEntry.getName();
                 if (resourceCandidate.startsWith(internalPackageName) && resourceCandidate.endsWith(".class")) {
                     String className = resourceCandidate.replace("/", ".").replace(".class", "");
-                    if(includeSubPackages) {
+                    if (includeSubPackages) {
                         result.add(className);
                     } else {
                         String simpleClassName = className.substring(0, packageName.length() + 1);
-                        if(simpleClassName.indexOf('.') != -1) result.add(className);
+                        if (simpleClassName.indexOf('.') != -1) result.add(className);
                     }
                 }
             }
@@ -224,6 +237,7 @@ public class JavaSourceLoaderImpl implements SourceLoader {
 
     /**
      * Check is a given class can be loaded by the supplied class loader
+     *
      * @param className
      * @param classLoader
      * @return
