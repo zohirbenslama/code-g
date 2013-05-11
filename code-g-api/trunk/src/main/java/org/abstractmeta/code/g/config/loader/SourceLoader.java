@@ -18,6 +18,8 @@ package org.abstractmeta.code.g.config.loader;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
 import org.abstractmeta.code.g.config.SourceMatcher;
 
+import java.io.File;
+
 /**
  *
  * Java type loader.
@@ -31,5 +33,5 @@ public interface SourceLoader {
      *
      * @return loaded source
      */
-    LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader);
+    LoadedSource load(SourceMatcher sourceMatcher, JavaTypeRegistry registry, ClassLoader classLoader, File compiledSourceDirectory);
 }

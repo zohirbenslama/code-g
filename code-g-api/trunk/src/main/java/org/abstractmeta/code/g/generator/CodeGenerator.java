@@ -45,6 +45,4 @@ public interface CodeGenerator<T> {
      */
     Class<T> getSettingClass();
 
-    PropertyRegistry getPropertyRegistry();
-
 }

@@ -16,6 +16,7 @@
 package org.abstractmeta.code.g.generator;
 
 import org.abstractmeta.code.g.config.UnitDescriptor;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 
 /**
  * Represents CodeUnitGenerator
