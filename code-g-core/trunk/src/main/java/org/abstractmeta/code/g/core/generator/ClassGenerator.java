@@ -43,8 +43,8 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
     private final BuilderGenerator builderGenerator;
 
     public ClassGenerator() {
-        super(new JavaSourceLoaderImpl(), new PropertyRegistryImpl(), new JavaTypeRendererProvider());
-        this.builderGenerator = new BuilderGenerator(sourceLoader, propertyRegistry, rendererProvider);
+        super(new JavaSourceLoaderImpl(), new JavaTypeRendererProvider());
+        this.builderGenerator = new BuilderGenerator(sourceLoader, rendererProvider);
     }
 
 

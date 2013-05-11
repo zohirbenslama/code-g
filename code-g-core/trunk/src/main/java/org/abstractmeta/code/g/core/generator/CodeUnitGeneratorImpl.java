@@ -12,6 +12,7 @@ import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.CodeUnitGenerator;
 import org.abstractmeta.code.g.generator.Context;
 import org.abstractmeta.code.g.generator.GeneratedCode;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +31,9 @@ public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
         result.setRegistry(new CompiledJavaTypeRegistryImpl());
         ContextImpl context = new ContextImpl();
         context.put(CompiledJavaTypeRegistry.class, result.getRegistry());
+        if(unitDescriptor.getPropertyRegistry() != null) {
+            context.put(PropertyRegistry.class, unitDescriptor.getPropertyRegistry());
+        }
         context.put(UnitDescriptor.class, unitDescriptor);
         for (Descriptor descriptor : unitDescriptor.getDescriptors()) {
             generate(descriptor, context, result.getRegistry());

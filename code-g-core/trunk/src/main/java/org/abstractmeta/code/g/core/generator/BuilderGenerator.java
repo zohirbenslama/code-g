@@ -30,11 +30,11 @@ public class BuilderGenerator extends AbstractGenerator<BuilderGeneratorConfig> 
     private final NamingConvention DEFAULT_NAMING_CONVENTION = new NamingConventionImpl("", "Builder", "builder");
 
     public  BuilderGenerator() {
-        this(new JavaSourceLoaderImpl(), new PropertyRegistryImpl(), new JavaTypeRendererProvider());
+        this(new JavaSourceLoaderImpl(), new JavaTypeRendererProvider());
     }
 
-    public BuilderGenerator(SourceLoader sourceLoader, PropertyRegistry propertyRegistry, Provider<JavaTypeRenderer> rendererProvider) {
-        super(sourceLoader, propertyRegistry, rendererProvider);
+    public BuilderGenerator(SourceLoader sourceLoader, Provider<JavaTypeRenderer> rendererProvider) {
+        super(sourceLoader, rendererProvider);
     }
 
     @Override

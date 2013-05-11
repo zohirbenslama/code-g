@@ -39,18 +39,15 @@ import java.util.*;
 public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> implements CodeGenerator<JpaClassConfig> {
 
     private final NamingConvention DEFAULT_NAMING_CONVENTION = new NamingConventionImpl("", "Entity", "persistence");
-
-    private final PropertyRegistry propertyRegistry;
     private final DbCatalogLoader dbCatalogLoader;
 
 
     public JpaClassGenerator() {
-        this(new PropertyRegistryImpl(), new DbCatalogLoader(), new JavaTypeRendererProvider());
+        this(new DbCatalogLoader(), new JavaTypeRendererProvider());
     }
 
-    public JpaClassGenerator(PropertyRegistry propertyRegistry, DbCatalogLoader dbCatalogLoader, Provider<JavaTypeRenderer> javaTypeRendererProvider) {
-        super(new JavaSourceLoaderImpl(), propertyRegistry, javaTypeRendererProvider);
-        this.propertyRegistry = propertyRegistry;
+    public JpaClassGenerator(DbCatalogLoader dbCatalogLoader, Provider<JavaTypeRenderer> javaTypeRendererProvider) {
+        super(new JavaSourceLoaderImpl(), javaTypeRendererProvider);
         this.dbCatalogLoader = dbCatalogLoader;
     }
 
@@ -119,12 +116,6 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
     public Class<JpaClassConfig> getSettingClass() {
         return JpaClassConfig.class;
     }
-
-    @Override
-    public PropertyRegistry getPropertyRegistry() {
-        return propertyRegistry;
-    }
-
 
     protected List<JavaType> addEntityTypesFromTable(Connection connection, Context context) {
         List<JavaType> result = new ArrayList<JavaType>();
@@ -195,13 +186,7 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
         } else {
             resultBuilder.addAnnotations(new BasicBuilder().build());
         }
-//        if (columnFieldMap.getType().getSimpleName().equals("Timestamp")) {
-//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIMESTAMP).build());
-//        } else if (columnFieldMap.getType().getSimpleName().equals("Date")) {
-//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.DATE).build());
-//        } else if (columnFieldMap.getType().getSimpleName().equals("Time")) {
-//            //resultBuilder.addAnnotations(new TemporalBuilder().setTemporalType(TemporalType.TIME).build());
-//        }
+
         resultBuilder.setName(columnFieldMap.getFieldName());
         resultBuilder.setType(columnFieldMap.getType());
         resultBuilder.addModifiers(JavaModifier.PRIVATE);

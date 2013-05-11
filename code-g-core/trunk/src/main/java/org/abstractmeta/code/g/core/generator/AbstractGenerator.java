@@ -37,19 +37,17 @@ public abstract class AbstractGenerator<T> {
 
     protected final Logger logger = Logger.getLogger(AbstractGenerator.class.getName());
     protected final SourceLoader sourceLoader;
-    protected final PropertyRegistry propertyRegistry;
     protected final Provider<JavaTypeRenderer> rendererProvider;
 
-    public AbstractGenerator(SourceLoader sourceLoader, PropertyRegistry propertyRegistry, Provider<JavaTypeRenderer> rendererProvider) {
+    public AbstractGenerator(SourceLoader sourceLoader,Provider<JavaTypeRenderer> rendererProvider) {
         this.sourceLoader = sourceLoader;
-        this.propertyRegistry = propertyRegistry;
         this.rendererProvider = rendererProvider;
     }
 
 
     public List<CompiledJavaType> generate(Context context) {
         Descriptor descriptor = context.get(Descriptor.class);
-        Properties properties = applyProperties(descriptor.getProperties());
+        Properties properties = applyProperties(descriptor.getProperties(), context);
         context.replace(getSettingClass(), getSetting(properties));
 
         LoadedSource loadedSource = loadSource(context);
@@ -200,7 +198,7 @@ public abstract class AbstractGenerator<T> {
             sourceDirectory = context.get(UnitDescriptor.class).getSourceDirectory();
         }
 
-        result.setSourceDirectory(expandProperty(sourceDirectory));
+        result.setSourceDirectory(expandProperty(sourceDirectory, context));
         result.setIncludeSubpackages(sourceMatcher.isIncludeSubpackages());
         result.setPackageNames(sourceMatcher.getPackageNames());
         result.setClassNames(sourceMatcher.getClassNames());
@@ -210,18 +208,20 @@ public abstract class AbstractGenerator<T> {
         return result;
     }
 
-    protected Properties applyProperties(Properties properties) {
+    protected Properties applyProperties(Properties properties, Context context) {
         Properties result = new Properties();
         if (properties == null) return result;
         for (String key : properties.stringPropertyNames()) {
-            result.setProperty(key, expandProperty(properties.getProperty(key)));
+            result.setProperty(key, expandProperty(properties.getProperty(key), context));
         }
         return result;
     }
 
 
-    protected String expandProperty(String text) {
+    protected String expandProperty(String text, Context context) {
         if (text == null) return null;
+        PropertyRegistry propertyRegistry = context.getOptional(PropertyRegistry.class);
+        if(propertyRegistry == null) return text;
         for (String key : propertyRegistry.getRegistry().keySet()) {
             if (text.contains(key)) {
                 text = text.replace(key, propertyRegistry.get(key));
@@ -271,11 +271,6 @@ public abstract class AbstractGenerator<T> {
             }
         }
         return false;
-    }
-
-
-    public PropertyRegistry getPropertyRegistry() {
-        return propertyRegistry;
     }
 
     abstract public NamingConvention getNamingConvention(Context context);

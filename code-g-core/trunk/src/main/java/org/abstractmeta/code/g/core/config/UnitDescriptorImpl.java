@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.core.config;
 
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,7 +37,7 @@ public class UnitDescriptorImpl implements UnitDescriptor {
     private List<String> classPathEntries;
     private List<Descriptor> descriptors;
     private Descriptor postDescriptor;
-
+    private PropertyRegistry propertyRegistry;
 
     public Collection<String> getDependencyPackages() {
         return dependencyPackages;
@@ -92,6 +93,14 @@ public class UnitDescriptorImpl implements UnitDescriptor {
 
     public void setPostDescriptor(Descriptor postDescriptor) {
         this.postDescriptor = postDescriptor;
+    }
+
+    public PropertyRegistry getPropertyRegistry() {
+        return propertyRegistry;
+    }
+
+    public void setPropertyRegistry(PropertyRegistry propertyRegistry) {
+        this.propertyRegistry = propertyRegistry;
     }
 
     @Override
