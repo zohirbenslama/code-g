@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-example</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>code-g-example</name>
     <url>http://code.google.com/p/code-g</url>
@@ -50,49 +50,50 @@
             <plugin>
                 <groupId>org.abstractmeta</groupId>
                 <artifactId>code-g-maven-plugin</artifactId>
-                <version>0.5.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <configuration>
-                    <units>
-                        <unit>
-                            <sourcePackage>org.abstractmeta.code.g.examples.model1.*</sourcePackage>
-                            <descriptors>
-                                <classGenerator/>
-                                <builderGenerator/>
-                            </descriptors>
-                        </unit>
+                    <descriptors>
+                        <descriptor>
+                            <sourceMatcher>
+                                <packageNames>org.abstractmeta.code.g.examples.model1</packageNames>
+                                <includeSubpackages>true</includeSubpackages>
+                            </sourceMatcher>
+                            <generatorClass>org.abstractmeta.code.g.core.generator.ClassGenerator</generatorClass>
+                            <properties>
+                                <generateBuilder>true</generateBuilder>
+                            </properties>
+                        </descriptor>
+                        <descriptor>
+                            <sourceMatcher>
+                                <packageNames>org.abstractmeta.code.g.examples.model2</packageNames>
+                            </sourceMatcher>
+                            <generatorClass>org.abstractmeta.code.g.core.generator.BuilderGenerator</generatorClass>
+                        </descriptor>
 
-                        <unit>
-                            <descriptors>
-                                <builderGenerator>
-                                    <sourcePackage>org.abstractmeta.code.g.examples.model2</sourcePackage>
-                                </builderGenerator>
-                            </descriptors>
-                        </unit>
-
-                        <unit>
-                            <descriptors>
-                                <classGenerator>
-                                    <compilationSources>
-                                        <string>org.abstractmeta.code.g.examples.dependency</string>
-                                    </compilationSources>
-                                    <sourcePackage>org.abstractmeta.code.g.examples.model3</sourcePackage>
-                                </classGenerator>
-                                <builderGenerator>
-                                    <sourcePackage>org.abstractmeta.code.g.examples.model3.impl</sourcePackage>
-                                </builderGenerator>
-                            </descriptors>
-                        </unit>
+                        <descriptor>
+                            <sourceMatcher>
+                                <dependencyPackages>org.abstractmeta.code.g.examples.dependency</dependencyPackages>
+                                <packageNames>org.abstractmeta.code.g.examples.model3</packageNames>
+                            </sourceMatcher>
+                            <generatorClass>org.abstractmeta.code.g.core.generator.ClassGenerator</generatorClass>
+                            <properties>
+                                <generateBuilder>true</generateBuilder>
+                            </properties>
+                        </descriptor>
 
 
-                        <unit>
-                            <targetDirectory>$basedir/src/main/java/</targetDirectory>
-                            <sourcePackage>org.abstractmeta.code.g.examples.model4.*</sourcePackage>
-                            <descriptors>
-                                <classGenerator/>
-                                <builderGenerator/>
-                            </descriptors>
-                        </unit>
-                    </units>
+                        <descriptor>
+                            <sourceMatcher>
+                                <packageNames>org.abstractmeta.code.g.examples.model4</packageNames>
+                                <includeSubpackages>true</includeSubpackages>
+                            </sourceMatcher>
+                            <generatorClass>org.abstractmeta.code.g.core.generator.ClassGenerator</generatorClass>
+                            <properties>
+                                <generateBuilder>true</generateBuilder>
+                            </properties>
+                        </descriptor>
+
+                    </descriptors>
                 </configuration>
                 <executions>
                     <execution>

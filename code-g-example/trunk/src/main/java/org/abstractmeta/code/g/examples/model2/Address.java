@@ -1,6 +1,5 @@
 package org.abstractmeta.code.g.examples.model2;
 
-import java.util.List;
 
 
 public class Address {
