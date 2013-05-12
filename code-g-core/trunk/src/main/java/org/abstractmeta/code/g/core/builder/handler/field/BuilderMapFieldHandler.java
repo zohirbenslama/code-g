@@ -94,10 +94,12 @@ public class BuilderMapFieldHandler implements FieldHandler {
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         Type [] fieldGenericArguments = ReflectUtil.getGenericActualTypeArguments(fieldType);
-        Type keyType = ReflectUtil.getGenericClassArgument(fieldGenericArguments, 0, Object.class);
-        Type valueType = ReflectUtil.getGenericClassArgument(fieldGenericArguments, 1, Object.class);
+        Type keyType = ReflectUtil.getGenericTypArgument(fieldGenericArguments, 0, Object.class);
+        Type valueType = ReflectUtil.getGenericTypArgument(fieldGenericArguments, 1, Object.class);
+
         methodBuilder.addParameter("key", keyType);
         methodBuilder.addParameter("value", valueType);
+
         methodBuilder.addBodyLines(String.format("this.%s.put(key, value);", fieldName));
         BuilderUtil.addIsPresentFlag(owner, fieldName, methodBuilder);
         BuilderUtil.addSetterResultType(owner, methodName, methodBuilder);

@@ -105,7 +105,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
         methodBuilder.addModifier(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         Type [] fieldGenericArguments = ReflectUtil.getGenericActualTypeArguments(fieldType);
-        Type componentType =  ReflectUtil.getGenericClassArgument(fieldGenericArguments, 0, Object.class);
+        Type componentType =  ReflectUtil.getGenericTypArgument(fieldGenericArguments, 0, Object.class);
         methodBuilder.addParameters(new JavaParameterBuilder().setName(fieldName).setType(new GenericArrayTypeImpl(componentType)).setVarTypeArgument(true).build());
         owner.getImporter().addTypes(Collections.class);
         methodBuilder.addBodyLines(String.format("Collections.addAll(this.%s, %s);", fieldName, fieldName));

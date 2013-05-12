@@ -329,6 +329,13 @@ public class ReflectUtil {
         return defaultType;
     }
 
+    public static Type getGenericTypArgument(Type[] types, int argumentIndex, Class defaultType) {
+        if (argumentIndex < types.length) {
+            return types[argumentIndex];
+        }
+        return defaultType;
+    }
+
     public static Collection<String> getClassNames(Class... classes) {
         List<String> result = new ArrayList<String>();
         for (Class clazz : classes) {

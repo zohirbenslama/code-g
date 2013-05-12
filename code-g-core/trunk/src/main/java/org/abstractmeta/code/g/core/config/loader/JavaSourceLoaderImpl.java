@@ -144,20 +144,18 @@ public class JavaSourceLoaderImpl implements SourceLoader {
 
 
     protected void loadPackagesWithClassLoader(SourceMatcher sourceMatcher, Collection<JavaType> result, ClassLoader classLoader) {
-        if (sourceMatcher.getPackageNames() == null) return;
-        Set<String> classNames = new HashSet<String>();
-        for (String packageName : sourceMatcher.getPackageNames()) {
-            String internalPackageName = packageName.replace(".", "/");
-            try {
-                Enumeration<URL> packageUrls = classLoader.getResources(internalPackageName);
-                if (packageUrls == null) continue;
-                for (URL packageUrl : Collections.list(packageUrls)) {
-                    classNames.addAll(loadPackagesWithClassLoader(packageName, packageUrl, sourceMatcher.isIncludeSubpackages()));
-                }
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to load package " + internalPackageName);
-            }
+        Collection<String> packageNames = new ArrayList<String>();
+        if (sourceMatcher.getPackageNames() != null) {
+            packageNames.addAll(sourceMatcher.getPackageNames());
+        }
+        if(sourceMatcher.getDependencyPackages() != null) {
+            packageNames.addAll(sourceMatcher.getDependencyPackages());
+        }
 
+        Set<String> classNames = new HashSet<String>();
+
+        for (String packageName : packageNames) {
+            loadClassesFromPackage(sourceMatcher, classLoader, classNames, packageName);
         }
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Loaded classes from package with class loader" + classNames);
@@ -166,6 +164,19 @@ public class JavaSourceLoaderImpl implements SourceLoader {
             if (exists(className, classLoader)) {
                 result.add(loadClass(className, classLoader));
             }
+        }
+    }
+
+    protected void loadClassesFromPackage(SourceMatcher sourceMatcher, ClassLoader classLoader, Set<String> classNames, String packageName) {
+        String internalPackageName = packageName.replace(".", "/");
+        try {
+            Enumeration<URL> packageUrls = classLoader.getResources(internalPackageName);
+            if (packageUrls == null) return;
+            for (URL packageUrl : Collections.list(packageUrls)) {
+                classNames.addAll(loadPackagesWithClassLoader(packageName, packageUrl, sourceMatcher.isIncludeSubpackages()));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load package " + internalPackageName);
         }
     }
 
@@ -222,7 +233,8 @@ public class JavaSourceLoaderImpl implements SourceLoader {
                     if (includeSubPackages) {
                         result.add(className);
                     } else {
-                        String simpleClassName = className.substring(0, packageName.length() + 1);
+                        int startPosition = Math.min(packageName.length() + 1, className.length());
+                        String simpleClassName = className.substring(startPosition, className.length());
                         if (simpleClassName.indexOf('.') != -1) result.add(className);
                     }
                 }
@@ -276,8 +288,15 @@ public class JavaSourceLoaderImpl implements SourceLoader {
     }
 
     protected void loadPackagesFromSourceDirectory(SourceMatcher sourceMatcher, Map<String, String> result) {
-        if (sourceMatcher.getPackageNames() == null) return;
-        for (String packageName : sourceMatcher.getPackageNames()) {
+        Collection<String> packageNames = new ArrayList<String>();
+        if (sourceMatcher.getPackageNames() != null) {
+            packageNames.addAll(sourceMatcher.getPackageNames());
+        }
+        if(sourceMatcher.getDependencyPackages() != null) {
+            packageNames.addAll(sourceMatcher.getDependencyPackages());
+        }
+
+        for (String packageName : packageNames) {
             loadPackage(sourceMatcher, packageName, result);
         }
     }

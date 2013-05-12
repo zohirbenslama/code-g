@@ -46,7 +46,8 @@ public class SourceFilterPredicate implements Predicate<JavaType> {
                     if(sourceMatcher.isIncludeSubpackages()) {
                         return true;
                     } else {
-                        String simpleClassName = javaType.getName().substring(0, packageName.length() + 1);
+                        int startPosition = Math.min( javaType.getName().length(), packageName.length() + 1);
+                        String simpleClassName = javaType.getName().substring(startPosition, javaType.getName().length());
                         if(simpleClassName.indexOf('.') == -1) {
                             return true;
                         }
