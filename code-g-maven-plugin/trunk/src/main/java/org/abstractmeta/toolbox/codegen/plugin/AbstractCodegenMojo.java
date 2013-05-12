@@ -16,16 +16,17 @@
 package org.abstractmeta.toolbox.codegen.plugin;
 
 
-import org.abstractmeta.code.g.UnitGenerator;
-import org.abstractmeta.code.g.code.SourcedJavaType;
-import org.abstractmeta.code.g.config.UnitDescriptor;
-import org.abstractmeta.code.g.core.UnitGeneratorImpl;
-import org.abstractmeta.code.g.core.config.builder.UnitDescriptorBuilder;
-import org.abstractmeta.code.g.core.config.properties.UnitDescriptorsDecoder;
-import org.abstractmeta.code.g.core.handler.PersistenceCodeHandler;
-import org.abstractmeta.code.g.core.macro.MacroRegistryImpl;
+import org.abstractmeta.code.g.code.CompiledJavaType;
+import org.abstractmeta.code.g.code.CompiledJavaTypeRegistry;
+import org.abstractmeta.code.g.config.*;
+import org.abstractmeta.code.g.core.config.UnitDescriptorImpl;
+import org.abstractmeta.code.g.core.config.provider.UnitDescriptorProvider;
+import org.abstractmeta.code.g.core.generator.CodeUnitGeneratorImpl;
+import org.abstractmeta.code.g.core.property.PropertyRegistryImpl;
 import org.abstractmeta.code.g.core.util.PropertiesUtil;
-import org.abstractmeta.code.g.macros.MacroRegistry;
+import org.abstractmeta.code.g.generator.CodeUnitGenerator;
+import org.abstractmeta.code.g.generator.GeneratedCode;
+import org.abstractmeta.code.g.property.PropertyRegistry;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -69,8 +70,21 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private ArrayList<Unit> units;
+    private ArrayList<Descriptor> descriptors;
 
+
+    /**
+     * List of dependency packages
+     *
+     * @parameter
+     */
+
+    private List<String> dependencyPackages;
+
+    /**
+     * Post descriptor
+     */
+    private Descriptor postDescriptor;
 
     /**
      * @parameter default-value="${project.build.directory}/generated-sources/code-g/"
@@ -90,99 +104,101 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
 
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        final MacroRegistry macroRegistry = new MacroRegistryImpl();
-        registerMacros(macroRegistry);
         try {
+            CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl();
 
             List<String> classPathEntries = getClassPathEntries();
             getLog().debug("unit plugin class path " + classPathEntries);
-            Collection<UnitDescriptor> unitDescriptors = loadConfiguration();
-            UnitGenerator unitGenerator = new UnitGeneratorImpl(macroRegistry, new PersistenceCodeHandler.Factory());
-            Collection<SourcedJavaType> generatedSources = unitGenerator.generate(unitDescriptors);
-            for (SourcedJavaType sourceFile : generatedSources) {
-                getLog().debug("generated " + sourceFile.getFile().getAbsolutePath());
-            }
-            for (UnitDescriptor unitDescriptor : unitDescriptors) {
-                project.addCompileSourceRoot(unitDescriptor.getTargetDirectory());
-            }
-            project.addCompileSourceRoot(targetSourceDirectory);
+            UnitDescriptor unitDescriptor = loadConfiguration();
 
 
+            getLog().debug("using unit descriptor" + unitDescriptor);
+            GeneratedCode generatedCode = unitGenerator.generate(unitDescriptor);
+            CompiledJavaTypeRegistry registry = generatedCode.getRegistry();
+            getLog().info("Generated " + registry.get().size() + " classes into " + unitDescriptor.getTargetSourceDirectory());
+            for (CompiledJavaType compiledJavaType : registry.get()) {
+                getLog().debug("generated " + compiledJavaType.getCompiledType());
+            }
         } catch (RuntimeException e) {
             throw new MojoExecutionException("Failed to generate code", e);
         }
     }
 
-    protected Collection<UnitDescriptor> loadConfiguration() {
+    @SuppressWarnings("unchecked")
+    protected UnitDescriptorImpl loadConfiguration() {
+        if(this.configurationFile == null) this.configurationFile = new File(new File(basedir), "/src/main/code-g/unit.properties").getAbsolutePath();
         File configurationFile = new File(this.configurationFile);
+        UnitDescriptorImpl result;
         if (configurationFile.exists()) {
             Properties properties = PropertiesUtil.loadFromFile(configurationFile);
-            return new UnitDescriptorsDecoder(template).decode(properties);
+            result = new UnitDescriptorProvider(properties).get();
 
         } else {
-            if (units == null) {
-                throw new IllegalStateException("units was or " + this.configurationFile + "was null");
-            }
-            Collection<UnitDescriptor> result = new ArrayList<UnitDescriptor>();
-            for (Unit unit : units) {
-
-                UnitDescriptorBuilder unitDescriptorBuilder = new UnitDescriptorBuilder();
-                unitDescriptorBuilder.addClassPathEntries(getClassPathEntries());
-                unitDescriptorBuilder.setSourceDirectory(new File(this.basedir, "src/main/java").getAbsolutePath());
-                unitDescriptorBuilder.setTargetDirectory(targetSourceDirectory);
-                unitDescriptorBuilder.merge(unit);
-                result.add(unitDescriptorBuilder.build());
-            }
-            return result;
+            result = new UnitDescriptorImpl();
+            result.setDescriptors(convert(descriptors));
+            result.setPostDescriptor(convert(postDescriptor));
         }
+        result.setPropertyRegistry(new PropertyRegistryImpl());
+        updateMavenProperties(result);
+        return result;
 
     }
 
-    protected void registerMacros(MacroRegistry macroRegistry) {
-        macroRegistry.register("${basedir}", basedir);
-        macroRegistry.register("${project.build.directory}", projectBuildDirectory);
-        macroRegistry.register("${project.build.outputDirectory}", new File(projectBuildDirectory, "classes").getAbsolutePath());
-        macroRegistry.register("${project.source.java.directory}", new File(basedir, "src/main/java").getAbsolutePath());
-        macroRegistry.register("${project.build.generated.sources.directory}", targetSourceDirectory);
-        macroRegistry.register("$source", new File(basedir, "src/main/java").getAbsolutePath());
-        macroRegistry.register("$basedir", new File(basedir).getAbsolutePath());
-        macroRegistry.register("${env.M2_HOME}", System.getenv("M2_HOME"));
-    }
-
-
-    protected void setUnitSourceDirectory(UnitDescriptorBuilder unitBuilder) {
-        File source = new File(basedir, "src/main/java");
-        String sourceDirectory = unitBuilder.getSourceDirectory();
-        if (sourceDirectory == null) sourceDirectory = "";
-        if (sourceDirectory.isEmpty()) {
-            unitBuilder.setSourceDirectory(source.getAbsolutePath());
-        } else {
-            sourceDirectory = sourceDirectory.replace("$basedir", basedir);
-            sourceDirectory = sourceDirectory.replace("$source", source.getAbsolutePath());
-            unitBuilder.setSourceDirectory(sourceDirectory);
+    private List<org.abstractmeta.code.g.config.Descriptor> convert(ArrayList<Descriptor> descriptors) {
+        List<org.abstractmeta.code.g.config.Descriptor> result = new ArrayList<org.abstractmeta.code.g.config.Descriptor>();
+        for (Descriptor descriptor : descriptors) {
+            result.add(convert(descriptor));
         }
+        return result;
+    }
+
+    protected void updateMavenProperties(UnitDescriptorImpl unitDescriptor) {
+        PropertyRegistry propertyRegistry = unitDescriptor.getPropertyRegistry();
+
+        unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
+        propertyRegistry.register("targetSourceDirectory", targetSourceDirectory);
+
+        unitDescriptor.setSourceDirectory(new File(basedir, "src/main/java").getAbsolutePath());
+        propertyRegistry.register("sourceDirectory", unitDescriptor.getSourceDirectory());
+
+        unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
+        propertyRegistry.register("targetSourceDirectory", unitDescriptor.getTargetSourceDirectory());
+
+        unitDescriptor.setTargetCompilationDirectory(new File(projectBuildDirectory, "classes").getAbsolutePath());
+        propertyRegistry.register("targetCompilationDirectory", unitDescriptor.getTargetCompilationDirectory());
+
+        unitDescriptor.setClassPathEntries(getClassPathEntries());
     }
 
 
-//    protected UnitDescriptor buildUnitDescriptor(Unit unit, List<String> classPathEntries) {
-//        UnitDescriptorBuilder unitBuilder = new UnitDescriptorBuilder();
-//        unitBuilder.merge(unit);
-//        unitBuilder.addClassPathEntries(classPathEntries);
-//        setUnitTargetDirectory(unitBuilder);
-//        setUnitSourceDirectory(unitBuilder);
-//        return unitBuilder.build();
-//    }
-//
-//    protected void setUnitTargetDirectory(UnitDescriptorBuilder unitBuilder) {
-//        String targetDirectory = unitBuilder.getTargetDirectory();
-//        if (targetDirectory == null) targetDirectory = "";
-//        if (targetDirectory.isEmpty()) {
-//            unitBuilder.setTargetDirectory(targetSourceDirectory);
-//        } else {
-//            unitBuilder.setTargetDirectory(targetDirectory.replace("$basedir", basedir));
-//        }
-//    }
+    protected org.abstractmeta.code.g.config.Descriptor convert(Descriptor descriptor) {
+        if (descriptor == null) return null;
+        org.abstractmeta.code.g.core.config.DescriptorImpl result = new org.abstractmeta.code.g.core.config.DescriptorImpl();
+        result.setGeneratorClass(descriptor.getGeneratorClass());
+        result.setProperties(descriptor.getProperties());
+        result.setNamingConvention(descriptor.getNamingConvention());
+        result.setSourceMatcher(convert(descriptor.getSourceMatcher()));
+        return result;
+    }
 
+    private org.abstractmeta.code.g.config.SourceMatcher convert(SourceMatcher sourceMatcher) {
+        org.abstractmeta.code.g.core.config.SourceMatcherImpl result = new org.abstractmeta.code.g.core.config.SourceMatcherImpl();
+        result.setClassNames(convert(sourceMatcher.getClassNames()));
+        result.setDependencyPackages(convert(sourceMatcher.getDependencyPackages()));
+        result.setExclusionPatterns(convert(sourceMatcher.getExclusionPatterns()));
+        result.setIncludeSubpackages(sourceMatcher.isIncludeSubpackages());
+        result.setPackageNames(convert(sourceMatcher.getPackageNames()));
+        result.setSourceDirectory(sourceMatcher.getSourceDirectory());
+
+        return result;
+    }
+
+    protected List<String> convert(String text) {
+        if (text == null) return null;
+        List<String> result = new ArrayList<String>();
+        Collections.addAll(result, text.split(","));
+        return result;
+    }
 
     protected List<String> getClassPathEntries() {
         List<String> result = new ArrayList<String>();
@@ -206,8 +222,10 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
         for (Artifact artifact : getDependencyArtifacts()) {
             dependencyArtifactFiles.add(artifact.getFile());
         }
-        for (Artifact artifact : getPluginArtifacts()) {
-            dependencyArtifactFiles.add(artifact.getFile());
+        if (getPluginArtifacts() != null) {
+            for (Artifact artifact : getPluginArtifacts()) {
+                dependencyArtifactFiles.add(artifact.getFile());
+            }
         }
         return dependencyArtifactFiles;
     }
@@ -217,5 +235,71 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
         return pluginArtifacts;
     }
 
+    public MavenProject getProject() {
+        return project;
+    }
 
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
+    public String getBasedir() {
+        return basedir;
+    }
+
+    public void setBasedir(String basedir) {
+        this.basedir = basedir;
+    }
+
+    public void setPluginArtifacts(List pluginArtifacts) {
+        this.pluginArtifacts = pluginArtifacts;
+    }
+
+    public ArrayList<Descriptor> getDescriptors() {
+        return descriptors;
+    }
+
+    public void setDescriptors(ArrayList<Descriptor> descriptors) {
+        this.descriptors = descriptors;
+    }
+
+    public List<String> getDependencyPackages() {
+        return dependencyPackages;
+    }
+
+    public void setDependencyPackages(List<String> dependencyPackages) {
+        this.dependencyPackages = dependencyPackages;
+    }
+
+    public Descriptor getPostDescriptor() {
+        return postDescriptor;
+    }
+
+    public void setPostDescriptor(Descriptor postDescriptor) {
+        this.postDescriptor = postDescriptor;
+    }
+
+    public String getTargetSourceDirectory() {
+        return targetSourceDirectory;
+    }
+
+    public void setTargetSourceDirectory(String targetSourceDirectory) {
+        this.targetSourceDirectory = targetSourceDirectory;
+    }
+
+    public String getProjectBuildDirectory() {
+        return projectBuildDirectory;
+    }
+
+    public void setProjectBuildDirectory(String projectBuildDirectory) {
+        this.projectBuildDirectory = projectBuildDirectory;
+    }
+
+    public String getConfigurationFile() {
+        return configurationFile;
+    }
+
+    public void setConfigurationFile(String configurationFile) {
+        this.configurationFile = configurationFile;
+    }
 }

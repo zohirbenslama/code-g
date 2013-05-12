@@ -15,7 +15,10 @@
  */
 package org.abstractmeta.toolbox.codegen.plugin;
 
+import org.abstractmeta.code.g.config.NamingConvention;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
+
+import java.util.Properties;
 
 /**
  *
@@ -24,5 +27,42 @@ import org.abstractmeta.code.g.core.config.DescriptorImpl;
  *
  * @author Adrian Witas
  */
-public class Descriptor extends DescriptorImpl {
+public class Descriptor {
+
+      private SourceMatcher sourceMatcher;
+      private NamingConvention namingConvention;
+      private String generatorClass;
+      private Properties properties;
+
+    public SourceMatcher getSourceMatcher() {
+        return sourceMatcher;
+    }
+
+    public NamingConvention getNamingConvention() {
+        return namingConvention;
+    }
+
+    public String getGeneratorClass() {
+        return generatorClass;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setSourceMatcher(SourceMatcher sourceMatcher) {
+        this.sourceMatcher = sourceMatcher;
+    }
+
+    public void setNamingConvention(NamingConvention namingConvention) {
+        this.namingConvention = namingConvention;
+    }
+
+    public void setGeneratorClass(String generatorClass) {
+        this.generatorClass = generatorClass;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
 }

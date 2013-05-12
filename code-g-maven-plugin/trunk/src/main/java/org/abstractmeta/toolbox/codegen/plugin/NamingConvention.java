@@ -15,19 +15,9 @@
  */
 package org.abstractmeta.toolbox.codegen.plugin;
 
-import org.abstractmeta.code.g.core.config.DescriptorImpl;
-import org.abstractmeta.code.g.core.plugin.ClassGeneratorPlugin;
+import org.abstractmeta.code.g.core.config.NamingConventionImpl;
 
 /**
- * Represents ClassGenerator
- * <p>
- * </p>
- *
- * @author Adrian Witas
  */
-public class ClassGenerator extends DescriptorImpl{
-    @Override
-    public String getPlugin() {
-        return ClassGeneratorPlugin.class.getName();
-    }
+public class NamingConvention extends NamingConventionImpl {
 }
