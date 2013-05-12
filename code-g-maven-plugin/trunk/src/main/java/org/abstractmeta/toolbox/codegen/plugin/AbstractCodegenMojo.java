@@ -105,19 +105,23 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl();
 
+            CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl();
             List<String> classPathEntries = getClassPathEntries();
             getLog().debug("unit plugin class path " + classPathEntries);
-            UnitDescriptor unitDescriptor = loadConfiguration();
-
-
-            getLog().debug("using unit descriptor" + unitDescriptor);
-            GeneratedCode generatedCode = unitGenerator.generate(unitDescriptor);
-            CompiledJavaTypeRegistry registry = generatedCode.getRegistry();
-            getLog().info("Generated " + registry.get().size() + " classes into " + unitDescriptor.getTargetSourceDirectory());
-            for (CompiledJavaType compiledJavaType : registry.get()) {
-                getLog().debug("generated " + compiledJavaType.getCompiledType());
+            Collection<UnitDescriptor> unitDescriptors = new ArrayList<UnitDescriptor>();
+            UnitDescriptor pomUnitDescriptor = loadConfigurationFromPom();
+            if (pomUnitDescriptor != null) unitDescriptors.add(pomUnitDescriptor);
+            UnitDescriptor propertiesUnitDescriptor = loadConfigurationFromProperties();
+            if (propertiesUnitDescriptor != null) unitDescriptors.add(propertiesUnitDescriptor);
+            for (UnitDescriptor unitDescriptor : unitDescriptors) {
+                getLog().debug("using unit descriptor" + unitDescriptor);
+                GeneratedCode generatedCode = unitGenerator.generate(unitDescriptor);
+                CompiledJavaTypeRegistry registry = generatedCode.getRegistry();
+                getLog().info("Generated " + registry.get().size() + " classes into " + unitDescriptor.getTargetSourceDirectory());
+                for (CompiledJavaType compiledJavaType : registry.get()) {
+                    getLog().debug("generated " + compiledJavaType.getCompiledType());
+                }
             }
         } catch (RuntimeException e) {
             throw new MojoExecutionException("Failed to generate code", e);
@@ -125,23 +129,28 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
     }
 
     @SuppressWarnings("unchecked")
-    protected UnitDescriptorImpl loadConfiguration() {
-        if(this.configurationFile == null) this.configurationFile = new File(new File(basedir), "/src/main/code-g/unit.properties").getAbsolutePath();
-        File configurationFile = new File(this.configurationFile);
-        UnitDescriptorImpl result;
-        if (configurationFile.exists()) {
-            Properties properties = PropertiesUtil.loadFromFile(configurationFile);
-            result = new UnitDescriptorProvider(properties).get();
-
-        } else {
-            result = new UnitDescriptorImpl();
-            result.setDescriptors(convert(descriptors));
-            result.setPostDescriptor(convert(postDescriptor));
-        }
-        result.setPropertyRegistry(new PropertyRegistryImpl());
+    protected UnitDescriptorImpl loadConfigurationFromPom() {
+        if (descriptors == null || descriptors.isEmpty()) return null;
+        UnitDescriptorImpl result = new UnitDescriptorImpl();
+        result.setDescriptors(convert(descriptors));
+        result.setPostDescriptor(convert(postDescriptor));
         updateMavenProperties(result);
         return result;
 
+    }
+
+    //
+    @SuppressWarnings("unchecked")
+    protected UnitDescriptorImpl loadConfigurationFromProperties() {
+        if (this.configurationFile == null) {
+            this.configurationFile = new File(new File(basedir), "/src/main/code-g/unit.properties").getAbsolutePath();
+        }
+        File configurationFile = new File(this.configurationFile);
+        if (! configurationFile.exists()) return null;
+        Properties properties = PropertiesUtil.loadFromFile(configurationFile);
+        UnitDescriptorImpl result = new UnitDescriptorProvider(properties).get();
+        updateMavenProperties(result);
+        return result;
     }
 
     private List<org.abstractmeta.code.g.config.Descriptor> convert(ArrayList<Descriptor> descriptors) {
@@ -153,7 +162,8 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
     }
 
     protected void updateMavenProperties(UnitDescriptorImpl unitDescriptor) {
-        PropertyRegistry propertyRegistry = unitDescriptor.getPropertyRegistry();
+        PropertyRegistry propertyRegistry = new PropertyRegistryImpl();
+        unitDescriptor.setPropertyRegistry(propertyRegistry);
 
         unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
         propertyRegistry.register("targetSourceDirectory", targetSourceDirectory);
