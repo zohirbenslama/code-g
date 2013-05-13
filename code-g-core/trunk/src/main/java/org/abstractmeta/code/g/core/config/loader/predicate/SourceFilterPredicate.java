@@ -23,17 +23,17 @@ public class SourceFilterPredicate implements Predicate<JavaType> {
 
     @Override
     public boolean apply(JavaType javaType) {
-        if(sourceMatcher.getClassNames() != null && sourceMatcher.getClassNames().contains(javaType.getName())) {
+        if(sourceMatcher.getClassNames() != null && ! sourceMatcher.getClassNames().isEmpty() && sourceMatcher.getClassNames().contains(javaType.getName())) {
             return true;
         }
-        if(sourceMatcher.getInclusionPatterns() != null) {
+        if(sourceMatcher.getInclusionPatterns() != null && ! sourceMatcher.getInclusionPatterns().isEmpty()) {
            for(String pattern: sourceMatcher.getInclusionPatterns())  {
                Matcher matcher = Pattern.compile(pattern).matcher(javaType.getName());
                if(matcher.matches()) return true;
            }
             return false;
         }
-        if(sourceMatcher.getExclusionPatterns() != null) {
+        if(sourceMatcher.getExclusionPatterns() != null && ! sourceMatcher.getExclusionPatterns().isEmpty()) {
             for(String pattern: sourceMatcher.getInclusionPatterns())  {
                 Matcher matcher = Pattern.compile(pattern).matcher(javaType.getName());
                 if(matcher.matches()) return false;

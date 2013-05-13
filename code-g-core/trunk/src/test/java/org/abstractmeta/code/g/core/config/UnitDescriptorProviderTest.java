@@ -47,12 +47,15 @@ public class UnitDescriptorProviderTest {
         {
             Descriptor descriptor = unitDescriptor.getDescriptors().get(0);
             Assert.assertEquals(descriptor.getGeneratorClass(), "classA");
+
             Assert.assertEquals(descriptor.getProperties().size(), 1);
             Assert.assertEquals(descriptor.getProperties().getProperty("key1"), "value1");
 
 
             Assert.assertNotNull(descriptor.getSourceMatcher());
+
             SourceMatcher sourceMatcher = descriptor.getSourceMatcher();
+            Assert.assertEquals(sourceMatcher.isIncludeSubpackages(), true);
             Assert.assertEquals(sourceMatcher.getClassNames(), Arrays.asList("C1", "C2"));
             Assert.assertEquals(sourceMatcher.getPackageNames(), Arrays.asList("p1", "p2"));
             Assert.assertEquals(sourceMatcher.getDependencyPackages(), Arrays.asList("d1", "d2"));

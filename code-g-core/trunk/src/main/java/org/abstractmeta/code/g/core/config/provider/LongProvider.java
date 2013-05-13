@@ -10,7 +10,7 @@ import java.util.Properties;
 public class LongProvider extends AbstractProvider<Long> implements Provider<Long>  {
 
 
-    public LongProvider(Properties properties, String[] pathFragments) {
+    public LongProvider(Properties properties, String... pathFragments) {
         super(Long.class, properties, pathFragments);
     }
 

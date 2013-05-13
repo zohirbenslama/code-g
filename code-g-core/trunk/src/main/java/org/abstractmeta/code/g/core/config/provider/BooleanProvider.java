@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class BooleanProvider extends AbstractProvider<Long> implements Provider<Boolean>  {
 
-     public BooleanProvider(Properties properties, String[] pathFragments) {
+     public BooleanProvider(Properties properties, String ... pathFragments) {
         super(Long.class, properties, pathFragments);
     }
 
@@ -18,7 +18,7 @@ public class BooleanProvider extends AbstractProvider<Long> implements Provider<
     public Boolean get() {
         String stringValue = getValue();
         try {
-            return Boolean.parseBoolean(stringValue);
+            return Boolean.parseBoolean(stringValue.trim());
         } catch(NumberFormatException ex) {
             throw new IllegalStateException("Could not cast "  + getPath() + " => " + stringValue + " into " + getType(), ex);
         }

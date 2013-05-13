@@ -110,15 +110,15 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
         } else if (containsPath(path)) {
 
             if (Integer.class.equals(ReflectUtil.getObjectType(type))) {
-                value = new IntegerProvider(getProperties(), pathFragments).get();
+                value = new IntegerProvider(getProperties(), path).get();
             } else if (Long.class.equals(ReflectUtil.getObjectType(type))) {
-                value = new LongProvider(getProperties(), pathFragments).get();
+                value = new LongProvider(getProperties(), path).get();
             } else if (Boolean.class.equals(ReflectUtil.getObjectType(type))) {
-                value = new BooleanProvider(getProperties(), pathFragments).get();
+                value = new BooleanProvider(getProperties(), path).get();
             } else if (String.class.equals(type)) {
                 value = getValue(path);
             } else if (Class.class.equals(type)) {
-                value = new ClassProvider(getProperties(), pathFragments);
+                value = new ClassProvider(getProperties(), path);
             }
 
         } else if (matchesPath(path)) {
