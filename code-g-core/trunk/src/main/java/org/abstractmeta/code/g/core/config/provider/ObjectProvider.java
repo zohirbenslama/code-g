@@ -89,7 +89,9 @@ public class ObjectProvider<T> extends AbstractProvider<T> implements Provider<T
             String literalValue = getValue(path);
             if(literalValue != null) {
                 Collection<String> collection = new ArrayList<String>();
-                Collections.addAll(collection, literalValue.split(","));
+                for(String item: literalValue.split(",")) {
+                    collection.add(item.trim());
+                }
                 return (T)collection;
             }
             Collection<Object> collection = new ArrayList<Object>();
