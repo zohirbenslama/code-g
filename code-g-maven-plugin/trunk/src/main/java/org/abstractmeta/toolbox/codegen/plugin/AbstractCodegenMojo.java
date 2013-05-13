@@ -16,6 +16,8 @@
 package org.abstractmeta.toolbox.codegen.plugin;
 
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.CompiledJavaTypeRegistry;
 import org.abstractmeta.code.g.config.*;
@@ -146,7 +148,7 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
             this.configurationFile = new File(new File(basedir), "/src/main/code-g/unit.properties").getAbsolutePath();
         }
         File configurationFile = new File(this.configurationFile);
-        if (! configurationFile.exists()) return null;
+        if (!configurationFile.exists()) return null;
         Properties properties = PropertiesUtil.loadFromFile(configurationFile);
         UnitDescriptorImpl result = new UnitDescriptorProvider(properties).get();
         updateMavenProperties(result);
@@ -165,18 +167,35 @@ public abstract class AbstractCodegenMojo extends AbstractMojo {
         PropertyRegistry propertyRegistry = new PropertyRegistryImpl();
         unitDescriptor.setPropertyRegistry(propertyRegistry);
 
-        unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
-        propertyRegistry.register("targetSourceDirectory", targetSourceDirectory);
+        if (Strings.isNullOrEmpty(unitDescriptor.getTargetSourceDirectory())) {
+            unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
+        }
+        propertyRegistry.register("$targetSourceDirectory", unitDescriptor.getTargetSourceDirectory());
+        propertyRegistry.register("$basedir", new File(basedir).getAbsolutePath());
 
-        unitDescriptor.setSourceDirectory(new File(basedir, "src/main/java").getAbsolutePath());
-        propertyRegistry.register("sourceDirectory", unitDescriptor.getSourceDirectory());
+        if (Strings.isNullOrEmpty(unitDescriptor.getSourceDirectory())) {
+            unitDescriptor.setSourceDirectory(new File(basedir, "src/main/java").getAbsolutePath());
+        }
+        propertyRegistry.register("$sourceDirectory", unitDescriptor.getSourceDirectory());
 
-        unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
-        propertyRegistry.register("targetSourceDirectory", unitDescriptor.getTargetSourceDirectory());
+        if (Strings.isNullOrEmpty(unitDescriptor.getTargetSourceDirectory())) {
+            unitDescriptor.setTargetSourceDirectory(targetSourceDirectory);
+        }
+        propertyRegistry.register("$targetSourceDirectory", unitDescriptor.getTargetSourceDirectory());
 
-        unitDescriptor.setTargetCompilationDirectory(new File(projectBuildDirectory, "classes").getAbsolutePath());
-        propertyRegistry.register("targetCompilationDirectory", unitDescriptor.getTargetCompilationDirectory());
+        if(Strings.isNullOrEmpty(unitDescriptor.getTargetCompilationDirectory()))  {
+            unitDescriptor.setTargetCompilationDirectory(new File(projectBuildDirectory, "classes").getAbsolutePath());
+        }
+        propertyRegistry.register("$targetCompilationDirectory", unitDescriptor.getTargetCompilationDirectory());
 
+        List<String> classPathEntries = new ArrayList<String>();
+        if(getClassPathEntries() != null) {
+            classPathEntries.addAll(getClassPathEntries());
+        }
+        if(unitDescriptor.getClassPathEntries() != null) {
+            classPathEntries.addAll(unitDescriptor.getClassPathEntries());
+        }
+        unitDescriptor.setClassPathEntries(classPathEntries);
         unitDescriptor.setClassPathEntries(getClassPathEntries());
     }
 
