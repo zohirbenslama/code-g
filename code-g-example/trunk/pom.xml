@@ -82,16 +82,7 @@
                         </descriptor>
 
 
-                        <descriptor>
-                            <sourceMatcher>
-                                <packageNames>org.abstractmeta.code.g.examples.model4</packageNames>
-                                <includeSubpackages>true</includeSubpackages>
-                            </sourceMatcher>
-                            <generatorClass>org.abstractmeta.code.g.core.generator.ClassGenerator</generatorClass>
-                            <properties>
-                                <generateBuilder>true</generateBuilder>
-                            </properties>
-                        </descriptor>
+
 
                     </descriptors>
                 </configuration>
