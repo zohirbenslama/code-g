@@ -18,7 +18,7 @@ package org.abstractmeta.code.g.config;
 import java.util.Properties;
 
 /**
-* Represents code plugin configuration descriptor
+* Represents code generator configuration descriptor
 *
 * @author Adrian Witas
 */

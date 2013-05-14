@@ -48,6 +48,8 @@ public interface UnitDescriptor {
      */
     Descriptor getPostDescriptor();
 
+    void setPostDescriptor(Descriptor descriptor);
+
     PropertyRegistry getPropertyRegistry();
 
 }
