@@ -23,9 +23,9 @@ import java.lang.reflect.TypeVariable;
 public class TypeVariableImpl implements TypeVariable {
 
     private final String name;
-    private final Class genericDeclaration;
+    private final GenericDeclaration genericDeclaration;
 
-    public TypeVariableImpl(String name, Class genericDeclaration) {
+    public TypeVariableImpl(String name, GenericDeclaration genericDeclaration) {
         this.name = name;
         this.genericDeclaration = genericDeclaration;
     }

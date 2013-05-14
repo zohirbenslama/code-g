@@ -137,13 +137,15 @@ public class JavaMethodBuilder implements JavaMethod {
     }
 
 
-    public void addGenericVariables(Collection<Type> genericVariables) {
+    public JavaMethodBuilder addGenericVariables(Collection<Type> genericVariables) {
         this.genericVariables.addAll(genericVariables);
+        return this;
     }
 
 
-    public void addGenericVariables(Type ... genericVariables) {
+    public JavaMethodBuilder addGenericVariables(Type ... genericVariables) {
         Collections.addAll(this.genericVariables, genericVariables);
+        return this;
     }
 
 

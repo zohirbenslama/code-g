@@ -49,9 +49,7 @@ public abstract class AbstractGenerator<T> {
         Descriptor descriptor = context.get(Descriptor.class);
         Properties properties = applyProperties(descriptor.getProperties(), context);
         context.replace(getSettingClass(), getSetting(properties));
-
         LoadedSource loadedSource = loadSource(context);
-        //persistLoadedSource(loadedSource);
         context.replace(LoadedSource.class, loadedSource);
         if(loadedSource.getClassLoader() != null) {
             context.replace(ClassLoader.class, loadedSource.getClassLoader());

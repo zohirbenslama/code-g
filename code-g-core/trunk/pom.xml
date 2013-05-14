@@ -78,9 +78,9 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
+            <!--<generator>-->
             <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-gpg-plugin</artifactId>-->
+            <!--<artifactId>maven-gpg-generator</artifactId>-->
             <!--<version>1.4</version>-->
             <!--<executions>-->
             <!--<execution>-->
@@ -91,7 +91,7 @@
             <!--</goals>-->
             <!--</execution>-->
             <!--</executions>-->
-            <!--</plugin>-->
+            <!--</generator>-->
         </plugins>
     </build>
     <dependencies>

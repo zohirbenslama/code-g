@@ -303,23 +303,7 @@ public class ReflectUtil {
         return null;
     }
 
-//    public static Class getGenericArgument(Type type, int argumentIndex, Class defaultType) {
-//        if (type instanceof ParameterizedType) {
-//            Type[] types = ParameterizedType.class.cast(type).getActualTypeArguments();
-//            if (argumentIndex < types.length) {
-//                return ReflectUtil.getRawClass(types[argumentIndex]);
-//            }
-//        }
-//        return defaultType;
-//    }
-//
-//
-//    public static Class getGenericArgument(Type[] types, int argumentIndex, Class defaultType) {
-//        if (argumentIndex < types.length) {
-//            return ReflectUtil.getRawClass(types[argumentIndex]);
-//        }
-//        return defaultType;
-//    }
+
 
 
     public static Class getGenericClassArgument(Type[] types, int argumentIndex, Class defaultType) {

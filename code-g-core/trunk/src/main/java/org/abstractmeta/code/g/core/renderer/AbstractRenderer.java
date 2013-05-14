@@ -38,7 +38,7 @@ public abstract class AbstractRenderer<T> {
     public static final String ANNOTATIONS_PARAMETER = "annotation";
     public static final String ARGUMENTS_PARAMETER = "arguments";
     public static final String EXCEPTION_PARAMETER = "exceptions";
-    public static final String BODY_PARAMETER = "plugin";
+    public static final String BODY_PARAMETER = "generator";
 
 
     private final String formattedTemplate;

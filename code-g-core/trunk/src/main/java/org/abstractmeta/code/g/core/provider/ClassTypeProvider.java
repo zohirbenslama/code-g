@@ -139,6 +139,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
         List<JavaConstructor> result = new ArrayList<JavaConstructor>();
         if (!sourceType.isInterface()) {
             for (Constructor constructor : sourceType.getConstructors()) {
+
                 JavaConstructorBuilder constructorBuilder = new JavaConstructorBuilder();
                 for (String modifier : Splitter.on(" ").split(Modifier.toString(constructor.getModifiers()))) {
                     if (modifier.isEmpty()) continue;
@@ -160,8 +161,7 @@ public class ClassTypeProvider implements Provider<JavaType> {
     }
 
     protected void addConstructorParameters(Constructor constructor, JavaConstructorBuilder constructorBuilder, JavaTypeBuilderImpl resultBuilder) {
-
-        if (constructor.getParameterTypes() == null) return;
+        if (constructor.getParameterTypes() == null || constructor.getParameterTypes().length == 0) return;
         int i = 0;
         Class[] parameterTypes = constructor.getParameterTypes();
         if (isConstructorParametersMatchFieldTypes(parameterTypes, resultBuilder.getFields())) {

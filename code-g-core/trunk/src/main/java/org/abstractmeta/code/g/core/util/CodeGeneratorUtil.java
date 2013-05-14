@@ -99,6 +99,11 @@ public class CodeGeneratorUtil {
         return format(CaseFormat.UPPER_CAMEL, fragment, postfix, CaseFormat.LOWER_CAMEL);
     }
 
+    public static String extractFieldNameFromMethodName(String methodName) {
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, methodName.replace("get", "").replace("is", ""));
+    }
+
+
     public static String format(CaseFormat resultCaseFormat, String prefix, String fragment, CaseFormat sourceCaseFormat) {
         String upperUnderscoreFragment = sourceCaseFormat.to(CaseFormat.UPPER_UNDERSCORE, fragment);
         String upperUnderscorePrefix = sourceCaseFormat.to(CaseFormat.UPPER_UNDERSCORE, prefix);
@@ -150,10 +155,6 @@ public class CodeGeneratorUtil {
         return result.toString();
     }
 
-    public static boolean isNotEmpty(String fragment) {
-        return fragment != null && !fragment.isEmpty();
-
-    }
 
 
     public static String getPlural(String singular) {
@@ -216,6 +217,9 @@ public class CodeGeneratorUtil {
      * @return target class name
      */
     public static String formatTargetClassName(Context context, String sourcePackageName, String sourceSimpleClassName, NamingConvention namingConvention) {
+        if(sourcePackageName.startsWith("java.")) {
+            sourcePackageName = sourcePackageName.replace("java.", "myjava.");
+        }
         Descriptor descriptor = context.get(Descriptor.class);
         if (descriptor.getNamingConvention() != null) {
             namingConvention = descriptor.getNamingConvention();

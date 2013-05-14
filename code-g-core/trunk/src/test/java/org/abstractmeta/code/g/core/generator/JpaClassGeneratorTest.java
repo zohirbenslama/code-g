@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * This class test jpa entity generator plugin.
+ * This class test jpa entity generator generator.
  */
 @Test
 public class JpaClassGeneratorTest {

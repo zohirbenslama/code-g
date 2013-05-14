@@ -421,6 +421,14 @@ public class JavaTypeUtil {
         return new ArrayList<Class>(Collections2.transform(parameters, new JavaParameterClassFunction()));
     }
 
+    public static List<String> getParameterClassNames(Collection<JavaParameter> parameters) {
+        List<String> result = new ArrayList<String>();
+        for(Class clazz: Collections2.transform(parameters, new JavaParameterClassFunction())) {
+            result.add(clazz.getName());
+         }
+        return result;
+     }
+
 
     public static List<String> getParameterNames(Collection<JavaParameter> parameters) {
         return new ArrayList<String>(Collections2.transform(parameters, new JavaParameterName()));
