@@ -62,7 +62,7 @@ public class SetterFieldHandler implements FieldHandler {
         methodBuilder.setName(methodName);
         methodBuilder.setResultType(void.class);
         methodBuilder.addParameter(target.getName(), target.getType());
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.addBodyLines(String.format("this.%s = %s;", target.getName(), target.getName()));
         return methodBuilder.build();
     }

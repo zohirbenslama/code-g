@@ -95,7 +95,7 @@ public class BuilderMergeHandler implements TypeHandler {
         Type interfaceOrOwnerType = JavaTypeUtil.getOwnerInterfaceOrType(owner.getSourceType());
         JavaType sourceType = owner.getSourceType();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName("merge");
         methodBuilder.addParameter("instance", interfaceOrOwnerType);
         Collection<JavaMethod> sourceMethods =  sourceType.getMethods();
@@ -117,7 +117,7 @@ public class BuilderMergeHandler implements TypeHandler {
     protected void buildBuilderMerge(JavaTypeBuilder owner) {
         JavaType sourceType = owner.getSourceType();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setResultType(new TypeNameWrapper(owner.getName()));
         methodBuilder.setName("merge");
         methodBuilder.addParameter("instance", new TypeNameWrapper(owner.getName()));

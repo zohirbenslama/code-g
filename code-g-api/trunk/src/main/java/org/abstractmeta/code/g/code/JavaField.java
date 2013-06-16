@@ -34,7 +34,19 @@ public interface JavaField  {
 
     List<JavaModifier> getModifiers();
 
-    String getInitBody();
+    /**
+     * A field initialisation class value
+     * @return initialisation text fragment
+     */
+    String getClassInitValue();
+
+
+    /**
+     * A field initialisation constructor value
+     * @return
+     */
+    String getConstructorInitValue();
+
     
     Type getType();
 

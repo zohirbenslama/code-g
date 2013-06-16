@@ -22,13 +22,17 @@ public class SuperMethodExtractor implements MethodExtractor {
     @Override
     public List<JavaMethod> extract(JavaType sourceType, Context context) {
         List<JavaMethod> result = new ArrayList<JavaMethod>();
-        if(JavaKind.INTERFACE.equals(sourceType.getKind())) {
+        if (JavaKind.INTERFACE.equals(sourceType.getKind())) {
             return result;
         }
-        for(JavaMethod methodCandidate: sourceType.getMethods()) {
+        for (JavaMethod methodCandidate : sourceType.getMethods()) {
             String methodName = methodCandidate.getName();
-            if(methodName.startsWith("get") || methodName.startsWith("is") || methodName.startsWith("set") || methodName.equals("equals")
-                    || methodName.equals("hashCode")) continue;
+            if (methodName.startsWith("get") || methodName.equals("hashCode")
+                    || (methodCandidate.getParameters().size() == 1
+                    && (methodName.startsWith("set")
+                    || methodName.startsWith("is")
+                    || methodName.equals("equals"))))
+                continue;
             result.add(new JavaMethodBuilder()
                     .setName(methodCandidate.getName())
                     .setResultType(methodCandidate.getResultType())

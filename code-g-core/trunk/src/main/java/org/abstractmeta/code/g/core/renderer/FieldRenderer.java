@@ -46,7 +46,7 @@ public class FieldRenderer extends AbstractRenderer<JavaField> implements JavaFi
         template.set(MODIFIER_PARAMETER, getModifiers(instance.getModifiers()));
         template.set(TYPE_PARAMETER, importer.getSimpleTypeName(instance.getType()));
         template.set(NAME_PARAMETER, instance.getName());
-        template.set(INIT_BLOCK_PARAMETER, getValue(instance.getInitBody()));
+        template.set(INIT_BLOCK_PARAMETER, getValue(instance.getClassInitValue()));
     }
 
 

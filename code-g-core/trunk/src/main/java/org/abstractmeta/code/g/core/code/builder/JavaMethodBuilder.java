@@ -182,8 +182,10 @@ public class JavaMethodBuilder implements JavaMethod {
         return this;
     }
 
-    public JavaMethodBuilder addModifier(JavaModifier modifier) {
-        this.modifiers.add(modifier);
+    public JavaMethodBuilder addModifiers(JavaModifier... modifiers) {
+        Collection<JavaModifier> collection = new ArrayList<JavaModifier>();
+        Collections.addAll(collection, modifiers);
+        this.modifiers.addAll(collection);
         return this;
     }
 

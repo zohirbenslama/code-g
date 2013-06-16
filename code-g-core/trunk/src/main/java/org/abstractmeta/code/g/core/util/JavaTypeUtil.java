@@ -247,7 +247,7 @@ public class JavaTypeUtil {
         Type iFace = new ParameterizedTypeImpl(null, Function.class, parameterType, providerMethod.getResultType());
         result.addSuperInterfaces(iFace);
         result.addMethod(new JavaMethodBuilder().setName("apply")
-                .addModifier(JavaModifier.PUBLIC)
+                .addModifiers(JavaModifier.PUBLIC)
                 .setResultType(providerMethod.getResultType()).addParameter("value", parameterType)
                 .addBodyLines(String.format("return value.%s();", providerMethod.getName())));
         return result;
@@ -268,7 +268,7 @@ public class JavaTypeUtil {
         result.addSuperInterfaces(iFace);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName("apply")
-                .addModifier(JavaModifier.PUBLIC)
+                .addModifiers(JavaModifier.PUBLIC)
                 .setResultType(boolean.class).addParameter("candidate", parameterType);
         result.addField(new JavaFieldBuilder().addModifiers(JavaModifier.PRIVATE).setImmutable(true).setType(providerResultType).setName("requiredValue").build());
 
@@ -294,21 +294,15 @@ public class JavaTypeUtil {
     }
 
 
-    public static File getFileName(JavaType javaType, File rootDirectory) {
-        String classFileName = javaType.getPackageName().replace('.', '/') + "/" + javaType.getSimpleName() + ".java";
-        return new File(rootDirectory, classFileName);
-    }
-
 
     public static boolean containsAnnotation(Collection<Annotation> annotations, String annotationName) {
-        if (annotations == null || Strings.isNullOrEmpty(annotationName )) return false;
+        if (annotations == null || Strings.isNullOrEmpty(annotationName)) return false;
         for (Annotation annotation : annotations) {
             String candidateAnnotationName = annotation.annotationType().getName();
-            if (candidateAnnotationName.equals(annotationName)) {
+            String candidateAnnotationSimpleName = annotation.annotationType().getSimpleName();
+            if (candidateAnnotationName.equals(annotationName) || candidateAnnotationSimpleName.equals(annotationName)) {
                 return true;
             }
-
-
         }
         return false;
     }
@@ -341,13 +335,19 @@ public class JavaTypeUtil {
     protected static void addConstructorParameters(JavaType sourceType, JavaConstructor javaConstructor, Map<String, String> fieldArgumentMap) {
         Iterable<JavaField> immutableJavaFields = Iterables.filter(sourceType.getFields(), new ConstructorArgumentPredicate(sourceType));
         for (JavaField field : immutableJavaFields) {
+            if (!Strings.isNullOrEmpty(field.getClassInitValue())) {
+                continue;
+            }
             String fieldName = field.getName();
-            javaConstructor.getParameters().add(new JavaParameterBuilder()
-                    .setName(field.getName())
-                    .setType(field.getType())
-                    .build());
-            String argumentName = fieldArgumentMap.get(fieldName);
-            javaConstructor.getBodyLines().add(String.format("this.%s = %s;", fieldName, argumentName));
+            String argument = "";
+            if (Strings.isNullOrEmpty(field.getConstructorInitValue())) {
+                javaConstructor.getParameters().add(new JavaParameterBuilder()
+                        .setName(field.getName())
+                        .setType(field.getType())
+                        .build());
+            }
+            argument = !Strings.isNullOrEmpty(field.getConstructorInitValue()) ? field.getConstructorInitValue() : fieldArgumentMap.get(fieldName);
+            javaConstructor.getBodyLines().add(String.format("this.%s = %s;", fieldName, argument));
         }
     }
 
@@ -400,19 +400,6 @@ public class JavaTypeUtil {
     }
 
 
-    public static int getArgumentTypesHashCode(List<JavaParameter> javaParameters) {
-        int constructorHashCode = 0;
-        JavaTypeImporter javaTypeImporter = new JavaTypeImporterImpl("");
-        StringBuilder constructorTypeNames = new StringBuilder();
-        for (Type constructorType : JavaTypeUtil.getParameterTypes(javaParameters)) {
-            constructorTypeNames.append(javaTypeImporter.getSimpleTypeName(constructorType));
-        }
-        if (constructorTypeNames.length() > 0) {
-            constructorHashCode = constructorTypeNames.toString().hashCode();
-        }
-        return constructorHashCode;
-    }
-
     public static List<Type> getParameterTypes(Collection<JavaParameter> parameters) {
         return new ArrayList<Type>(Collections2.transform(parameters, new JavaParameterType()));
     }
@@ -421,35 +408,19 @@ public class JavaTypeUtil {
         return new ArrayList<Class>(Collections2.transform(parameters, new JavaParameterClassFunction()));
     }
 
-    public static List<String> getParameterClassNames(Collection<JavaParameter> parameters) {
-        List<String> result = new ArrayList<String>();
-        for(Class clazz: Collections2.transform(parameters, new JavaParameterClassFunction())) {
-            result.add(clazz.getName());
-         }
-        return result;
-     }
-
 
     public static List<String> getParameterNames(Collection<JavaParameter> parameters) {
         return new ArrayList<String>(Collections2.transform(parameters, new JavaParameterName()));
     }
 
-    /**
-     * Returns method signature.
-     */
-    public static String getMethodSignature(JavaMethod javaMethod) {
-        return ReflectUtil.getMethodSignature(javaMethod.getName(), getParameterClasses(javaMethod.getParameters()).toArray(new Class[]{}));
+
+    public static boolean hasSuperTypeDefined(JavaType javaType) {
+        if (javaType.getSuperType() != null && !Object.class.equals(javaType.getSuperType())) {
+            return true;
+        }
+        return false;
     }
 
-    public static Type getSuperTypeIfDefined(JavaType javaType) {
-        if (javaType.getKind() != null && javaType.getKind().equals(JavaKind.INTERFACE)) {
-            return new TypeNameWrapper(javaType.getName());
-        }
-        if (javaType.getSuperType() != null && !Object.class.equals(javaType.getSuperType())) {
-            return javaType.getSuperType();
-        }
-        return new TypeNameWrapper(javaType.getName());
-    }
 
     public static boolean containsMethod(Iterable<JavaMethod> methods, String name, Class... parameters) {
         return getMethod(methods, name, parameters) != null;
@@ -465,8 +436,8 @@ public class JavaTypeUtil {
                 List<Class> methodParameters = getParameterClasses(methodCandidate.getParameters());
                 List<Class> matchingParameters = Arrays.asList(parameters);
                 for (int i = 0; i < matchingParameters.size(); i++) {
-                    if(! matchingParameters.get(i).equals(methodParameters.get(i))) {
-                         break OUTER;
+                    if (!matchingParameters.get(i).equals(methodParameters.get(i))) {
+                        break OUTER;
                     }
                 }
                 return methodCandidate;
@@ -485,23 +456,23 @@ public class JavaTypeUtil {
     }
 
     public static Type getOwnerInterfaceOrType(JavaType javaType) {
-        if(! javaType.getSuperInterfaces().isEmpty()) {
+        if (!javaType.getSuperInterfaces().isEmpty()) {
             return javaType.getSuperInterfaces().get(0);
         }
-        Type [] genericTypes = javaType.getGenericTypeArguments().toArray(new Type[]{});
+        Type[] genericTypes = javaType.getGenericTypeArguments().toArray(new Type[]{});
         return new ParameterizedTypeImpl(null, new TypeNameWrapper(javaType.getName()), genericTypes);
     }
 
 
     public static JavaField getField(Iterable<JavaField> fields, String name) {
         Optional<JavaField> result = Iterables.tryFind(fields, new FieldNamePredicate(name));
-        if(result.isPresent()) return result.get();
+        if (result.isPresent()) return result.get();
         return null;
     }
 
     public static File getCompiledFileOutputTempDirectory() {
         File outputDirectory = new File(System.getProperty("java.io.tmpdir"), "compiled-code-g_" + System.currentTimeMillis());
-        if(outputDirectory .exists()) outputDirectory.mkdirs();
+        if (outputDirectory.exists()) outputDirectory.mkdirs();
         return outputDirectory.getAbsoluteFile();
     }
 }

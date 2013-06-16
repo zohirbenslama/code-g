@@ -31,7 +31,7 @@ public class HashCodeMethodHandler implements TypeHandler {
         if (config == null || !config.isGenerateHashMethod()) return;
         if (owner.containsMethod(METHOD_NAME)) return;
         JavaMethodBuilder resultBuilder = new JavaMethodBuilder();
-        resultBuilder.setName(METHOD_NAME).addModifier(JavaModifier.PUBLIC).setResultType(int.class);
+        resultBuilder.setName(METHOD_NAME).addModifiers(JavaModifier.PUBLIC).setResultType(int.class);
         resultBuilder.addBodyLines("int result = 0;");
 
 

@@ -75,7 +75,7 @@ public class BuilderMapFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier(JavaModifier.PUBLIC);
+            methodBuilder.addModifiers(JavaModifier.PUBLIC);
             methodBuilder.setName(methodName);
             methodBuilder.addParameter(fieldName, fieldType);
             methodBuilder.addBodyLines(String.format("this.%s.putAll(%s);", fieldName, fieldName));
@@ -91,7 +91,7 @@ public class BuilderMapFieldHandler implements FieldHandler {
         String singularName = CodeGeneratorUtil.getSingular(fieldName);
         String methodName = CodeGeneratorUtil.getAddMethodName(singularName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         Type [] fieldGenericArguments = ReflectUtil.getGenericActualTypeArguments(fieldType);
         Type keyType = ReflectUtil.getGenericTypArgument(fieldGenericArguments, 0, Object.class);
@@ -111,7 +111,7 @@ public class BuilderMapFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier(JavaModifier.PUBLIC);
+            methodBuilder.addModifiers(JavaModifier.PUBLIC);
             methodBuilder.setName(methodName);
             methodBuilder.addBodyLines(String.format("this.%s.clear();", fieldName));
             BuilderUtil.addIsPresentFlag(owner, fieldName, methodBuilder);

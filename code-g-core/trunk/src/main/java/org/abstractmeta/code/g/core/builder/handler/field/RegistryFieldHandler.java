@@ -526,7 +526,7 @@ public class RegistryFieldHandler implements FieldHandler {
         owner.addField(new JavaFieldBuilder()
                 .addModifier(JavaModifier.PRIVATE)
                 .setName(providerFieldName)
-                .setInitBody(String.format(" = new %s()", simpleType.getSimpleName()))
+                .setClassInitValue(String.format(" = new %s()", simpleType.getSimpleName()))
                 .setType(iFace)
         );
     }
@@ -653,7 +653,7 @@ public class RegistryFieldHandler implements FieldHandler {
             return;
         }
         JavaMethodBuilder resultMethod = new JavaMethodBuilder();
-        resultMethod.addModifier(JavaModifier.PROTECTED);
+        resultMethod.addModifiers(JavaModifier.PROTECTED);
         resultMethod.setName(createMapMethodName);
         TypeVariable keyType = new TypeVariableImpl("K", Map.class);
         TypeVariableImpl valueType = new TypeVariableImpl("V", Map.class);

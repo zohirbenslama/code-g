@@ -39,7 +39,7 @@ public abstract class AbstractGenerator<T> {
     protected final SourceLoader sourceLoader;
     protected final Provider<JavaTypeRenderer> rendererProvider;
 
-    public AbstractGenerator(SourceLoader sourceLoader,Provider<JavaTypeRenderer> rendererProvider) {
+    public AbstractGenerator(SourceLoader sourceLoader, Provider<JavaTypeRenderer> rendererProvider) {
         this.sourceLoader = sourceLoader;
         this.rendererProvider = rendererProvider;
     }
@@ -51,7 +51,7 @@ public abstract class AbstractGenerator<T> {
         context.replace(getSettingClass(), getSetting(properties));
         LoadedSource loadedSource = loadSource(context);
         context.replace(LoadedSource.class, loadedSource);
-        if(loadedSource.getClassLoader() != null) {
+        if (loadedSource.getClassLoader() != null) {
             context.replace(ClassLoader.class, loadedSource.getClassLoader());
         }
         List<SourcedJavaType> sourceTypes = new ArrayList<SourcedJavaType>();
@@ -75,9 +75,9 @@ public abstract class AbstractGenerator<T> {
     }
 
     protected File getCompilationDirectory(Context context) {
-        if(context.contains(UnitDescriptor.class)) {
-            UnitDescriptor unitDescriptor  = context.get(UnitDescriptor.class);
-            if(unitDescriptor.getTargetCompilationDirectory() != null) {
+        if (context.contains(UnitDescriptor.class)) {
+            UnitDescriptor unitDescriptor = context.get(UnitDescriptor.class);
+            if (unitDescriptor.getTargetCompilationDirectory() != null) {
                 return new File(unitDescriptor.getTargetCompilationDirectory());
             }
         }
@@ -96,7 +96,7 @@ public abstract class AbstractGenerator<T> {
 
     protected List<CompiledJavaType> compileGeneratedTypes(Collection<SourcedJavaType> sourceTypes, Context context) {
         List<CompiledJavaType> result = new ArrayList<CompiledJavaType>();
-        if(sourceTypes.isEmpty())  return result;
+        if (sourceTypes.isEmpty()) return result;
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
         JavaSourceCompiler.CompilationUnit compilationUnit = getCompilationUnit(context, javaSourceCompiler);
@@ -122,13 +122,14 @@ public abstract class AbstractGenerator<T> {
         } catch (RuntimeException e) {
             StringBuilder exceptionMessageBuilder = new StringBuilder();
             exceptionMessageBuilder.append("Failed to compile: ");
+
             for (SourcedJavaType sourcedType : sourceTypes) {
-                if (e.getMessage().contains(sourcedType.getType().getSimpleName())) {
+                //if (e.getMessage().contains(sourcedType.getType().getSimpleName())) {
                     exceptionMessageBuilder.append(sourcedType.getType().getSimpleName())
                             .append("\n")
                             .append(sourcedType.getSourceCode()).append("\n");
 
-                }
+               // }
             }
             throw new IllegalStateException(exceptionMessageBuilder.toString(), e);
         }
@@ -150,7 +151,7 @@ public abstract class AbstractGenerator<T> {
     }
 
     protected File getCompilationTargetDirectory(Context context) {
-        if (context.contains(UnitDescriptor.class)  && ! Strings.isNullOrEmpty(context.get(UnitDescriptor.class).getTargetCompilationDirectory())) {
+        if (context.contains(UnitDescriptor.class) && !Strings.isNullOrEmpty(context.get(UnitDescriptor.class).getTargetCompilationDirectory())) {
             return new File(context.get(UnitDescriptor.class).getTargetCompilationDirectory());
         } else if (context.contains(JavaSourceCompiler.CompilationUnit.class)) {
             return context.get(JavaSourceCompiler.CompilationUnit.class).getOutputClassDirectory();
@@ -219,7 +220,7 @@ public abstract class AbstractGenerator<T> {
     protected String expandProperty(String text, Context context) {
         if (text == null) return null;
         PropertyRegistry propertyRegistry = context.getOptional(PropertyRegistry.class);
-        if(propertyRegistry == null) return text;
+        if (propertyRegistry == null) return text;
         for (String key : propertyRegistry.getRegistry().keySet()) {
             if (text.contains(key)) {
                 text = text.replace(key, propertyRegistry.get(key));
@@ -242,8 +243,8 @@ public abstract class AbstractGenerator<T> {
         for (FieldExtractor extractor : getFieldExtractors()) {
 
             List<JavaField> fields = extractor.extract(sourceType, context);
-            for(JavaField field: fields) {
-                if(builder.containsField(field.getName())) continue;
+            for (JavaField field : fields) {
+                if (builder.containsField(field.getName())) continue;
                 builder.addField(field);
             }
         }
@@ -252,7 +253,11 @@ public abstract class AbstractGenerator<T> {
 
     protected void addExtractableMethods(JavaTypeBuilder builder, JavaType sourceType, Context context) {
         for (MethodExtractor extractor : getMethodExtractors()) {
-            builder.addMethods(extractor.extract(sourceType, context));
+            Collection<JavaMethod> extractedMethods = extractor.extract(sourceType, context);
+            for (JavaMethod method : extractedMethods) {
+                if (builder.containsMethod(method.getName())) continue;
+                builder.addMethods(method);
+            }
         }
     }
 

@@ -26,6 +26,8 @@ import java.lang.reflect.*;
 import java.util.*;
 
 /**
+ * Reflection related utility collection.
+ *
  * @author Adrian Witas
  */
 public class ReflectUtil {
@@ -304,8 +306,6 @@ public class ReflectUtil {
     }
 
 
-
-
     public static Class getGenericClassArgument(Type[] types, int argumentIndex, Class defaultType) {
         if (argumentIndex < types.length) {
             return ReflectUtil.getRawClass(types[argumentIndex]);
@@ -350,6 +350,39 @@ public class ReflectUtil {
     }
 
 
+    public static boolean isCustomFieldHolderType(Type type) {
+        Class clazz = getRawClass(type);
+        if (clazz.getName().startsWith("java")) return false;
+        return !getFields(clazz).isEmpty();
+    }
+
+
+    public static Method findMethod(Class type, String annotationName) {
+        for (Method method : type.getDeclaredMethods()) {
+            Annotation[] annotations = method.getAnnotations();
+            if (annotations == null) continue;
+            for (Annotation candidate : annotations) {
+                if (candidate.annotationType().getName().equals(annotationName) || candidate.annotationType().getSimpleName().equals(annotationName)) {
+                    return method;
+                }
+            }
+        }
+        for (Field field : type.getDeclaredFields()) {
+            Annotation[] annotations = field.getAnnotations();
+            if (annotations == null) continue;
+            for (Annotation candidate : annotations) {
+                if (candidate.annotationType().getName().equals(annotationName) || candidate.annotationType().getSimpleName().equals(annotationName)) {
+                    String getMethodName = CodeGeneratorUtil.getGetterMethodName(field.getName(), field.getType());
+                    try {
+                        return type.getMethod(getMethodName);
+                    } catch (NoSuchMethodException ignore) {
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
     public static Type resolveTypeVariables(Type type, Map<String, Type> typeVariables) {
         if (type instanceof ParameterizedType) {
@@ -369,9 +402,9 @@ public class ReflectUtil {
                 }
             }
             return new ParameterizedTypeImpl(parameterizedType.getOwnerType(), parameterizedType.getRawType(), newArguments.toArray(new Type[]{}));
-        } else if(type instanceof GenericArrayType) {
+        } else if (type instanceof GenericArrayType) {
             GenericArrayType arrayType = GenericArrayType.class.cast(type);
-            if(arrayType.getGenericComponentType() != null) {
+            if (arrayType.getGenericComponentType() != null) {
                 return resolveTypeVariables(arrayType.getGenericComponentType(), typeVariables);
             }
         }
@@ -493,8 +526,6 @@ public class ReflectUtil {
     }
 
 
-
-
     public static <T> T getInstance(Class<T> owner, Class[] argumentTypes, Object[] arguments) {
         try {
             Constructor<T> constructor = owner.getConstructor(argumentTypes);
@@ -506,7 +537,7 @@ public class ReflectUtil {
 
     public static Type getComponentType(Type type) {
         if (type instanceof GenericArrayType) {
-             return GenericArrayType.class.cast(type).getGenericComponentType();
+            return GenericArrayType.class.cast(type).getGenericComponentType();
         } else if (type instanceof Class) {
             return Class.class.cast(type).getComponentType();
         }

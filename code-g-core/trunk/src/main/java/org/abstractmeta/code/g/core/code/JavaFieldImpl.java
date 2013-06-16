@@ -32,7 +32,9 @@ public class JavaFieldImpl implements JavaField {
 
     private final Type type;
 
-    private final String initBody;
+    private final String classInitValue;
+
+    private final String constructorInitValue;
 
     private final List<JavaModifier> modifiers;
 
@@ -44,9 +46,10 @@ public class JavaFieldImpl implements JavaField {
     
     private final boolean immutable;
 
-    public JavaFieldImpl(Type type, String initBody, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation, boolean immutable) {
+    public JavaFieldImpl(Type type, String classInitValue, String constructorInitValue, List<JavaModifier> modifiers, String name, List<Annotation> annotations, List<String> documentation, boolean immutable) {
         this.type = type;
-        this.initBody = initBody;
+        this.classInitValue = classInitValue;
+        this.constructorInitValue = constructorInitValue;
         this.modifiers = modifiers;
         this.name = name;
         this.annotations = annotations;
@@ -63,8 +66,13 @@ public class JavaFieldImpl implements JavaField {
         return immutable;
     }
 
-    public String getInitBody() {
-        return this.initBody;
+    public String getClassInitValue() {
+        return this.classInitValue;
+    }
+
+    @Override
+    public String getConstructorInitValue() {
+        return constructorInitValue;
     }
 
     public List<JavaModifier> getModifiers() {

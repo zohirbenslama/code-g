@@ -58,7 +58,7 @@ public class GetterFieldHandler implements FieldHandler {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName(methodName);
         methodBuilder.setResultType(supperGetterMethod == null ? target.getType() : supperGetterMethod.getResultType());
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.addBodyLines(String.format("return this.%s;", target.getName()));
         return methodBuilder.build();
     }

@@ -89,7 +89,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
     protected void addCollectionAddItemsMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
         String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, fieldType);
         methodBuilder.addBodyLines(String.format("this.%s.addAll(%s);", fieldName, fieldName));
@@ -102,7 +102,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
     protected void addCollectionAddItemMethod(JavaTypeBuilder owner, String fieldName, Type fieldType) {
         String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         Type [] fieldGenericArguments = ReflectUtil.getGenericActualTypeArguments(fieldType);
         Type componentType =  ReflectUtil.getGenericTypArgument(fieldGenericArguments, 0, Object.class);
@@ -118,7 +118,7 @@ public class BuilderCollectionFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier(JavaModifier.PUBLIC);
+            methodBuilder.addModifiers(JavaModifier.PUBLIC);
             methodBuilder.setName(methodName);
             methodBuilder.addBodyLines(String.format("this.%s.clear();", fieldName));
             BuilderUtil.addIsPresentFlag(owner, fieldName, methodBuilder);

@@ -1,5 +1,6 @@
 package org.abstractmeta.code.g.core.generator;
 
+import com.sun.tools.doclets.internal.toolkit.builders.ClassBuilder;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
@@ -51,7 +52,7 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
     @Override
     protected Collection<SourcedJavaType> generate(JavaType sourceType, Context context) {
         String targetName = formatTargetClassName(context, sourceType);
-        SimpleClassBuilder simpleClassBuilder = new SimpleClassBuilder(targetName, sourceType, context);
+        JavaTypeBuilder simpleClassBuilder = getClassBuilder(targetName, sourceType, context);
         simpleClassBuilder.addModifiers(JavaModifier.PUBLIC);
         if(JavaKind.CLASS.equals(sourceType.getKind())) {
             simpleClassBuilder.setSuperType(new TypeNameWrapper(sourceType.getName()));
@@ -62,6 +63,10 @@ public class ClassGenerator extends AbstractGenerator<ClassGeneratorConfig> impl
         addExtractableMethods(simpleClassBuilder, sourceType, context);
         SourcedJavaType result = renderCode(simpleClassBuilder);
         return Arrays.asList(result);
+    }
+
+    protected JavaTypeBuilder getClassBuilder(String targetName, JavaType sourceType, Context context) {
+        return new SimpleClassBuilder(targetName, sourceType, context);
     }
 
 

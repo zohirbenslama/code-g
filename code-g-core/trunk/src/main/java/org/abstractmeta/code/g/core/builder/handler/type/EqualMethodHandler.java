@@ -27,7 +27,7 @@ public class EqualMethodHandler implements TypeHandler {
 
 
         resultBuilder.setName(METHOD_NAME)
-                .addModifier(JavaModifier.PUBLIC)
+                .addModifiers(JavaModifier.PUBLIC)
                 .setResultType(boolean.class)
                 .addParameter("objectCandidate", Object.class);
 

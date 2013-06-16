@@ -101,13 +101,13 @@ public class ClassTypeProvider implements Provider<JavaType> {
             }
             for (String modifier : Splitter.on(" ").split(Modifier.toString(method.getModifiers()))) {
                 if (modifier.isEmpty()) continue;
-                methodBuilder.addModifier(JavaModifier.valueOf(modifier.toUpperCase()));
+                methodBuilder.addModifiers(JavaModifier.valueOf(modifier.toUpperCase()));
             }
             List<Annotation> annotations = new ArrayList<Annotation>();
             Collections.addAll(annotations, method.getAnnotations());
             methodBuilder.addAnnotations(annotations);
             if (sourceType.isInterface() && methodBuilder.getModifiers().size() == 0) {
-                methodBuilder.addModifier(JavaModifier.PUBLIC);
+                methodBuilder.addModifiers(JavaModifier.PUBLIC);
             }
             addMethodParameters(method, methodBuilder);
             result.add(methodBuilder.build());

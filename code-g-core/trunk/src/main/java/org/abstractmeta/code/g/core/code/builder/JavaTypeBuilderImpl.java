@@ -298,7 +298,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     @Override
     public JavaTypeBuilder addMethods(JavaMethod... methods) {
         for (JavaMethod method : methods) {
-            addMethods(method);
+            addMethod(method);
         }
         return this;
     }

@@ -91,7 +91,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
         JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, new ParameterizedTypeImpl(null, Collection.class, ReflectUtil.getObjectType(componentType)));
         methodBuilder.addBodyLines(String.format("%s [] temp = new %s[this.%s.length + %s.size()];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
@@ -108,7 +108,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getAddMethodName(fieldName);
         Class componentType = ReflectUtil.getRawClass(fieldType).getComponentType();
         JavaMethodBuilder methodBuilder =  new  JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setName(methodName);
         methodBuilder.addParameter("... " + fieldName, componentType);
         methodBuilder.addBodyLines(String.format("%s [] temp = new %s[this.%s.length + %s.length];", componentType.getSimpleName(), componentType.getSimpleName(), fieldName, fieldName));
@@ -124,7 +124,7 @@ public class BuilderArrayFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getClearMethodName(fieldName);
         if (!owner.containsMethod(methodName)) {
             JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-            methodBuilder.addModifier(JavaModifier.PUBLIC);
+            methodBuilder.addModifiers(JavaModifier.PUBLIC);
             methodBuilder.setName(methodName);
             Class rawClass = ReflectUtil.getRawClass(fieldType).getComponentType();
             methodBuilder.addBodyLines(String.format("this.%s = new %s[]{};", fieldName, rawClass.getSimpleName()));

@@ -70,6 +70,11 @@ public class CodeGeneratorUtil {
         return getGetterMethodName(field.getName(), field.getType());
     }
 
+    public static String joinFragmentInLowerCamel(String fragment1, String fragment2) {
+           return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL,fragment1, fragment2, CaseFormat.LOWER_CAMEL);
+       }
+
+
     public static String getGetterMethodName(String fieldName, Type fieldType) {
         String prefix = boolean.class.equals(fieldType) ? "is" : "get";
         return CodeGeneratorUtil.format(CaseFormat.LOWER_CAMEL, prefix, fieldName, CaseFormat.LOWER_CAMEL);
@@ -100,7 +105,7 @@ public class CodeGeneratorUtil {
     }
 
     public static String extractFieldNameFromMethodName(String methodName) {
-        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, methodName.replace("get", "").replace("is", ""));
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, methodName.replace("get", "").replace("is", "").replace("set", ""));
     }
 
 
@@ -237,6 +242,13 @@ public class CodeGeneratorUtil {
         }
         return result.toString();
     }
+
+
+    public static boolean isSetterMethod(String methodNameCandidate) {
+        return (methodNameCandidate.length() > 3 &&
+                methodNameCandidate.startsWith("set")  && Character.isUpperCase(methodNameCandidate.charAt(3)));
+    }
+
 
 
 }

@@ -89,7 +89,7 @@ public class BuilderTypeHandler implements TypeHandler {
         JavaType sourceType = owner.getSourceType();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName("build");
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
 
         Type buildResultType = JavaTypeUtil.getOwnerInterfaceOrType(sourceType);
         owner.getImporter().addTypes(methodBuilder.getResultType());
@@ -169,13 +169,13 @@ public class BuilderTypeHandler implements TypeHandler {
             Class componentType = rawType.getComponentType();
             owner.getImporter().addTypes(componentType);
             String componentSimpleTypeName = JavaTypeUtil.getSimpleClassName(componentType.getName(), true);
-            field.setInitBody(String.format(" = new %s[]{}", componentSimpleTypeName));
+            field.setClassInitValue(String.format(" = new %s[]{}", componentSimpleTypeName));
         }
 
         if (implementationClass != null) {
             owner.getImporter().addTypes(implementationClass);
             Type implementationType = new ParameterizedTypeImpl(null, implementationClass, genericTypeArguments);
-            field.setInitBody(String.format(" = new %s()", owner.getImporter().getSimpleTypeName(implementationType)));
+            field.setClassInitValue(String.format(" = new %s()", owner.getImporter().getSimpleTypeName(implementationType)));
         }
     }
 

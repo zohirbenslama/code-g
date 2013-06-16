@@ -38,7 +38,10 @@ public class JavaFieldBuilder implements JavaField {
 
     private Type type;
 
-    private String initBody;
+    private String classInitValue;
+
+    private String constructorInitValue;
+
 
     private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
 
@@ -64,12 +67,23 @@ public class JavaFieldBuilder implements JavaField {
         return this;
     }
 
-    public String getInitBody() {
-        return this.initBody;
+    public String getClassInitValue() {
+        return this.classInitValue;
     }
 
-    public JavaFieldBuilder setInitBody(String initBody) {
-        this.initBody = initBody;
+    public JavaFieldBuilder setClassInitValue(String classInitValue) {
+        this.classInitValue = classInitValue;
+        return this;
+    }
+
+    @Override
+        public String getConstructorInitValue() {
+            return constructorInitValue;
+        }
+
+
+    public JavaFieldBuilder setConstructorInitValue(String constructorInitValue) {
+        this.constructorInitValue = constructorInitValue;
         return this;
     }
 
@@ -152,7 +166,7 @@ public class JavaFieldBuilder implements JavaField {
     }
 
     public JavaField build() {
-        JavaFieldImpl result = new JavaFieldImpl(type, initBody, modifiers, name, annotations, documentation, immutable);
+        JavaFieldImpl result = new JavaFieldImpl(type, classInitValue,constructorInitValue, modifiers, name, annotations, documentation, immutable);
         return result;
     }
 
@@ -160,8 +174,8 @@ public class JavaFieldBuilder implements JavaField {
         if (instance.getType() != null) {
             setType(instance.getType());
         }
-        if (instance.getInitBody() != null) {
-            setInitBody(instance.getInitBody());
+        if (instance.getClassInitValue() != null) {
+            setClassInitValue(instance.getClassInitValue());
         }
         if (instance.getModifiers() != null) {
             addModifiers(instance.getModifiers());

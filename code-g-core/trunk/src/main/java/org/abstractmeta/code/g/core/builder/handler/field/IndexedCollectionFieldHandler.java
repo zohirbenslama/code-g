@@ -234,7 +234,7 @@ public class IndexedCollectionFieldHandler implements FieldHandler {
 
     protected void buildRemoveMethod(JavaTypeBuilder owner, JavaField javaField, JavaMethod matchedMethod, JavaMethod getMethod, Context context) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC).setResultType(matchedMethod.getResultType())
+        methodBuilder.addModifiers(JavaModifier.PUBLIC).setResultType(matchedMethod.getResultType())
                 .setName(matchedMethod.getName())
                 .addParameters(matchedMethod.getParameters());
         JavaParameter containsMethodTheFirstParameter = matchedMethod.getParameters().get(0);
@@ -254,7 +254,7 @@ public class IndexedCollectionFieldHandler implements FieldHandler {
 
     protected void buildContainsMethod(JavaTypeBuilder owner, JavaField javaField, JavaMethod matchedMethod, JavaMethod getMethod, Context context) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PUBLIC).setResultType(matchedMethod.getResultType())
+        methodBuilder.addModifiers(JavaModifier.PUBLIC).setResultType(matchedMethod.getResultType())
                 .setName(matchedMethod.getName())
                 .addParameters(matchedMethod.getParameters());
 
@@ -273,7 +273,7 @@ public class IndexedCollectionFieldHandler implements FieldHandler {
     protected void buildAddMethod(JavaTypeBuilder owner, JavaField javaField, JavaMethod matchedMethod) {
         if (owner.containsMethod(matchedMethod.getName())) return;
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.setName(matchedMethod.getName()).addModifier(JavaModifier.PUBLIC);
+        methodBuilder.setName(matchedMethod.getName()).addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setResultType(matchedMethod.getResultType());
         JavaParameter theFirstParameter = matchedMethod.getParameters().get(0);
         methodBuilder.addParameters(theFirstParameter);
@@ -312,7 +312,7 @@ public class IndexedCollectionFieldHandler implements FieldHandler {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName(matchedMethod.getName());
         methodBuilder.setResultType(resultType);
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.setResultType(resultType).addParameter("instance", theFirstParameter.getType());
         if(isUseKeyProvider(context))  {
             buildGetWithPredicate(owner, methodBuilder, javaField, predicateType);

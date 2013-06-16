@@ -62,7 +62,7 @@ public class BuilderSetterFieldHandler implements FieldHandler {
         String methodName = CodeGeneratorUtil.getSetterMethodName(fieldName);
         methodBuilder.setName(methodName);
         methodBuilder.addParameter(fieldName, fieldType);
-        methodBuilder.addModifier(JavaModifier.PUBLIC);
+        methodBuilder.addModifiers(JavaModifier.PUBLIC);
         methodBuilder.addBodyLines(String.format("this.%s = %s;", fieldName, fieldName));
         BuilderUtil.addIsPresentFlag(owner, fieldName, methodBuilder);
         BuilderUtil.addSetterResultType(owner, methodName, methodBuilder);
