@@ -572,7 +572,7 @@ Generates implementation with command pattern to track object changes
 
 === Configuration ===
 
-  * _Unit_  [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor] is  descriptor collection.
+  * [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor] represents  collection of descriptor.
 
 
   * Specialized class generators [http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/ClassGenerator.java ClassGenerator],
