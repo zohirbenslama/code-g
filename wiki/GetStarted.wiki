@@ -566,12 +566,16 @@ Generates implementation with command pattern to track object changes
 
 == API configuration details  ==
 
+ * Runtime generation and compilation
+ * Convenient code builder  [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/code/JavaTypeBuilder.java JavaTypeBuilder]
+ * Generic support
 
+=== Configuration ===
 
   * _Unit_ derives from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor]
 
 
   * Specialised plugin descriptors like [http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/ClassGenerator.java ClassGenerator],
 [http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/JpaClassGenerator.java JpaClassGenerator],
-[http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/BuilderGenerator BuilderGenerator]
+[http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/BuilderGenerator.java BuilderGenerator]
 use generic [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
