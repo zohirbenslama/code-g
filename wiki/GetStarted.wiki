@@ -557,11 +557,11 @@ descriptors_1.properties.generateBuilder = true
 
 ===  Reflectify ===
 Generates fast reflection code at real time
-
+[https://code.google.com/p/reflectify-protocol/ reflectify-protocol]
 
 === Commandify ===
 Generates implementation with command pattern to track object changes
-
+[https://code.google.com/p/commandify/ commandify]
 
 
 == API configuration details  ==
