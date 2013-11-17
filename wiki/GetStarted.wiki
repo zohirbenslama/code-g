@@ -570,4 +570,8 @@ Generates implementation with command pattern to track object changes
 
   * _Unit_ derives from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/UnitDescriptor.java UnitDescriptor]
 
-  * Specialised plugin descriptors like _CodeGenerator_, _BuilderGenerator_ derive from [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
+
+  * Specialised plugin descriptors like [http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/ClassGenerator.java ClassGenerator],
+[http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/JpaClassGenerator.java JpaClassGenerator],
+[http://code-g.googlecode.com/svn/code-g-core/trunk/src/main/java/org/abstractmeta/code/g/core/generator/BuilderGenerator BuilderGenerator]
+use generic [http://code-g.googlecode.com/svn/code-g-api/trunk/src/main/java/org/abstractmeta/code/g/config/Descriptor.java Descriptor]
