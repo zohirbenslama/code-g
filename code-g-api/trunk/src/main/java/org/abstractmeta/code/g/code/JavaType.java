@@ -17,6 +17,7 @@ package org.abstractmeta.code.g.code;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,8 @@ public interface JavaType {
     List<JavaMethod> getMethods();
 
     List<JavaType> getNestedJavaTypes();
+
+    Collection<String> getClassPathDependencies();
 
     boolean isNested();
 

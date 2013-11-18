@@ -45,7 +45,7 @@ public class IndexedCollectionFieldHandlerTest {
 
 
     /**
-     * Test a simple indexed collection
+     * TestCodeGenerator a simple indexed collection
      */
     public void testSimpleIndexedCollection() throws Exception {
         JavaType simpleRegistry = new ClassTypeProvider(IMessage.class).get();
@@ -71,7 +71,7 @@ public class IndexedCollectionFieldHandlerTest {
 
 
     /**
-     * Test a simple registry implementation
+     * TestCodeGenerator a simple registry implementation
      */
     public void testIndexedCollectionWithKeyProvider() throws Exception {
         JavaType simpleRegistry = new ClassTypeProvider(IMessage.class).get();

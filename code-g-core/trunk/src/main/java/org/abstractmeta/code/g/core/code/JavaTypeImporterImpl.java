@@ -57,7 +57,13 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
                 continue;
             }
             Class rawClass = ReflectUtil.getRawClass(type);
-            addTypeName(rawClass.getName());
+            if(rawClass.isArray()) {
+                addTypeName(rawClass.getComponentType().getName());
+            } else {
+                addTypeName(rawClass.getName());
+
+            }
+
         }
     }
 
@@ -69,26 +75,36 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
     }
 
     @Override
-    public List<String> getTypeNames() {
+    public List<String> getImportTypeNames() {
         Set<String> result = new TreeSet<String>();
         for (String typeName : typeNames) {
-            int packageIndex = typeName.lastIndexOf('.');
-            if (packageIndex == -1) continue;
-            String packageName = typeName.substring(0, packageIndex);
-            if ("java.lang".equals(packageName) || packageName.equals(this.packageName)) {
-                continue;
+            String importTypeName = getImportTypeName(typeName);
+            if (importTypeName != null) {
+                result.add(importTypeName);
             }
-            int dollarPosition = typeName.indexOf('$');
-            if (dollarPosition != -1) {
-                typeName = typeName.substring(0, dollarPosition);
-            }
-            if (typeName.contains("<")) {
-                typeName = typeName.substring(0, typeName.indexOf('<'));
-            }
-            result.add(typeName);
 
         }
         return new ArrayList<String>(result);
+    }
+
+
+    protected String getImportTypeName(String typeName) {
+        int packageIndex = typeName.lastIndexOf('.');
+        if (packageIndex == -1) return null;
+
+
+        String packageName = typeName.substring(0, packageIndex);
+        if ("java.lang".equals(packageName) || packageName.equals(this.packageName)) {
+            return null;
+        }
+        int dollarPosition = typeName.indexOf('$');
+        if (dollarPosition != -1) {
+            typeName = typeName.substring(0, dollarPosition);
+        }
+        if (typeName.contains("<")) {
+            typeName = typeName.substring(0, typeName.indexOf('<'));
+        }
+        return typeName;
     }
 
     @Override
@@ -153,7 +169,7 @@ public class JavaTypeImporterImpl implements JavaTypeImporter {
         } else if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = ParameterizedType.class.cast(type);
             String argumentTypeName = getGenericArgumentTypeName(type);
-         return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
+            return String.format("%s%s", getSimpleTypeName(parameterizedType.getRawType()), argumentTypeName);
         } else if (type instanceof GenericArrayType) {
             return String.format("%s[]", getSimpleTypeName(GenericArrayType.class.cast(type).getGenericComponentType()));
         } else if (type instanceof TypeVariable) {

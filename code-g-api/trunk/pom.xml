@@ -36,7 +36,7 @@
             <email>abstractmeta@gmail.com</email>
             <url>http://www.abstractmeta.org</url>
             <roles>
-                <role>owner</role>
+                <role>ancestorPath</role>
             </roles>
         </developer>
     </developers>

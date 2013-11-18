@@ -20,13 +20,16 @@ import com.google.common.base.Strings;
 import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.NamingConvention;
+import org.abstractmeta.code.g.core.annotation.SuppressWarningsBuilder;
 import org.abstractmeta.code.g.core.code.builder.SourcedJavaTypeBuilder;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
 import org.abstractmeta.code.g.generator.Context;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
 import javax.inject.Provider;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * @author Adrian Witas
@@ -250,5 +253,28 @@ public class CodeGeneratorUtil {
     }
 
 
+
+
+    public static String getAccessorCode(Type superType, String fieldName, Type fieldType) {
+        Class rawType = ReflectUtil.getRawClass(superType);
+        if(rawType.isInterface()) {
+            return "this." + fieldName;
+        }
+        return "super." + CodeGeneratorUtil.getGetterMethodName(fieldName, fieldType) +"()";
+    }
+
+    public static String getMutatorPattern(Type superType, String fieldName, Type fieldType) {
+        Class rawType = ReflectUtil.getRawClass(superType);
+        if(rawType.isInterface()) {
+            return "this." + fieldName + " = %s";
+        }
+        return "super." + CodeGeneratorUtil.getSetterMethodName(fieldName) + "(%s)";
+    }
+
+    public static void addUncheckedWarningAnnotation(List<Annotation> annotations) {
+        if (annotations.isEmpty()) {
+            annotations.add(new SuppressWarningsBuilder().addValue("unchecked").build());
+        }
+    }
 
 }

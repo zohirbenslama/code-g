@@ -16,16 +16,13 @@ import org.abstractmeta.code.g.core.jpa.ColumnFieldMap;
 import org.abstractmeta.code.g.core.jpa.DbCatalogLoader;
 import org.abstractmeta.code.g.core.jpa.DbConnection;
 import org.abstractmeta.code.g.core.jpa.builder.*;
-import org.abstractmeta.code.g.core.property.PropertyRegistryImpl;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.Context;
-import org.abstractmeta.code.g.property.PropertyRegistry;
 import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 
 import javax.inject.Provider;
 import javax.persistence.GenerationType;
-import javax.persistence.TemporalType;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -208,7 +205,7 @@ public class JpaClassGenerator extends AbstractGenerator<JpaClassConfig> impleme
             }
             return DriverManager.getConnection(dbConnection.getUrl());
         } catch (SQLException e) {
-            throw new IllegalStateException("Failed to connect to " + dbConnection.getUrl() + " " + dbConnection.getUsername() + "/*****", e);
+            throw new IllegalStateException("Failed to connect to " + dbConnection.getUrl() + " username:" + dbConnection.getUsername() + "/*****" , e);
         }
     }
 

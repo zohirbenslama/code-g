@@ -13,6 +13,7 @@ import org.abstractmeta.code.g.core.code.JavaTypeRegistryImpl;
 import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.provider.ObjectProvider;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.extractor.FieldExtractor;
 import org.abstractmeta.code.g.extractor.MethodExtractor;
 import org.abstractmeta.code.g.generator.Context;
@@ -24,8 +25,8 @@ import org.abstractmeta.toolbox.compilation.compiler.util.ClassPathUtil;
 
 import javax.inject.Provider;
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -100,13 +101,17 @@ public abstract class AbstractGenerator<T> {
         ClassLoader classLoader = context.getOptional(ClassLoader.class, AbstractGenerator.class.getClassLoader());
         JavaSourceCompiler javaSourceCompiler = new JavaSourceCompilerImpl();
         JavaSourceCompiler.CompilationUnit compilationUnit = getCompilationUnit(context, javaSourceCompiler);
+        Collection<Class> importedClasses = new LinkedList<Class>();
         for (SourcedJavaType sourcedType : sourceTypes) {
             String source = "" + sourcedType.getSourceCode();
-            logger.log(Level.FINE, "Adding compilation class " + sourcedType.getType().getName());
+            updateClassPathDependencies(sourcedType, compilationUnit);
+            updateImportedClasses(sourcedType, importedClasses);
             compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
         }
+        resolveClassPathEntries(importedClasses, compilationUnit);
         try {
             ClassLoader compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
+            File outputClassDirectory = compilationUnit.getOutputClassDirectory();
             javaSourceCompiler.persistCompiledClasses(compilationUnit);
             context.replace(ClassLoader.class, compilationClassLoader);
             for (SourcedJavaType sourcedType : sourceTypes) {
@@ -116,7 +121,8 @@ public abstract class AbstractGenerator<T> {
                 } catch (ClassNotFoundException e) {
                     throw new IllegalStateException("Missing compiled type " + sourcedType.getType().getName() + " please check package name", e);
                 }
-                result.add(new CompiledJavaTypeImpl(sourcedType.getType(), sourcedType.getSourceCode(), compilationClassLoader, compiledType));
+
+                result.add(new CompiledJavaTypeImpl(sourcedType.getType(), sourcedType.getSourceCode(), compilationClassLoader, compiledType, outputClassDirectory.getAbsolutePath()));
             }
 
         } catch (RuntimeException e) {
@@ -125,15 +131,51 @@ public abstract class AbstractGenerator<T> {
 
             for (SourcedJavaType sourcedType : sourceTypes) {
                 //if (e.getMessage().contains(sourcedType.getType().getSimpleName())) {
-                    exceptionMessageBuilder.append(sourcedType.getType().getSimpleName())
-                            .append("\n")
-                            .append(sourcedType.getSourceCode()).append("\n");
+                exceptionMessageBuilder.append(sourcedType.getType().getSimpleName())
+                        .append("\n")
+                        .append(sourcedType.getSourceCode()).append("\n");
 
-               // }
+                // }
             }
             throw new IllegalStateException(exceptionMessageBuilder.toString(), e);
         }
         return result;
+    }
+
+    protected void resolveClassPathEntries(Collection<Class> importedClasses, JavaSourceCompiler.CompilationUnit compilationUnit) {
+        for (Class type : importedClasses) {
+            String rootClassPath = ReflectUtil.getRootClassPath(type);
+            if(rootClassPath != null) {
+                if(! compilationUnit.getClassPathsEntries().contains(rootClassPath)) {
+                    compilationUnit.addClassPathEntry(rootClassPath);
+                }
+            }
+        }
+    }
+
+    protected void updateImportedClasses(SourcedJavaType sourcedType, Collection<Class> importedClasses) {
+        if (sourcedType.getType().getImportTypes() == null) {
+            return;
+        }
+        for (Type type : sourcedType.getType().getImportTypes()) {
+            Class clazz = ReflectUtil.getRawClass(type);
+            if (clazz != null) {
+                importedClasses.add(clazz);
+            }
+        }
+    }
+
+
+    protected void updateClassPathDependencies(SourcedJavaType sourcedType, JavaSourceCompiler.CompilationUnit compilationUnit) {
+        if (sourcedType.getType().getClassPathDependencies() == null) {
+            return;
+        }
+        for (String classPathDependency : sourcedType.getType().getClassPathDependencies()) {
+            if (compilationUnit.getClassPathsEntries().contains(classPathDependency)) {
+                continue;
+            }
+            compilationUnit.getClassPathsEntries().add(classPathDependency);
+        }
     }
 
     protected JavaSourceCompiler.CompilationUnit getCompilationUnit(Context context, JavaSourceCompiler javaSourceCompiler) {
@@ -142,6 +184,7 @@ public abstract class AbstractGenerator<T> {
         if (compilationTargetDirectory != null) {
             result = javaSourceCompiler.createCompilationUnit(compilationTargetDirectory);
             result.addClassPathEntries(ClassPathUtil.getClassPathEntries());
+
             result.addClassPathEntry(compilationTargetDirectory.getAbsolutePath());
         } else {
             result = javaSourceCompiler.createCompilationUnit();

@@ -144,6 +144,12 @@ public class JavaConstructorBuilder implements JavaConstructor {
         return this;
     }
 
+    public JavaConstructorBuilder addModifiers(JavaModifier ... modifiers) {
+           Collections.addAll(this.modifiers, modifiers);
+           return this;
+       }
+
+
     public String getName() {
         return this.name;
     }

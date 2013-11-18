@@ -24,6 +24,8 @@ import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
 import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.generator.Context;
 
+import java.lang.annotation.Annotation;
+
 /**
  * This handle creates get method for any field.
  * <p>
@@ -50,15 +52,19 @@ public class GetterFieldHandler implements FieldHandler {
             return;
         }
 
-        JavaMethod getterMethod = buildGetterMethod(target, methodName, supperGetterMethod);
+        JavaMethod getterMethod = buildGetterMethod(target, methodName, supperGetterMethod, owner);
         owner.addMethod(getterMethod);
     }
 
-    private JavaMethod buildGetterMethod(JavaField target, String methodName, JavaMethod supperGetterMethod) {
+    private JavaMethod buildGetterMethod(JavaField target, String methodName, JavaMethod supperGetterMethod, JavaTypeBuilder owner) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.setName(methodName);
         methodBuilder.setResultType(supperGetterMethod == null ? target.getType() : supperGetterMethod.getResultType());
         methodBuilder.addModifiers(JavaModifier.PUBLIC);
+        for(Annotation annotation: target.getAnnotations()) {
+            owner.addImportTypes(annotation.annotationType());
+            methodBuilder.addAnnotation(annotation);
+        }
         methodBuilder.addBodyLines(String.format("return this.%s;", target.getName()));
         return methodBuilder.build();
     }

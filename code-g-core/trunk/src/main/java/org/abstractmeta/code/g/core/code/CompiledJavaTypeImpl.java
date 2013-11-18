@@ -12,11 +12,13 @@ public class CompiledJavaTypeImpl extends SourcedJavaTypeImpl implements Compile
 
     private final ClassLoader classLoader;
     private final Class compiledType;
+    private final String rootClassPath;
 
-    public CompiledJavaTypeImpl(JavaType type, CharSequence sourceCode, ClassLoader classLoader, Class compiledType) {
+    public CompiledJavaTypeImpl(JavaType type, CharSequence sourceCode, ClassLoader classLoader, Class compiledType, String rootClassPath) {
         super(type, sourceCode);
         this.classLoader = classLoader;
         this.compiledType = compiledType;
+        this.rootClassPath = rootClassPath;
     }
 
     @Override
@@ -26,5 +28,10 @@ public class CompiledJavaTypeImpl extends SourcedJavaTypeImpl implements Compile
 
     public Class getCompiledType() {
         return compiledType;
+    }
+
+    @Override
+    public String getRootClassPath() {
+        return rootClassPath;
     }
 }

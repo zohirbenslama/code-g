@@ -25,9 +25,6 @@ import org.abstractmeta.code.g.code.handler.TypeHandler;
 import org.abstractmeta.code.g.core.code.JavaTypeImpl;
 import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.generator.ContextImpl;
-import org.abstractmeta.code.g.core.internal.GenericArrayTypeImpl;
-import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
-import org.abstractmeta.code.g.core.util.CodeGeneratorUtil;
 import org.abstractmeta.code.g.core.util.JavaTypeUtil;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.Context;
@@ -59,41 +56,41 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     private final String packageName;
 
 
-    private List<FieldHandler> fieldHandlers = new ArrayList<FieldHandler>();
+    private List<FieldHandler> fieldHandlers = new LinkedList<FieldHandler>();
 
-    private List<TypeHandler> typeHandlers = new ArrayList<TypeHandler>();
+    private List<TypeHandler> typeHandlers = new LinkedList<TypeHandler>();
 
-    private final List<MethodHandler> methodHandlers = new ArrayList<MethodHandler>();
+    private final List<MethodHandler> methodHandlers = new LinkedList<MethodHandler>();
 
-    private final List<ConstructorHandler> constructorHandlers = new ArrayList<ConstructorHandler>();
+    private final List<ConstructorHandler> constructorHandlers = new LinkedList<ConstructorHandler>();
 
-    private List<JavaField> fields = new ArrayList<JavaField>();
+    private List<JavaField> fields = new LinkedList<JavaField>();
 
-    private List<JavaMethod> methods = new ArrayList<JavaMethod>();
+    private List<JavaMethod> methods = new LinkedList<JavaMethod>();
 
-    private List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
+    private List<JavaConstructor> constructors = new LinkedList<JavaConstructor>();
 
-    private List<Type> genericTypeArguments = new ArrayList<Type>();
+    private List<Type> genericTypeArguments = new LinkedList<Type>();
 
     private Map<String, Type> genericTypeVariables = new HashMap<String, Type>();
 
     private Set<Type> importTypes = new HashSet<Type>();
 
-    private List<Type> superInterfaces = new ArrayList<Type>();
+    private List<Type> superInterfaces = new LinkedList<Type>();
 
 
-    private List<String> bodyLines = new ArrayList<String>();
+    private List<String> bodyLines = new LinkedList<String>();
 
     private Type superType;
 
-    private List<JavaType> nestedJavaTypes = new ArrayList<JavaType>();
+    private List<JavaType> nestedJavaTypes = new LinkedList<JavaType>();
 
-    private List<JavaModifier> modifiers = new ArrayList<JavaModifier>();
+    private List<JavaModifier> modifiers = new LinkedList<JavaModifier>();
 
 
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private List<Annotation> annotations = new LinkedList<Annotation>();
 
-    private List<String> documentation = new ArrayList<String>();
+    private List<String> documentation = new LinkedList<String>();
 
     private boolean nested;
 
@@ -101,6 +98,7 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
 
     private final Context context;
 
+    private final Collection<String> classPathDependencies = new LinkedList<String>();
 
     public JavaTypeBuilderImpl(String typeName) {
         this(typeName, new ContextImpl());
@@ -129,6 +127,23 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
         this.name = typeName;
         this.simpleName = getSimpleName(typeName);
         this.javaTypeImporter = new JavaTypeImporterImpl(packageName);
+    }
+
+    @Override
+    public Collection<String> getClassPathDependencies() {
+        return classPathDependencies;
+    }
+
+    @Override
+    public JavaTypeBuilder addClassPathDependency(String... classPathDependencies) {
+        Collections.addAll(this.classPathDependencies, classPathDependencies);
+        return this;
+    }
+
+    @Override
+    public JavaTypeBuilder addClassPathDependency(Collection<String> classPathDependencies) {
+        this.classPathDependencies.addAll(classPathDependencies);
+        return this;
     }
 
     @Override
@@ -572,19 +587,54 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
             typeHandler.handle(this, context);
         }
 
-        resolveGenerics();
+        updatedImportedTypes(javaTypeImporter);
+        for (JavaType nestedType : nestedJavaTypes) {
+            importTypes.addAll(nestedType.getImportTypes());
 
-        return new JavaTypeImpl(fields, methods, constructors, importTypes, superInterfaces, packageName, kind, bodyLines, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, simpleName, genericTypeArguments, genericTypeVariables);
+        }
+        resolveGenerics();
+        return new JavaTypeImpl(fields, methods, constructors, importTypes, superInterfaces, packageName, kind, bodyLines, superType, nestedJavaTypes, modifiers, name, annotations, documentation, nested, simpleName, genericTypeArguments, genericTypeVariables, classPathDependencies);
     }
 
+
+    protected void updatedImportedTypes(JavaTypeImporter importer) {
+        for (JavaMethod method : methods) {
+            importer.addTypes(method.getResultType());
+            importer.addTypes(method.getExceptionTypes());
+            for(Annotation annotation: method.getAnnotations()) {
+                importer.addTypes(annotation.annotationType());
+            }
+            for (JavaParameter parameter : method.getParameters()) {
+                importer.addTypes(parameter.getType());
+            }
+        }
+        for(Type iface: this.superInterfaces) {
+            importer.addTypes(iface);
+        }
+        if(superType != null) {
+            importer.addTypes(superType);
+        }
+        for (JavaField field : fields) {
+            importer.addTypes(field.getType());
+        }
+        for (String typeName : importer.getImportTypeNames()) {
+            Type importedType = importer.getType(typeName);
+            Class importedClass = ReflectUtil.getRawClass(importedType);
+            if (importedClass != null) {
+                if (!this.importTypes.contains(importedClass)) {
+                    this.importTypes.add(importedClass);
+                }
+            }
+        }
+    }
 
     protected void resolveGenerics() {
         resolveInterfaceTypeVariables();
         resolveFieldsTypeVariables();
         resolveGenericTypeArguments();
         Map<String, TypeVariable> typeVariables = getTypeVariables();
-        for(Type typeArgument: genericTypeArguments)  {
-            if(typeArgument instanceof TypeVariable) {
+        for (Type typeArgument : genericTypeArguments) {
+            if (typeArgument instanceof TypeVariable) {
                 typeVariables.remove(TypeVariable.class.cast(typeArgument).getName());
             }
         }
@@ -595,9 +645,9 @@ public class JavaTypeBuilderImpl implements JavaTypeBuilder {
     protected void resolveGenericTypeArguments() {
         List<Type> genericTypeArguments = new ArrayList<Type>(this.genericTypeArguments);
         this.genericTypeArguments.clear();
-        for(Type type : genericTypeArguments) {
+        for (Type type : genericTypeArguments) {
             Type resolvedType = ReflectUtil.resolveTypeVariables(type, genericTypeVariables);
-            if(resolvedType instanceof Class) continue;
+            if (resolvedType instanceof Class) continue;
             this.genericTypeArguments.add(resolvedType);
 
         }

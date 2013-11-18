@@ -38,7 +38,7 @@ public interface JavaTypeImporter {
 
     void addTypes(Type ... importTypes);
 
-    List<String> getTypeNames();
+    List<String> getImportTypeNames();
 
     String getTypeName(Type type);
 

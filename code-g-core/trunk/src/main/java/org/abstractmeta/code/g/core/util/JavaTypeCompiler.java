@@ -64,6 +64,7 @@ public class JavaTypeCompiler {
 
         String source = "" + sourcedType.getSourceCode();
         compilationUnit.addJavaSource(sourcedType.getType().getName(), source);
+        File outputClassDirectory = compilationUnit.getOutputClassDirectory();
         ClassLoader compilationClassLoader;
         try {
             compilationClassLoader = javaSourceCompiler.compile(classLoader, compilationUnit);
@@ -75,12 +76,12 @@ public class JavaTypeCompiler {
         Class compiledType;
         try {
 
+
             compiledType = compilationClassLoader.loadClass(sourcedType.getType().getName());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Missing compiled type " + sourcedType.getType().getName() + " please check package name", e);
         }
-
-        return new CompiledJavaTypeImpl(javaType, sourceCode, compilationClassLoader, compiledType);
+        return new CompiledJavaTypeImpl(javaType, sourceCode, compilationClassLoader, compiledType, outputClassDirectory.getAbsolutePath());
     }
 
 

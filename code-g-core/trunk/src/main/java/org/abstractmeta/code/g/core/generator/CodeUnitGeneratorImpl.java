@@ -7,6 +7,7 @@ import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeRegistryImpl;
+import org.abstractmeta.code.g.core.code.CompiledPersistedJavaTypeImpl;
 import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.CodeGenerator;
 import org.abstractmeta.code.g.generator.CodeUnitGenerator;
@@ -24,6 +25,7 @@ import java.util.Collection;
  * @author Adrian Witas
  */
 public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
+
 
     @Override
     public GeneratedCode generate(UnitDescriptor unitDescriptor) {
@@ -44,6 +46,7 @@ public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
         if (context.contains(ClassLoader.class)) {
             result.setClassLoader(context.get(ClassLoader.class));
         }
+
         result.setUnitDescriptor(unitDescriptor);
         persistJavaSources(result);
         return result;
@@ -63,23 +66,27 @@ public class CodeUnitGeneratorImpl implements CodeUnitGenerator {
 
     protected void persistJavaSources(GeneratedCodeImpl result) {
         UnitDescriptor unitDescriptor = result.getUnitDescriptor();
-        if (unitDescriptor.getTargetSourceDirectory() != null) {
+      if (unitDescriptor.getTargetSourceDirectory() != null) {
             File targetSourceDirectory = new File(unitDescriptor.getTargetSourceDirectory());
             checkIfExistOrCreate(targetSourceDirectory);
             for (CompiledJavaType compiledJavaType : result.getRegistry().get()) {
-                persistJavaClass(targetSourceDirectory, compiledJavaType);
+                String javaFileName = persistJavaSourceFile(targetSourceDirectory, compiledJavaType);
+                @SuppressWarnings("unchecked")
+                CompiledPersistedJavaTypeImpl persistedCompiledJavaType = new CompiledPersistedJavaTypeImpl(javaFileName, compiledJavaType);
+                result.getRegistry().register(persistedCompiledJavaType);
             }
         }
     }
 
-    private void persistJavaClass(File targetSourceDirectory, CompiledJavaType compiledJavaType) {
+    private String persistJavaSourceFile(File targetSourceDirectory, CompiledJavaType compiledJavaType) {
         JavaType javaType = compiledJavaType.getType();
-        if(javaType.isNested()) return;
+        if(javaType.isNested()) return null;
         File packageDirectory = new File(targetSourceDirectory, javaType.getPackageName().replace(".", "/"));
         checkIfExistOrCreate(packageDirectory);
         File javaClassFile = new File(packageDirectory, javaType.getSimpleName() + ".java");
         try {
             Files.write(compiledJavaType.getSourceCode().toString().getBytes(), javaClassFile);
+            return javaClassFile.getAbsolutePath();
         } catch (IOException e) {
             throw new IllegalStateException("Failed to write class " + javaClassFile.getAbsolutePath(), e);
         }

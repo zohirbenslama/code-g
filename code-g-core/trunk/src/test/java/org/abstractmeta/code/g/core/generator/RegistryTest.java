@@ -53,7 +53,7 @@ public class RegistryTest {
 //        {
 //            MemCodeHandler compilerHandler = new MemCodeHandler(File.createTempFile("code-g", "test"));
 //            codeBuilder.generate(descriptors, compilerHandler);
-//            List<String> generated = compilerHandler.getTypeNames();
+//            List<String> generated = compilerHandler.getImportTypeNames();
 //            Assert.assertEquals(generated.size(), 1);
 //        }
 //    }

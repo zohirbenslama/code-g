@@ -42,6 +42,10 @@ import java.util.Map;
  */
 public interface JavaTypeBuilder extends JavaType {
 
+    JavaTypeBuilder addClassPathDependency(String... classPaths);
+
+    JavaTypeBuilder addClassPathDependency(Collection<String> classPaths);
+
     JavaType getSourceType();
 
     JavaTypeImporter getImporter();

@@ -36,7 +36,7 @@
             <email>abstractmeta@gmail.com</email>
             <url>http://www.abstractmeta.org</url>
             <roles>
-                <role>owner</role>
+                <role>ancestorPath</role>
             </roles>
         </developer>
     </developers>
@@ -121,6 +121,7 @@
             <version>11.0.1</version>
         </dependency>
 
+
         <!-- test dependencies -->
         <dependency>
             <groupId>org.testng</groupId>
@@ -134,11 +135,6 @@
             <artifactId>h2</artifactId>
             <version>1.3.158</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.abstractmeta</groupId>
-            <artifactId>commandify-core</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

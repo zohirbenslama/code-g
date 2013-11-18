@@ -21,9 +21,13 @@ import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Reflection related utility collection.
@@ -543,4 +547,41 @@ public class ReflectUtil {
         }
         throw new IllegalStateException("Not an array " + type);
     }
+
+
+    public static String getRootClassPath(Class<?> clazz) {
+        String resource = clazz.getName().replace(".", "/") + ".class";
+        if (clazz.getClassLoader() == null) {
+            return null;
+        }
+        URL classUrl = clazz.getClassLoader().getResource(resource);
+        if (classUrl == null) {
+            return null;
+        }
+        String name = classUrl.getFile();
+        String protocol = classUrl.getProtocol();
+        if ("file".equals(protocol)) {
+            name = name.replace("file:", "");
+            String packageName = clazz.getPackage().getName();
+            int packageNameFragmentPosition = name.indexOf(packageName.replace(".", "/"));
+            return name.substring(0, packageNameFragmentPosition);
+        } else if ("jar".equals(protocol)) {
+            String jarFile = name.replace("jar:", "").replace("file:", "");
+            int indexOfJarFragment = jarFile.indexOf(".jar!");
+            return jarFile.substring(0, indexOfJarFragment + 4);
+        }
+        return null;
+    }
+
+    public static Class getClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Failed to lookup class name:" + className);
+        }
+    }
+
+
 }
+
+

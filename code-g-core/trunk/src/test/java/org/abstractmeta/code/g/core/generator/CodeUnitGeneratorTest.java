@@ -40,7 +40,7 @@ public class CodeUnitGeneratorTest {
         properties.setProperty("generateBuilder", "true");
         descriptor.setProperties(properties);
         result.setDescriptors(Arrays.<Descriptor>asList(descriptor));
-        result.setTargetSourceDirectory((new File("target/generated-sources/code-g").getAbsolutePath()));
+        result.setTargetSourceDirectory((new File("target/generated-test-sources/code-g").getAbsolutePath()));
         return result;
     }
 

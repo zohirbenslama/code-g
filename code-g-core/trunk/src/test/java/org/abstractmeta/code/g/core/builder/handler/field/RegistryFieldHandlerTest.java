@@ -48,7 +48,7 @@ public class RegistryFieldHandlerTest {
     private final Logger logger = Logger.getLogger(RegistryFieldHandlerTest.class.getName());
 
     /**
-     * Test a simple registry implementation
+     * TestCodeGenerator a simple registry implementation
      */
     public void testSimpleRegistry() throws Exception {
         JavaType simpleRegistry = new ClassTypeProvider(ISimpleRegistry.class).get();
@@ -74,7 +74,7 @@ public class RegistryFieldHandlerTest {
 
 
     /**
-     * Test a simple registry implementation with key provider annotation
+     * TestCodeGenerator a simple registry implementation with key provider annotation
      */
     public void testSimpleRegistryWithAnnotation() throws Exception {
         JavaType simpleRegistry = new ClassTypeProvider(IRegistry.class).get();
@@ -101,7 +101,7 @@ public class RegistryFieldHandlerTest {
 
 
     /**
-     * Test a simple registry implementation wih a custom key provider
+     * TestCodeGenerator a simple registry implementation wih a custom key provider
      */
     public void testSimpleRegistryWithCustomKeyProvider() throws Exception {
         JavaType simpleRegistry = new ClassTypeProvider(ISimpleRegistry.class).get();
@@ -128,7 +128,7 @@ public class RegistryFieldHandlerTest {
             Assert.assertFalse(registry.isRegistered(i));
         }
 
-        //Test key provider - in this test uses value
+        //TestCodeGenerator key provider - in this test uses value
         //
         //  public void register(RegistryFieldHandlerTest.IEntry argument0) {
         //      registry.put(keyProvider.apply(argument0), argument0);
@@ -175,7 +175,7 @@ public class RegistryFieldHandlerTest {
 
 
     /**
-     * Test a group registry implementation
+     * TestCodeGenerator a group registry implementation
      */
     public void testGroupRegistry() throws Exception {
         JavaType groupRegistry = new ClassTypeProvider(IGroupRegistry.class).get();

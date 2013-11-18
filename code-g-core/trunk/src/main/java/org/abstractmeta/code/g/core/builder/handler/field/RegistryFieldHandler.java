@@ -158,7 +158,7 @@ public class SimpleRegistry implements ISimpleRegistry {
         this.keyProvider = keyProvider;
     }
 
-    public Function&lt;IEntry, Integer> getKeyProvider() {
+    public Function&lt;IEntry, Integer> getIdAccessor() {
         return this.keyProvider;
     }
 
@@ -281,7 +281,7 @@ public class MultiLevelRegistry implements IMultiLevelRegistry {
  <pre>
 public static interface IGroupRegistry {
 
-    String getField();
+    String getSource();
     
     void registerEntry(IEntry entry);
     
@@ -313,7 +313,7 @@ public class SimpleRegistry implements IGroupRegistry {
         this.field = field;
     }
 
-    public String getField() {
+    public String getSource() {
         return this.field;
     }
 

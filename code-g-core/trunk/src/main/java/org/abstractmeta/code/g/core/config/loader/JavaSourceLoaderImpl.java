@@ -28,15 +28,11 @@ import org.abstractmeta.code.g.config.loader.SourceLoader;
 import org.abstractmeta.code.g.core.code.CompiledJavaTypeImpl;
 import org.abstractmeta.code.g.core.config.loader.predicate.SourceFilterPredicate;
 import org.abstractmeta.code.g.core.provider.ClassTypeProvider;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.toolbox.compilation.compiler.JavaSourceCompiler;
 import org.abstractmeta.toolbox.compilation.compiler.impl.JavaSourceCompilerImpl;
-import org.abstractmeta.toolbox.compilation.compiler.impl.SimpleClassLoader;
-import org.abstractmeta.toolbox.compilation.compiler.util.URIUtil;
 
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 import java.io.*;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -91,7 +87,7 @@ public class JavaSourceLoaderImpl implements SourceLoader {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("Missing compiled type " + javaType.getName() + " please check package name", e);
             }
-            result.add(new CompiledJavaTypeImpl(javaType, entry.getValue(), classLoader, compiledType));
+            result.add(new CompiledJavaTypeImpl(javaType, entry.getValue(), classLoader, compiledType, ReflectUtil.getRootClassPath(compiledType)));
         }
         return result;
     }

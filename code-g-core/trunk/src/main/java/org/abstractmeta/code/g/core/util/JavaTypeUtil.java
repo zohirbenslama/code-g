@@ -29,6 +29,7 @@ import org.abstractmeta.code.g.core.collection.function.JavaParameterType;
 import org.abstractmeta.code.g.core.collection.function.MethodNameKeyFunction;
 import org.abstractmeta.code.g.core.collection.predicate.ConstructorArgumentPredicate;
 import org.abstractmeta.code.g.core.collection.predicate.FieldNamePredicate;
+import org.abstractmeta.code.g.core.collection.predicate.JavaTypeNamePredicate;
 import org.abstractmeta.code.g.core.collection.predicate.MethodNamePredicate;
 import org.abstractmeta.code.g.core.internal.ParameterizedTypeImpl;
 import org.abstractmeta.code.g.core.internal.TypeNameWrapper;
@@ -294,6 +295,14 @@ public class JavaTypeUtil {
     }
 
 
+
+    public static boolean containsType(Collection<JavaType> types, String typeName) {
+        if(types == null) {
+            return false;
+        }
+        Optional<JavaType> optional = Iterables.tryFind(types, new JavaTypeNamePredicate(typeName));
+        return optional.isPresent();
+    }
 
     public static boolean containsAnnotation(Collection<Annotation> annotations, String annotationName) {
         if (annotations == null || Strings.isNullOrEmpty(annotationName)) return false;

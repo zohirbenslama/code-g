@@ -33,7 +33,7 @@ import java.util.Map;
 public class TypeRendererTest {
 
     public void testRender() {
-        JavaTypeBuilderImpl typeBuilder = new JavaTypeBuilderImpl("con.foo.Test");
+        JavaTypeBuilderImpl typeBuilder = new JavaTypeBuilderImpl("con.foo.TestCodeGenerator");
         typeBuilder.addField(new JavaFieldBuilder().setName("field1").setType(int.class).setImmutable(true).build());
         typeBuilder.addField((new JavaFieldBuilder().setName("field2").setType(String.class).build()));
         typeBuilder.addMethod(new JavaMethodBuilder().setName("test").setResultType(void.class)

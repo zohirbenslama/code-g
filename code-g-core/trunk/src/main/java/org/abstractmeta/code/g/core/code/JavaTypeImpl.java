@@ -66,8 +66,9 @@ public class JavaTypeImpl implements JavaType {
 
     private final Map<String, Type> genericTypeVariables;
 
+    private final  Collection<String> classPathDependencies;
     
-    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull JavaKind kind, List<String> body, Type superType, List<JavaType> nestedJavaTypes, List<JavaModifier> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments, Map<String, Type> genericTypeVariables) {
+    public JavaTypeImpl(List<JavaField> fields, List<JavaMethod> methods, List<JavaConstructor> constructors, Set<Type> importTypes, List<Type> superInterfaces, @Nonnull String packageName, @Nonnull JavaKind kind, List<String> body, Type superType, List<JavaType> nestedJavaTypes, List<JavaModifier> modifiers, @Nonnull String name, List<Annotation> annotations, List<String> documentation, boolean nested, String simpleName, List<Type> genericTypeArguments, Map<String, Type> genericTypeVariables, Collection<String> classPathDependencies) {
         this.fields = fields;
         this.methods = methods;
         this.constructors = constructors;
@@ -81,6 +82,7 @@ public class JavaTypeImpl implements JavaType {
         this.modifiers = modifiers;
         this.genericTypeArguments = genericTypeArguments;
         this.genericTypeVariables = genericTypeVariables;
+        this.classPathDependencies = classPathDependencies;
         this.name = Preconditions.checkNotNull(name, "name was null");;
         this.annotations = annotations;
         this.documentation = documentation;
@@ -130,6 +132,11 @@ public class JavaTypeImpl implements JavaType {
 
     public List<JavaType> getNestedJavaTypes() {
         return this.nestedJavaTypes;
+    }
+
+    @Override
+    public Collection<String> getClassPathDependencies() {
+        return classPathDependencies;
     }
 
     public List<JavaModifier> getModifiers() {

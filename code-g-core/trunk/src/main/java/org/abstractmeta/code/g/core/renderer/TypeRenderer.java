@@ -88,7 +88,7 @@ public class TypeRenderer extends AbstractRenderer<JavaType> implements JavaType
         template.set(IMPLEMENTS_PARAMETER, mergeFragment(" implements ", getTypes(importer, instance.getSuperInterfaces()), ""));
         String body = buildBody(importer, instance, indentSize);
         template.set(BODY_PARAMETER, body);
-        String imports = instance.isNested() ? "" : CodeGeneratorUtil.join(importer.getTypeNames(), "import ", ";\n", true);
+        String imports = instance.isNested() ? "" : CodeGeneratorUtil.join(importer.getImportTypeNames(), "import ", ";\n", true);
         template.set(IMPORT_PARAMETER, instance.isNested() ? "\n" : imports);
     }
 

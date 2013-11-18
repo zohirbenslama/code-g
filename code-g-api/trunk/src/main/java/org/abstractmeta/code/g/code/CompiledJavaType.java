@@ -28,5 +28,6 @@ public interface CompiledJavaType<T> extends SourcedJavaType {
 
     Class<T> getCompiledType();
 
+    String getRootClassPath();
 
 }
